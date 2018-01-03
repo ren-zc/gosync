@@ -8,11 +8,12 @@ import (
 	// "io/ioutil"
 	"log"
 	"net"
+	"os"
 )
 
 type Message struct {
 	MgID      int
-	MgType    string // cmd,auth,file
+	MgType    string // cmd,auth,file,info
 	MgName    string // cmd name, auth username, file name
 	MgContent string // cmd option, autho user passwd, file piece
 	IntOption int    // file piece number or other
@@ -30,11 +31,11 @@ func Start() {
 		log.Fatalln(Err)
 	}
 	defer conn.Close()
-	// cnRd := bufio.NewReader(conn)
+	cnRd := bufio.NewReader(conn)
 	cnWt := bufio.NewWriter(conn)
 	// cnBuf := bufio.NewReadWriter(conn, conn)
 	enc := gob.NewEncoder(cnWt)
-	// dec := gob.NewDecoder(cnBuf)
+	dec := gob.NewDecoder(cnRd)
 	m := Message{
 		MgID:      1,
 		MgType:    "auth",
@@ -46,4 +47,24 @@ func Start() {
 	if encErr != nil {
 		fmt.Println(encErr)
 	}
+	p := []byte{}
+	var rcvErr error
+	f, fcErr := os.Create("tmp")
+	defer f.Close()
+	if fcErr != nil {
+		log.Fatalln(fcErr)
+	}
+	fb := bufio.NewWriter(f)
+	// var wtErr error
+	for rcvErr == nil {
+		rcvErr = dec.Decode(&p)
+		// fmt.Println(p)
+		fmt.Printf("%s\n", string(p))
+		n, wtErr := fb.Write(p)
+		fmt.Println(n)
+		if wtErr != nil {
+			fmt.Println(wtErr)
+		}
+	}
+	fb.Flush()
 }

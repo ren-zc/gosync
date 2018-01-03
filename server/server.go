@@ -6,8 +6,10 @@ import (
 	"flag"
 	"fmt"
 	// "io/ioutil"
+	"io"
 	"log"
 	"net"
+	"os"
 )
 
 // type auth struct {
@@ -52,10 +54,10 @@ func Start() {
 func handleConn(conn net.Conn) {
 	defer conn.Close()
 	cnRd := bufio.NewReader(conn)
-	// cnWt := bufio.NewWriter(conn)
+	cnWt := bufio.NewWriter(conn)
 	// netCn := bufio.NewReadWriter(conn, conn)
 	dec := gob.NewDecoder(cnRd)
-	// enc := gob.NewEncoder(cnWt)
+	enc := gob.NewEncoder(cnWt)
 	var reciveData Message
 	var rcvErr error
 	// for {
@@ -64,5 +66,33 @@ func handleConn(conn net.Conn) {
 		fmt.Println(rcvErr)
 	}
 	fmt.Println(reciveData)
+	f, fErr := os.Open("testfile/file3")
+	if fErr != nil {
+		log.Fatalln(fErr)
+	}
+	fmt.Println(f.Name())
+	defer f.Close()
+	fb := bufio.NewReader(f)
+	p := make([]byte, 2048)
+	var n int = 1
+	var endErr error = fmt.Errorf("any")
+	var sendErr error
+	// fmt.Println(n != 0 && endErr != io.EOF)
+	for n != 0 && endErr != io.EOF {
+		n, endErr = fb.Read(p)
+		// fmt.Println(n)
+		// fmt.Println(p)
+		if n < 2048 {
+			// fmt.Println(endErr)
+			p = p[:n]
+		}
+		fmt.Println(n)
+		fmt.Printf("%s\n", string(p))
+		sendErr = enc.Encode(p)
+		if sendErr != nil {
+			log.Println(sendErr)
+		}
+		cnWt.Flush()
+	}
 	// }
 }

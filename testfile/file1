@@ -1,0 +1,71 @@
+Header
+
+paragraph 1
+	p1 line1
+	p1 line2
+	p1 line3
+	p1 line4
+p1 end
+
+//paragraph 2
+//	{
+//		p2 line1
+//		p2 line2
+//		p2 line3
+//	}
+
+paragraph 3
+	p3 line1
+	p3 line2
+	p3 line3
+	p3 line4
+p3 end
+
+paragraph 4
+	{
+		p4 line1
+		p4 line2
+		p4 line3
+	}
+
+#paragraph 5
+#	p5 line1
+#	p5 line2
+#	p5 line3
+#p5 end
+
+
+paragraph 5
+	p5 line1 line1
+	p5 line2 line2
+	p5 line3 line3
+p5 end
+
+paragraph 6
+	{
+		p6 line1
+		p6 line2
+		p6 line3
+	}
+
+paragraph 7
+	p7 line1
+	p7 line2
+	p7 line3
+p7 end
+
+paragraph 8
+	{
+		p8 line1
+		p8 line2
+		p8 line3
+	}
+
+// Comments.
+paragraph 9
+	p9 line1
+	p9 line2
+	p9 line3
+p9 end
+
+file end
