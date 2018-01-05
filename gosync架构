@@ -1,0 +1,72 @@
+gosync架构
+
+目标机器队列 md5_sum fileidff/md5_sum_sum 文件压缩分发 分布式传输
+
+四种类型
+	同名未做改变 a
+	同名已被改变 b
+	不同名新文件 c
+	源端已删文件 d
+
+默认行为：
+	a b c
+		无须任何选项
+
+	不做判断，默认目标主机目录为空目录，直接执行同步
+
+更新行为(-u=true，默认false)：
+	a
+		无须任何选项，不会被同步
+	b
+		-o=true (overwrite)
+		默认true
+	c
+		无须任何选项，必被同步
+	d
+		-d=true (delete)
+		默认true
+
+	先同步源主机的md5 sum，由目标主机做比对（目的是确定a,b,c,d四类文件名）
+	然后再执行文件同步操作
+
+同步步骤：（暂定方案）
+	将所有目标主机放入队列
+	源主机从队列取出若干目标主机执行同步
+	和目标主机同步完成后，向源主机请求同步任务
+	源主机从队列取出若干目标主机回复给请求任务的主机
+	...直到队列变空...
+
+通信协议:
+	type Message struct {
+		MgID      int    // reserved
+		MgType    string // cmd,auth,file,info,task
+		MgName    string // cmd name, auth username, file name, info name, task: DefaultSync/UpdateSync
+		MgByte    []byte // cmd option, autho user passwd, file piece, sync task target hosts
+		MgString  string // same as above
+		IntOption int    // file piece number or other
+		StrOption string // start, continue, end
+	}
+
+	gui向deamon发起任务：
+		MgID: 回话ID
+		MgType: task
+		MgName: DefaultSync/UpdateSync 二选一
+		MgString： 目标主机，各主机以逗号分隔，需做正则匹配
+		StrOption: overwrite和deletion选项
+
+	错误信息：
+		MgType: info
+		MgString: error, recognizable message. 
+		IntOption: 错误msg的MgID
+
+	错误MgName:
+		MgType: info
+		MgString: error, not a recognizable MgName.
+		IntOption: 错误msg的MgID
+
+
+详细步骤
+	待补充
+
+
+
