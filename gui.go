@@ -17,16 +17,20 @@ func Client() {
 	var targets string
 	var lsnHost string
 	var lsnPort string
+	var srcpath string
+	var dstpath string
 	flag.StringVar(&lsnHost, "h", "127.0.0.1", "Please tell me the host ip which you want listen on.")
 	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
+	flag.StringVar(&srcpath, "src", ".", "Please specify the src file or directory path.")
 	flag.BoolVar(&updateMode, "u", false, "Please specify the sync mode. true/false.")
 	flag.BoolVar(&overwrite, "o", false, "Whether the modified files will be overwriten.")
 	flag.BoolVar(&deletion, "d", false, "Whether the redundant files will be deleted.")
 	flag.StringVar(&targets, "t", "", "Please specify the target hosts.")
+	flag.StringVar(&dstpath, "dst", "/tmp", "Please specify the target host dst path.")
 	flag.Parse()
 	var userTask = Message{}
 	userTask.MgID = RandId()
-	userTask.MgType = "test"
+	userTask.MgType = "task"
 	if updateMode {
 		userTask.MgName = "UpdateSync"
 		if overwrite {
@@ -43,6 +47,8 @@ func Client() {
 	if cnErr != nil {
 		log.Fatalln(cnErr)
 	}
+	userTask.SrcPath = srcpath
+	userTask.DstPath = dstpath
 	ghandleConn(conn, userTask)
 }
 
