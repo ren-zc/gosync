@@ -27,7 +27,7 @@ func Zipfiles(f string) (string, error) {
 	zipfn := os.Create(zipFileName)
 	zipf := zip.NewWriter(zipfn)
 
-	WalkFunc = func(path string, info os.FileInfo, err error) error {
+	WalkFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -64,12 +64,15 @@ func Zipfiles(f string) (string, error) {
 	return zipFileName, nil
 }
 
-func zipOne(zipf zip.Writer, f string) error {
+func zipOne(zipf *zip.Writer, f string) error {
 	fz, err := zipf.Create(f)
 	if err != nil {
 		return err
 	}
-	fs := os.Open(f)
+	fs, openErr := os.Open(f)
+	if openErr != nil {
+		return openErr
+	}
 	fb := bufio.NewReader(fs)
 	var rdErr error
 	var line []byte

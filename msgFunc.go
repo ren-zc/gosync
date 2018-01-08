@@ -20,7 +20,8 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
-		retStr := DefaultSync(mg.SrcPath, mg.DstPath, targets)
+		_, retStr := DefaultSync(mg.SrcPath, mg.DstPath, targets)
+
 	case "UpdateSync":
 		// handle UpdateSync
 		if checkOk, targets = checkTargets(mg); !checkOk {
