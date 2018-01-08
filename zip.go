@@ -3,6 +3,7 @@ package gosync
 import (
 	"archive/zip"
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -31,6 +32,7 @@ func Zipfiles(f string) (string, error) {
 	zipf := zip.NewWriter(zipfn)
 
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
+		fmt.Println(path)
 		if err != nil {
 			return err
 		}
