@@ -8,23 +8,27 @@ import (
 	"strings"
 )
 
+// hd: handle
+
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
 	// defer conn.Close()
+	var checkOk bool
+	var targets []string
 	switch mg.MgName {
 	case "DefaultSync":
 		// handle DefaultSync
-		if !checkTargets(mg) {
+		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
+		retStr := DefaultSync(mg.SrcPath, mg.DstPath, targets)
 	case "UpdateSync":
 		// handle UpdateSync
-		if !checkTargets(mg) {
+		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
 	}
-
 }
 
 func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
@@ -48,7 +52,7 @@ func writeErrorMg(mg *Message, s string, cnWt *bufio.Writer, enc *gob.Encoder) {
 	cnWt.Flush()
 }
 
-func checkTargets(mg *Message) bool {
+func checkTargets(mg *Message) (bool, []string) {
 	targets := strings.Split(mg.MgString, ",")
 	ipReg, regErr := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	if regErr != nil {
@@ -56,8 +60,8 @@ func checkTargets(mg *Message) bool {
 	}
 	for _, v := range targets {
 		if !ipReg.MatchString(v) {
-			return false
+			return false, nil
 		}
 	}
-	return true
+	return true, targets
 }

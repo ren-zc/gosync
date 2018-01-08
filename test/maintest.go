@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jacenr/gosync"
 )
 
 func main() {
-	gosync.RandId()
+	// gosync.RandId()
+	// fmt.Println(gosync.RandId())
 }
