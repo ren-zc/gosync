@@ -3,7 +3,7 @@ package gosync
 import (
 	"archive/zip"
 	"bufio"
-	"fmt"
+	// "fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,15 +24,15 @@ func Zipfiles(f string) (string, error) {
 		file = filepath.Base(f)
 	}
 	os.Chdir(dir)
-	zipFileName := strconv.Itoa(RandId())
-	zipfn, crtErr := os.Create("/tmp" + zipFileName)
+	zipFileName := "/tmp/" + strconv.Itoa(RandId())
+	zipfn, crtErr := os.Create(zipFileName)
 	if crtErr != nil {
 		return "None", crtErr
 	}
 	zipf := zip.NewWriter(zipfn)
 
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
-		fmt.Println(path)
+		// fmt.Println(path)
 		if err != nil {
 			return err
 		}
@@ -75,6 +75,7 @@ func zipOne(zipf *zip.Writer, f string) error {
 		return err
 	}
 	fs, openErr := os.Open(f)
+	defer fs.Close()
 	if openErr != nil {
 		return openErr
 	}
