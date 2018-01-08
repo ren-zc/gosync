@@ -25,7 +25,7 @@ func Zipfiles(f string) (string, error) {
 	}
 	os.Chdir(dir)
 	zipFileName := strconv.Itoa(RandId())
-	zipfn, crtErr := os.Create(zipFileName)
+	zipfn, crtErr := os.Create("/tmp" + zipFileName)
 	if crtErr != nil {
 		return "None", crtErr
 	}
