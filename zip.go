@@ -24,7 +24,10 @@ func Zipfiles(f string) (string, error) {
 	}
 	os.Chdir(dir)
 	zipFileName := strconv.Itoa(RandId())
-	zipfn := os.Create(zipFileName)
+	zipfn, crtErr := os.Create(zipFileName)
+	if crtErr != nil {
+		return "None", crtErr
+	}
 	zipf := zip.NewWriter(zipfn)
 
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
