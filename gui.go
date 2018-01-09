@@ -14,6 +14,7 @@ func Client() {
 	var updateMode bool
 	var overwrite bool
 	var deletion bool
+	var zip bool
 	var targets string
 	var lsnHost string
 	var lsnPort string
@@ -25,6 +26,7 @@ func Client() {
 	flag.BoolVar(&updateMode, "u", false, "Please specify the sync mode. true/false.")
 	flag.BoolVar(&overwrite, "o", false, "Whether the modified files will be overwriten.")
 	flag.BoolVar(&deletion, "d", false, "Whether the redundant files will be deleted.")
+	flag.BoolVar(&zip, "z", false, "Whether the redundant files will be compressed.")
 	flag.StringVar(&targets, "t", "", "Please specify the target hosts.")
 	flag.StringVar(&dstpath, "dst", "/tmp", "Please specify the target host dst path.")
 	flag.Parse()
@@ -37,7 +39,7 @@ func Client() {
 			userTask.StrOption = "overwrite"
 		}
 		if deletion {
-			userTask.StrOption = userTask.StrOption + "," + "deletion"
+			userTask.StrOption += ",deletion"
 		}
 	} else {
 		userTask.MgName = "DefaultSync"
@@ -49,6 +51,9 @@ func Client() {
 	}
 	userTask.SrcPath = srcpath
 	userTask.DstPath = dstpath
+	if zip {
+		userTask.StrOption += ",zip"
+	}
 	ghandleConn(conn, userTask)
 }
 

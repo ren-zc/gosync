@@ -10,6 +10,13 @@ import (
 	"strconv"
 )
 
+// **备用**, 对一个文件或一个目录进行压缩, 压缩文件放置于/tmp
+// 压缩文件名为随机id.
+// 之所以备用, 是因为还没有考虑清楚对哪些文件进行压缩, 是整体压缩
+// 还是单个文件执行压缩.
+
+// 暂定option: -z, 由用户指定是否进行压缩, 注意是整体打包压缩.
+
 func Zipfiles(f string) (string, error) {
 	fi, fiErr := os.Stat(f)
 	if fiErr != nil {
