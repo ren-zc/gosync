@@ -28,7 +28,7 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	}
 	md5List := make([]string, 10)
 	var zipFileName string
-	var zipf zip.Writer
+	var zipf *zip.Writer
 	if zipOpt {
 		zipFileName = "/tmp/" + strconv.Itoa(RandId())
 		zipfn, fErr := os.Create(zipFileName)
