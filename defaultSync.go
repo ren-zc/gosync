@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
@@ -27,28 +28,30 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	}
 	md5List := make([]string, 10)
 	var zipFileName string
+	var zipf zip.Writer
 	if zipOpt {
 		zipFileName = "/tmp/" + strconv.Itoa(RandId())
-		zipfn, crtErr := os.Create(zipFileName)
-		if crtErr != nil {
-			return "None", crtErr
+		zipfn, fErr := os.Create(zipFileName)
+		if fErr != nil {
+			return nil, nil, fErr
 		}
-		zipf := zip.NewWriter(zipfn)
+		zipf = zip.NewWriter(zipfn)
 	}
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
 		md5Str, fErr = Md5OfAFile(path)
 		if fErr != nil {
-			return nil
+			return fErr
 		}
 		md5Str = path + "," + md5Str
 		md5List = append(md5List, md5Str)
 		if zipOpt {
 			fErr = zipOne(zipf, path)
 			if fErr != nil {
-				return nil
+				return fErr
 			}
 		}
+		return nil
 	}
 	fErr = filepath.Walk(base, WalkFunc)
 	if fErr != nil {
