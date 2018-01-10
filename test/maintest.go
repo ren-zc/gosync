@@ -14,7 +14,10 @@ func main() {
 	// s, _ := gosync.Md5OfAFile("gosync架构")
 	// fmt.Println(s)
 	s1, m1, e1 := gosync.Traverse("/data/mygo/src/github.com/jacenr/filediff", true)
-	fmt.Println(s1)
+	for _, v := range s1 {
+		fmt.Println(v)
+	}
+	// fmt.Println(s1)
 	fmt.Println(m1)
 	fmt.Println(e1)
 }
