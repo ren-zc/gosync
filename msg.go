@@ -10,4 +10,7 @@ type Message struct {
 	StrOption string // start, continue, end
 	SrcPath   string // src file path or task src path
 	DstPath   string // dst file path or task dst path
+	Del       bool   // whether should the not exist files in src be deleted.
+	Zip       bool   // whether should files be compressed.
+	Overwrt   bool   // whether the conflicted files be overwrited.
 }

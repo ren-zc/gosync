@@ -36,10 +36,10 @@ func Client() {
 	if updateMode {
 		userTask.MgName = "UpdateSync"
 		if overwrite {
-			userTask.StrOption = "overwrite"
+			userTask.Overwrt = true
 		}
 		if deletion {
-			userTask.StrOption += ",deletion"
+			userTask.Del = true
 		}
 	} else {
 		userTask.MgName = "DefaultSync"
@@ -52,7 +52,7 @@ func Client() {
 	userTask.SrcPath = srcpath
 	userTask.DstPath = dstpath
 	if zip {
-		userTask.StrOption += ",zip"
+		userTask.Zip = true
 	}
 	ghandleConn(conn, userTask)
 }

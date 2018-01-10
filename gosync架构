@@ -47,6 +47,9 @@ gosync架构
 		StrOption string // start, continue, end
 		SrcPath   string // src file path or task src path
 		DstPath   string // dst file path or task dst path
+		Del       bool   // whether should the not exist files in src be deleted.
+		Zip       bool   // whether should files be compressed.
+		Overwrt   bool   // whether the conflicted files be overwrited.
 	}
 
 	gui向deamon发起任务：
@@ -54,7 +57,7 @@ gosync架构
 		MgType: task
 		MgName: DefaultSync/UpdateSync 二选一
 		MgString： 目标主机，各主机以逗号分隔，需做正则匹配
-		StrOption: overwrite和deletion选项
+		// StrOption: overwrite, deletion, zip选项
 		SrcPath: 源路径
 		DstPath: 目的路径
 

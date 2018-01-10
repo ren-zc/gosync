@@ -20,7 +20,7 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
-		// _, retStr := DefaultSync(mg.SrcPath, mg.DstPath, targets)
+		// _, retStr := DefaultSync(mg)
 
 	case "UpdateSync":
 		// handle UpdateSync
@@ -30,9 +30,6 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
 	}
-
-	// temp, remember to delete.
-	log.Println(targets)
 }
 
 func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
