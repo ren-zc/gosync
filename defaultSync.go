@@ -12,7 +12,7 @@ import (
 var lg *log.Logger
 
 func init() {
-	lg = log.New(os.Stdout, "err", log.Lshortfile)
+	lg = log.New(os.Stdout, "Err ", log.Lshortfile)
 }
 
 func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
@@ -46,10 +46,12 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	}
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
-		md5Str, fErr = Md5OfAFile(path)
-		if fErr != nil {
-			lg.Println(fErr)
-			return fErr
+		if !info.IsDir() {
+			md5Str, fErr = Md5OfAFile(path)
+			if fErr != nil {
+				lg.Println(fErr)
+				return fErr
+			}
 		}
 		md5Str = path + "," + md5Str
 		md5List = append(md5List, md5Str)
