@@ -3,10 +3,17 @@ package gosync
 import (
 	"archive/zip"
 	// "fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 )
+
+var lg *log.Logger
+
+func init() {
+	lg = log.New(os.Stdout, "err", log.Lshortfile)
+}
 
 func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	f, fErr := os.Lstat(path)
@@ -41,6 +48,7 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
 		md5Str, fErr = Md5OfAFile(path)
 		if fErr != nil {
+			lg.Println(fErr)
 			return fErr
 		}
 		md5Str = path + "," + md5Str
@@ -48,6 +56,7 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 		if zipOpt {
 			fErr = zipOne(zipf, path)
 			if fErr != nil {
+				lg.Println(fErr)
 				return fErr
 			}
 		}
@@ -55,6 +64,7 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 	}
 	fErr = filepath.Walk(base, WalkFunc)
 	if fErr != nil {
+		lg.Println(fErr)
 		return nil, nil, fErr
 	}
 	var zipMd5Map map[string]string
