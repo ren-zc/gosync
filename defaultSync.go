@@ -1,121 +1,76 @@
 package gosync
 
 import (
-	"bufio"
-	"encoding/gob"
-	"fmt"
-	"net"
+	"archive/zip"
+	// "fmt"
 	"os"
-	"sync"
+	"path/filepath"
 )
 
-var nullErr = fmt.Errorf("%s", "No target in list.")
-var noResp = fmt.Errorf("%s\n", "No responses.")
-var wg sync.WaitGroup
-
-type ipStr string
-
-type result struct {
-	err  error
-	info string
-}
-
-// type resultP *result
-func initResult(err error, info string) *result {
-	re := new(result)
-	re.err = err
-	re.info = info
-	return re
-}
-
-func (re *result) String() {
-	fmt.Printf("%s\t%s\n", re.info, re.err)
-}
-
-type targetSet struct {
-	list    []string
-	listLen int
-	point   int
-}
-
-func initSet(s []string) *targetSet {
-	ts := new(targetSet)
-	ts.list = s
-	ts.point = 0
-}
-
-// 使用monitor避开读写锁.
-func (ts *targetSet) get() (string, error) {
-	p := ts.point
-	if p == ts.listLen {
-		return "", nullErr
+func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
+	f, fErr := os.Lstat(path)
+	if fErr != nil {
+		return nil, nil, fErr
 	}
-	ts.point += 1
-	return ts.list[p], nil
-}
-
-// 拒绝读写锁.
-func tsMonitor(ts *targetSet, ipCh chan ipStr) {
-	var ipOne string
-	var ipErr error
-	for {
-		ipOne, ipErr = ts.get()
-		if ipErr != nil {
-			close(ipCh)
-			break
+	var dir string
+	var base string
+	if f.IsDir() {
+		dir = path
+		base = "."
+	} else {
+		dir = filepath.Dir(path)
+		base = filepath.Base(path)
+	}
+	fErr = os.Chdir(dir)
+	if fErr != nil {
+		return nil, nil, fErr
+	}
+	md5List := make([]string, 10)
+	var zipFileName string
+	if zipOpt {
+		zipFileName = "/tmp/" + strconv.Itoa(RandId())
+		zipfn, crtErr := os.Create(zipFileName)
+		if crtErr != nil {
+			return "None", crtErr
 		}
-		ipCh <- ipStr(ipOne)
+		zipf := zip.NewWriter(zipfn)
 	}
-}
-
-func syncFile(mg *Message, src string, ipCh chan ipStr, reCh chan *result) {
-	defer wg.Done()
-	port := "8999"
-	for {
-		ip, ok := string(<-ipCh)
-		if !ok {
-			break
+	var md5Str string
+	WalkFunc := func(path string, info os.FileInfo, err error) error {
+		md5Str, fErr = Md5OfAFile(path)
+		if fErr != nil {
+			return nil
 		}
-		conn, cnErr := net.Dial("tcp", ip+port)
-
+		md5Str = path + "," + md5Str
+		md5List = append(md5List, md5Str)
+		if zipOpt {
+			fErr = zipOne(zipf, path)
+			if fErr != nil {
+				return nil
+			}
+		}
 	}
+	fErr = filepath.Walk(base, WalkFunc)
+	if fErr != nil {
+		return nil, nil, fErr
+	}
+	var zipMd5Map map[string]string
+	if zipOpt {
+		fErr = zipf.Close()
+		if fErr != nil {
+			return nil, nil, fErr
+		}
+		var zipMd5 string
+		zipMd5, fErr = Md5OfAFile(zipFileName)
+		if fErr != nil {
+			return nil, nil, fErr
+		}
+		zipMd5Map = make(map[string]string)
+		zipMd5Map[zipFileName] = zipMd5
+	}
+	return md5List, zipMd5Map, nil
 }
 
-func DefaultSync(mg *Message, targets []string) []*result {
-	var res = []*result{}
-	src := mg.SrcPath
+// func DefaultSync(mg *Message, targets []string) []*result {
 
-	ts := initSet(targets)
-	ipCh := make(chan ipStr)
-	go tsMonitor(ts, ipCh)
-
-	var compErr error
-	// var zipFileName string
-	if mg.Zip {
-		src, compErr = Zipfiles(src)
-	}
-	if compErr != nil {
-		re := initResult(compErr, "local")
-		res = append(res, re)
-		return res
-	}
-
-	// goroutines number.
-	var goNumber = 4
-	reCh := make(chan *result)
-	for i := 0; i < goNumber; i++ {
-		wg.Add(1)
-		go syncFile(mg, src, ipCh, reCh)
-	}
-
-	go func() {
-		wg.Wait()
-		close(reCh)
-	}()
-
-	for re := range reCh {
-		res = append(res, re)
-	}
-
-	return res
-}
+// }

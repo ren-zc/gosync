@@ -30,7 +30,10 @@ func Zipfiles(f string) (string, error) {
 		dir = filepath.Dir(f)
 		file = filepath.Base(f)
 	}
-	os.Chdir(dir)
+	fiErr = os.Chdir(dir)
+	if fiErr != nil {
+		return "None", fiErr
+	}
 	zipFileName := "/tmp/" + strconv.Itoa(RandId())
 	zipfn, crtErr := os.Create(zipFileName)
 	if crtErr != nil {

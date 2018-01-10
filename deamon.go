@@ -9,11 +9,14 @@ import (
 	"net"
 )
 
+var worker int
+
 func DeamonStart() {
 	var lsnHost string
 	var lsnPort string
 	flag.StringVar(&lsnHost, "h", "", "Please tell me the host ip which you want listen on.")
 	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
+	flag.IntVar(&worker, "-n", 4, "The worker number.")
 	flag.Parse()
 	svrln, err := net.Listen("tcp", lsnHost+":"+lsnPort)
 	if err != nil {

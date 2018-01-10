@@ -30,6 +30,9 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
 	}
+
+	// should be deleted.
+	log.Println(targets)
 }
 
 func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
