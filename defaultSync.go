@@ -77,7 +77,7 @@ func syncFile(mg *Message, src string, ipCh chan ipStr, reCh chan *result) {
 			break
 		}
 		conn, cnErr := net.Dial("tcp", ip+port)
-
+		// *** PAUSE HERE, 至此, 新建alg2分支, 使用新的算法 ***
 	}
 }
 
