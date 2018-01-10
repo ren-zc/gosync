@@ -55,7 +55,7 @@ func Traverse(path string, zipOpt bool) ([]string, map[string]string, error) {
 		}
 		md5Str = path + "," + md5Str
 		md5List = append(md5List, md5Str)
-		if zipOpt {
+		if zipOpt && !info.IsDir() {
 			fErr = zipOne(zipf, path)
 			if fErr != nil {
 				lg.Println(fErr)
