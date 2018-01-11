@@ -37,7 +37,7 @@ type transUnit struct {
 	zipFileInfo
 }
 
-var allConn = map[net.Conn]ret{}
+var allConn = map[hostIP]ret{}
 var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
 var lg *log.Logger
 
@@ -51,7 +51,7 @@ func cnMonitor(ch chan hostRet, i int) {
 	var l int
 	for {
 		c = <-ch
-		allConn[c.Conn] = c.ret
+		allConn[c.hostIP] = c.ret
 		l = len(allConn)
 		if l == i {
 			// 相等表示所有host已返回结果
@@ -102,6 +102,7 @@ func TravHosts(hosts []string, mg *Message, defaultSync bool) ([]transUnit, erro
 		// handle conn
 		go hdRetConn(retCh, conn)
 	}
+	return nil, nil
 }
 
 func hdRetConn(ch chan hostRet, conn net.Conn) {
