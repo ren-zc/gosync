@@ -32,3 +32,12 @@ func Md5OfAFile(f string) (string, error) {
 	s = fmt.Sprintf("%x", h.Sum(nil))
 	return s, nil
 }
+
+func Md5OfASlice(s []string) string {
+	h := md5.New()
+	for _, v := range s {
+		io.WriteString(h, v)
+	}
+	m = fmt.Sprintf("%x", h.Sum(nil))
+	return m
+}

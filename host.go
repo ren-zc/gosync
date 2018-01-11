@@ -4,3 +4,5 @@ import (
 // "fmt"
 // "net"
 )
+
+func dstWorker() {}
