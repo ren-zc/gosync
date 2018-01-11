@@ -1,6 +1,6 @@
 package gosync
 
 import (
-	"fmt"
-	"net"
+// "fmt"
+// "net"
 )
