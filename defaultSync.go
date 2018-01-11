@@ -17,8 +17,11 @@ type ret struct {
 type md5s string
 type fileList []string
 type ips []string
-type cnRet struct {
-	net.Conn
+type hostIP string
+
+// type cnRet struct {
+type hostRet struct {
+	hostIP
 	ret
 }
 
@@ -43,8 +46,8 @@ func init() {
 }
 
 // 负责管理allConn
-func cnMonitor(ch chan cnRet, i int) {
-	var c = cnRet{}
+func cnMonitor(ch chan hostRet, i int) {
+	var c hostRet{}
 	var l int
 	for {
 		c = <-ch
@@ -61,7 +64,7 @@ func cnMonitor(ch chan cnRet, i int) {
 
 func TravHosts(hosts []string, mg *Message, defaultSync bool) ([]transUnit, error) {
 	// 准备src文件列表, 如果mg中zip选项为true, 则同时返回zip文件md5 map
-	tus := make([]transUnit)
+	tus := make([]transUnit, 1)
 	var fileMd5List []string
 	var zipFI zipFileInfo
 	var traErr error
@@ -78,11 +81,11 @@ func TravHosts(hosts []string, mg *Message, defaultSync bool) ([]transUnit, erro
 		fileMd5List, _, traErr = Traverse(mg.SrcPath, false)
 	}
 	if traErr != nil {
-		return traErr
+		return nil, traErr
 	}
 
 	// 启用conn监控goroutine
-	retCh := make(chan cnRet)
+	retCh := make(chan hostRet)
 	go cnMonitor(retCh, len(hosts))
 
 	// 和所有host建立连接
@@ -93,7 +96,7 @@ func TravHosts(hosts []string, mg *Message, defaultSync bool) ([]transUnit, erro
 		conn, cnErr = net.Dial("tcp", host+port)
 		if cnErr != nil {
 			re := ret{false, cnErr}
-			retCh <- re
+			retCh <- hostRet{hostIP(host), re}
 			continue
 		}
 		// handle conn
@@ -101,7 +104,7 @@ func TravHosts(hosts []string, mg *Message, defaultSync bool) ([]transUnit, erro
 	}
 }
 
-func hdRetConn(ch chan cnRet, conn net.Conn) {
+func hdRetConn(ch chan hostRet, conn net.Conn) {
 	defer conn.Close()
 }
 
