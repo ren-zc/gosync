@@ -47,7 +47,7 @@ func init() {
 
 // 负责管理allConn
 func cnMonitor(ch chan hostRet, i int) {
-	var c hostRet{}
+	var c hostRet
 	var l int
 	for {
 		c = <-ch
