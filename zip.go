@@ -79,6 +79,25 @@ func Zipfiles(f string) (string, error) {
 	return zipFileName, nil
 }
 
+func zipFileList(files []string) (string, error) {
+	zipFileName := "/tmp/" + strconv.Itoa(RandId())
+	zipfn, crtErr := os.Create(zipFileName)
+	if crtErr != nil {
+		return "None", crtErr
+	}
+	zipf := zip.NewWriter(zipfn)
+	for _, file := range files {
+		if file != "" {
+			zipErr := zipOne(zipf, file)
+			if zipErr != nil {
+				return "None", zipErr
+			}
+
+		}
+	}
+	return zipFileName, nil
+}
+
 func zipOne(zipf *zip.Writer, f string) error {
 	fz, err := zipf.Create(f)
 	if err != nil {

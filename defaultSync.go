@@ -20,8 +20,9 @@ type ret struct {
 
 // md5 string
 type md5s string
-type fileList []string
-type ips []string
+
+// type fileList []string
+// type ips []string
 type hostIP string
 
 // type cnRet struct {
@@ -35,19 +36,19 @@ type zipFileInfo struct {
 	name string
 	md5s
 }
-type transUnit struct {
+type transUnit struct { // 传输单元, 代表一组相同同步任务的主机列表
 	hosts       []hostIP
 	fileMd5List []string
 	zipFileInfo
 }
 type diffInfo struct {
-	md5s
+	md5s // diff文件列表的md5
 	hostIP
-	files []string
+	files []string // 需要更新的文件, 即diff文件列表
 }
 
 // var wg sync.WaitGroup
-var allConn = map[hostIP]ret{}
+var allConn = map[hostIP]ret{}   // 用于收集host返回的sync结果
 var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
 var lg *log.Logger
 
@@ -55,56 +56,34 @@ func init() {
 	lg = log.New(os.Stdout, "Err ", log.Lshortfile)
 }
 
+// 启用conn监控goroutine
+var retCh = make(chan hostRet)
+
 // 负责管理allConn
-func cnMonitor(ch chan hostRet, i int) {
+func cnMonitor(i int) {
 	var c hostRet
 	var l int
 	for {
-		c = <-ch
+		c = <-retCh
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
 		if l == i {
-			// 相等表示所有host已返回结果
+			// 相等表示所有host已返回sync结果
 			break
 		}
 	}
-	close(ch)
+	close(retCh)
 	retReady <- "Done"
 }
 
-func TravHosts(hosts []string, mg *Message, defaultSync bool) (map[md5s]transUnit, error) {
-	// 准备src文件列表, 如果mg中zip选项为true, 则同时返回zip文件md5 map
-	tus := make(map[md5s]transUnit)
-	var fileMd5List []string
-	var zipFI zipFileInfo
-	var traErr error
-	if defaultSync {
-		fileMd5List, zipFI, traErr = Traverse(mg.SrcPath, mg.Zip)
-		listMd5 := Md5OfASlice(fileMd5List)
-		tu := transUnit{}
-		tu.hosts = hosts
-		// tu.ListMd5 = listMd5
-		tu.fileMd5List = fileMd5List
-		tu.zipFileInfo = zipFI
-		tus[listMd5] = tu
-	} else {
-		// updateSync模式, 第一次生成file md5 list仅用于各host比对, 无须zip文件
-		fileMd5List, _, traErr = Traverse(mg.SrcPath, false)
-	}
-	if traErr != nil {
-		return nil, traErr
-	}
-
-	// 启用conn监控goroutine
-	retCh := make(chan hostRet)
+func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, defaultSync bool) {
 	hostNum := len(hosts)
-	go cnMonitor(retCh, hostNum)
+	go cnMonitor(hostNum)
 
 	// 和所有host建立连接
 	var conn net.Conn
 	var cnErr error
 	var port = "8999"
-	var diffCh = make(chan diffInfo)
 	for _, host := range hosts {
 		conn, cnErr = net.Dial("tcp", host+port)
 		if cnErr != nil {
@@ -113,33 +92,13 @@ func TravHosts(hosts []string, mg *Message, defaultSync bool) (map[md5s]transUni
 			continue
 		}
 		// handle conn
-		go hdRetConn(retCh, diffCh, conn, fileMd5List, defaultSync)
+		go hdRetConn(conn, fileMd5List, flMd5, defaultSync)
 	}
-
-	// for循环接收每个goroutine的diff结果并整理, 前提是defaultSync为false
-	// 即为更新模式
-	di := diffInfo{}
-	if !defaultSync {
-		for i := 0; i < hostNum; i++ {
-			di = <-diffCh
-			tu, ok := tus[di.md5s]
-			if ok {
-				tu.hosts = append(tu.hosts, di.hostIP)
-			} else {
-				h := []hostIP{}
-				h = append(h, di.hostIP)
-				tu.hosts = h
-				tu.fileMd5List = di.files
-				tus[di.md5s] = tu
-			}
-		}
-	}
-
-	// 返回tus
-	return tus, nil
 }
 
-func hdRetConn(ch chan hostRet, diffCh chan diffInfo, conn net.Conn, fileMd5List []string, defaultSync bool) {
+var diffCh = make(chan diffInfo)
+
+func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, defaultSync bool) {
 	defer conn.Close()
 	// 包装conn
 	cnRd := bufio.NewReader(conn)
@@ -150,20 +109,21 @@ func hdRetConn(ch chan hostRet, diffCh chan diffInfo, conn net.Conn, fileMd5List
 	// 发送fileMd5List, 作为文件发送
 	// 首先发送一些元数据信息包括md5, 一些选项
 	// 消息ID要一致
+	// 包括 dafaultsync or updatesync
 
 	if !defaultSync {
 		// 接收file md5 list diff
-		// 通过channel输出diff结果
+		// 通过channel输出diff结果, diffCh
 	}
 	// 等待接收host的sync结果并通过channel发送到allConn的monitor
+	// retCh
 }
 
-// 返回src的md5文件列表, 如果有zip选项就同时返回以zip文件名为key, md5为value的map
-// 出错则返回nil,nil,error
-func Traverse(path string, zipOpt bool) ([]string, zipFileInfo, error) {
+// 返回文件md5列表
+func Traverse(path string) ([]string, error) {
 	f, fErr := os.Lstat(path)
 	if fErr != nil {
-		return nil, zipFileInfo{}, fErr
+		return nil, fErr
 	}
 	var dir string
 	var base string
@@ -176,19 +136,9 @@ func Traverse(path string, zipOpt bool) ([]string, zipFileInfo, error) {
 	}
 	fErr = os.Chdir(dir)
 	if fErr != nil {
-		return nil, zipFileInfo{}, fErr
+		return nil, fErr
 	}
 	md5List := make([]string, 10)
-	var zipFileName string
-	var zipf *zip.Writer
-	if zipOpt {
-		zipFileName = "/tmp/" + strconv.Itoa(RandId())
-		zipfn, fErr := os.Create(zipFileName)
-		if fErr != nil {
-			return nil, zipFileInfo{}, fErr
-		}
-		zipf = zip.NewWriter(zipfn)
-	}
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
@@ -200,39 +150,85 @@ func Traverse(path string, zipOpt bool) ([]string, zipFileInfo, error) {
 			md5Str = path + "," + md5Str
 			md5List = append(md5List, md5Str)
 		}
-		if zipOpt && !info.IsDir() {
-			fErr = zipOne(zipf, path)
-			if fErr != nil {
-				lg.Println(fErr)
-				return fErr
-			}
-		}
 		return nil
 	}
 	fErr = filepath.Walk(base, WalkFunc)
 	if fErr != nil {
 		lg.Println(fErr)
-		return nil, zipFileInfo{}, fErr
+		return nil, fErr
 	}
-	var zipFI = zipFileInfo{}
-	if zipOpt {
-		fErr = zipf.Close()
-		if fErr != nil {
-			return nil, zipFileInfo{}, fErr
-		}
-		var zipMd5 string
-		zipMd5, fErr = Md5OfAFile(zipFileName)
-		if fErr != nil {
-			return nil, zipFileInfo{}, fErr
-		}
-		// zipMd5Map = make(map[string]string)
-		// zipMd5Map[zipFileName] = zipMd5
-		zipFI.name = zipFileName
-		zipFI.md5s = zipMd5
-	}
-	return md5List, zipFI, nil
+	return md5List, nil
 }
 
-// func DefaultSync(mg *Message, targets []string) []*result {
+func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
+	// 准备src文件列表, 如果mg中zip选项为true, 则同时返回zip文件md5 map
+	tus := make(map[md5s]transUnit)
+	var fileMd5List []string
+	var zipFI zipFileInfo
+	var traErr error
+	fileMd5List, traErr = Traverse(mg.SrcPath)
+	if traErr != nil {
+		return nil, traErr
+	}
+	listMd5 := Md5OfASlice(md5s(fileMd5List))
+	TravHosts(hosts, fileMd5List, listMd5, true)
+	tu := transUnit{}
+	tu.hosts = hosts
+	tu.fileMd5List = fileMd5List
+	if mg.Zip {
+		zipName, zipMd5, traErr := Md5AndZip(fileMd5List)
+		if traErr != nil {
+			return nil, traErr
+		}
+		zipFI.name = zipName
+		zipFI.md5s = zipMd5
+	}
+	tu.zipFileInfo = zipFI
+	tus[listMd5] = tu
+	// 返回tus
+	return tus, nil
+}
 
-// }
+func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
+	var tus = make(map[md5s]transUnit)
+	var fileMd5List []string
+	var zipFI zipFileInfo
+	var traErr error
+	fileMd5List, traErr = Traverse(mg.SrcPath)
+	if traErr != nil {
+		return nil, traErr
+	}
+	listMd5 := Md5OfASlice(md5s(fileMd5List))
+	TravHosts(hosts, fileMd5List, listMd5, true)
+	di := diffInfo{}
+	hostNum := len(hosts)
+	for i := 0; i < hostNum; i++ {
+		di = <-diffCh
+		if len(di.files) == 0 {
+			re := ret{true, nil}
+			retCh <- hostRet{hostIP, re}
+			continue
+		}
+		tu, ok := tus[di.md5s]
+		if ok {
+			tu.hosts = append(tu.hosts, di.hostIP)
+		} else {
+			h := []hostIP{}
+			h = append(h, di.hostIP)
+			tu.hosts = h
+			tu.fileMd5List = di.files
+			if mg.Zip {
+				zipName, zipMd5, traErr := Md5AndZip(di.files)
+				if traErr != nil {
+					return nil, traErr
+				}
+				zipFI.name = zipName
+				zipFI.md5s = zipMd5
+			}
+			tu.zipFileInfo = zipFI
+			tus[di.md5s] = tu
+		}
+	}
+	// 返回tus
+	return tus, nil
+}

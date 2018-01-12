@@ -41,3 +41,15 @@ func Md5OfASlice(s []string) string {
 	m = fmt.Sprintf("%x", h.Sum(nil))
 	return m
 }
+
+func Md5AndZip(files []string) (string, md5s, error) {
+	zipName, traErr := zipFileList(fileMd5List)
+	if traErr != nil {
+		return "", md5s(""), traErr
+	}
+	zipMd5, traErr := Md5OfAFile(zipName)
+	if traErr != nil {
+		return "", md5s(""), traErr
+	}
+	return zipName, md5s(zipMd5), nil
+}
