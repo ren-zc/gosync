@@ -76,6 +76,16 @@ func cnMonitor(i int) {
 	retReady <- "Done"
 }
 
+func putRetCh(host hostIP, err error) {
+	var re ret
+	if err != nil {
+		re = ret{false, err}
+	} else {
+		re = ret{true, nil}
+	}
+	retCh <- hostRet{host, re}
+}
+
 func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, defaultSync bool) {
 	hostNum := len(hosts)
 	go cnMonitor(hostNum)
@@ -87,8 +97,9 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, defaultSync boo
 	for _, host := range hosts {
 		conn, cnErr = net.Dial("tcp", host+port)
 		if cnErr != nil {
-			re := ret{false, cnErr}
-			retCh <- hostRet{hostIP(host), re}
+			// re := ret{false, cnErr}
+			// retCh <- hostRet{hostIP(host), re}
+			putRetCh(hostIP(host), cnErr)
 			continue
 		}
 		// handle conn
@@ -106,17 +117,45 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, defaultSync bool
 	dec := gob.NewDecoder(cnRd)
 	enc := gob.NewEncoder(cnWt)
 
-	// 发送fileMd5List, 作为文件发送
-	// 首先发送一些元数据信息包括md5, 一些选项
-	// 消息ID要一致
-	// 包括 dafaultsync or updatesync
-
-	if !defaultSync {
-		// 接收file md5 list diff
-		// 通过channel输出diff结果, diffCh
+	// 发送fileMd5List
+	var fileMd5ListMg Message
+	fileMd5ListMg.MgID = RandId()
+	fileMd5ListMg.MgType = "allFilesMd5List"
+	fileMd5ListMg.MgString = string(flMd5)
+	fileMd5ListMg.MgStrings = fileMd5List
+	if defaultSync {
+		fileMd5ListMg.StrOption = "default"
+	} else {
+		fileMd5ListMg.StrOption = "update"
 	}
-	// 等待接收host的sync结果并通过channel发送到allConn的monitor
-	// retCh
+	err := enc.Encode(fileMd5ListMg)
+	if err != nil {
+		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
+		putRetCh(hostIP(conn.RemoteAddr().String()), err)
+	}
+	err = cnWt.Flush()
+	if err != nil {
+		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
+		putRetCh(hostIP(conn.RemoteAddr().String()), err)
+	}
+
+	var hostMg Message
+
+	for {
+
+		err = dec.Decode(&hostMg)
+		if err != nil {
+			lg.Println(err)
+			continue
+		}
+
+		if !defaultSync {
+			// 接收file md5 list diff
+			// 通过channel输出diff结果, diffCh
+		}
+		// 等待接收host的sync结果并通过channel发送到allConn的monitor
+		// retCh
+	}
 }
 
 // 返回文件md5列表
@@ -205,8 +244,9 @@ func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
 		if len(di.files) == 0 {
-			re := ret{true, nil}
-			retCh <- hostRet{hostIP, re}
+			// re := ret{true, nil}
+			// retCh <- hostRet{hostIP, re}
+			putRetCh(di.hostIP, nil)
 			continue
 		}
 		tu, ok := tus[di.md5s]

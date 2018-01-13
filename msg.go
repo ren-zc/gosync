@@ -6,6 +6,7 @@ type Message struct {
 	MgName    string // cmd name, auth username, file name, info name, task: DefaultSync/UpdateSync
 	MgByte    []byte // file piece
 	MgString  string // cmd option, autho user passwd, sync task target hosts
+	MgStrings []string
 	IntOption int    // file piece number or other
 	StrOption string // start, continue, end
 	SrcPath   string // src file path or task src path

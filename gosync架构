@@ -43,6 +43,7 @@ gosync架构
 		MgName    string // cmd name, auth username, file name, info name, task: DefaultSync/UpdateSync
 		MgByte    []byte // file piece
 		MgString  string // cmd option, autho user passwd, sync task target hosts
+		MgStrings []string
 		IntOption int    // file piece number or other
 		StrOption string // start, continue, end
 		SrcPath   string // src file path or task src path
@@ -53,7 +54,7 @@ gosync架构
 	}
 
 	gui向deamon发起任务：
-		MgID: 回话ID
+		MgID: 会话ID
 		MgType: task
 		MgName: DefaultSync/UpdateSync 二选一
 		MgString： 目标主机，各主机以逗号分隔，需做正则匹配
@@ -70,6 +71,13 @@ gosync架构
 		MgType: info
 		MgString: error, not a recognizable MgName.
 		IntOption: 错误msg的MgID
+
+	传输files md5 list
+		MgID
+		MgType: "allFilesMd5List"
+		MgString: md5s
+		MgStrings: []string
+		StrOption: default or update
 
 
 详细步骤
