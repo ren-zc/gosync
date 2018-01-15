@@ -43,7 +43,7 @@ func Md5OfASlice(s []string) string {
 }
 
 func Md5AndZip(files []string) (string, md5s, error) {
-	zipName, traErr := zipFileList(fileMd5List)
+	zipName, traErr := zipFileList(files)
 	if traErr != nil {
 		return "", md5s(""), traErr
 	}
