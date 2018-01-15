@@ -188,18 +188,21 @@ func Traverse(path string) ([]string, error) {
 	md5List := make([]string, 10)
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
+		md5Str = ""
 		if info.Mode().IsRegular() {
 			md5Str, fErr = Md5OfAFile(path)
 			if fErr != nil {
 				lg.Println(fErr)
 				return fErr
 			}
+			md5Str = path + "," + md5Str
+			md5List = append(md5List, md5Str)
 		}
 		if info.Mode()&os.ModeSymlink == 1 {
 			md5Str = "symbolLink"
+			md5Str = path + "," + md5Str
+			md5List = append(md5List, md5Str)
 		}
-		md5Str = path + "," + md5Str
-		md5List = append(md5List, md5Str)
 		return nil
 	}
 	fErr = filepath.Walk(base, WalkFunc)
