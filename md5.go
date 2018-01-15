@@ -9,7 +9,8 @@ import (
 )
 
 func Md5OfAFile(f string) (string, error) {
-	fi, fiErr := os.Open(f)
+	// fi, fiErr := os.Open(f)
+	fi, fiErr := os.OpenFile(f, 0, os.ModeSymlink)
 	if fiErr != nil {
 		return "", fiErr
 	}
