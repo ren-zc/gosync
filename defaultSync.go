@@ -189,7 +189,7 @@ func Traverse(path string) ([]string, error) {
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
 		if info.Mode().IsRegular() {
-			md5Str, fErr = Md5OfAFile(path, info)
+			md5Str, fErr = Md5OfAFile(path)
 			if fErr != nil {
 				lg.Println(fErr)
 				return fErr

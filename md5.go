@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func Md5OfAFile(f string, info os.FileInfo) (string, error) {
+func Md5OfAFile(f string) (string, error) {
 	fi, fiErr := os.Open(f)
 	if fiErr != nil {
 		lg.Println(fiErr)
