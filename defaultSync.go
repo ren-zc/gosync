@@ -13,53 +13,57 @@ import (
 	// "sync"
 )
 
+// md5 string
+type md5s string
+
+// ip addr
+type hostIP string
+
+// host返回的结果
 type ret struct {
 	status bool
 	err    error
 }
 
-// md5 string
-type md5s string
-
-// type fileList []string
-// type ips []string
-type hostIP string
-
-// type cnRet struct {
+// host返回的结果
 type hostRet struct {
 	hostIP
 	ret
 }
 
-// var md5OfFileList = map[md5s]fileList{}
+var allConn = map[hostIP]ret{}   // 用于收集host返回的sync结果
+var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
+
+// zip文件名和md5
 type zipFileInfo struct {
 	name string
 	md5s
 }
-type transUnit struct { // 传输单元, 代表一组相同同步任务的主机列表
+
+// 传输单元, 代表一组相同同步任务的主机列表
+type transUnit struct {
 	hosts       []hostIP
 	fileMd5List []string
 	zipFileInfo
 }
+
+// host返回的请求文件列表
 type diffInfo struct {
 	md5s // diff文件列表的md5
 	hostIP
 	files []string // 需要更新的文件, 即diff文件列表
 }
 
-// var wg sync.WaitGroup
-var allConn = map[hostIP]ret{}   // 用于收集host返回的sync结果
-var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
-var lg *log.Logger
+var lg *log.Logger // 使log记录行号, 用于debug
 
 func init() {
 	lg = log.New(os.Stdout, "Err ", log.Lshortfile)
 }
 
-// 启用conn监控goroutine
+// 用于接收各host的sync结果
 var retCh = make(chan hostRet)
 
-// 负责管理allConn
+// 负责管理allConn, 使用retCh channel
 func cnMonitor(i int) {
 	var c hostRet
 	var l int
@@ -67,8 +71,8 @@ func cnMonitor(i int) {
 		c = <-retCh
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
+		// 相等表示所有host已返回sync结果
 		if l == i {
-			// 相等表示所有host已返回sync结果
 			break
 		}
 	}
@@ -76,6 +80,7 @@ func cnMonitor(i int) {
 	retReady <- "Done"
 }
 
+// 将host的sync结果push到channel
 func putRetCh(host hostIP, err error) {
 	var re ret
 	if err != nil {
@@ -86,6 +91,7 @@ func putRetCh(host hostIP, err error) {
 	retCh <- hostRet{host, re}
 }
 
+// 启动监控进程, 和各目标host建立连接
 func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, defaultSync bool) {
 	hostNum := len(hosts)
 	go cnMonitor(hostNum)
@@ -96,19 +102,18 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, defaultSync boo
 	var port = "8999"
 	for _, host := range hosts {
 		conn, cnErr = net.Dial("tcp", host+port)
+		// 建立连接失败, 即此目标host同步失败
 		if cnErr != nil {
-			// re := ret{false, cnErr}
-			// retCh <- hostRet{hostIP(host), re}
 			putRetCh(hostIP(host), cnErr)
 			continue
 		}
-		// handle conn
 		go hdRetConn(conn, fileMd5List, flMd5, defaultSync)
 	}
 }
 
 var diffCh = make(chan diffInfo)
 
+// 发送源host的文件列表, 接收目标host的请求列表, 接收目标host的sync结果
 func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, defaultSync bool) {
 	defer conn.Close()
 	// 包装conn
@@ -129,16 +134,19 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, defaultSync bool
 		fileMd5ListMg.StrOption = "update"
 	}
 	err := enc.Encode(fileMd5ListMg)
+	// 如果encode失败, 则此conn对应的目标host同步失败
 	if err != nil {
 		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
 		putRetCh(hostIP(conn.RemoteAddr().String()), err)
 	}
 	err = cnWt.Flush()
+	// 如果flush失败, 则此conn无法写入, 目标host同步失败
 	if err != nil {
 		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
 		putRetCh(hostIP(conn.RemoteAddr().String()), err)
 	}
 
+	// 用于接收目标host发来的信息
 	var hostMg Message
 
 	for {
@@ -149,16 +157,16 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, defaultSync bool
 			continue
 		}
 
-		if !defaultSync {
-			// 接收file md5 list diff
-			// 通过channel输出diff结果, diffCh
-		}
+		// if !defaultSync
+		// 接收file md5 list diff
+		// 通过channel输出diff结果, diffCh
+
 		// 等待接收host的sync结果并通过channel发送到allConn的monitor
 		// retCh
 	}
 }
 
-// 返回文件md5列表
+// walk源host要同步的文件, 生成md5, 并返回列表
 func Traverse(path string) ([]string, error) {
 	f, fErr := os.Lstat(path)
 	if fErr != nil {
@@ -199,6 +207,7 @@ func Traverse(path string) ([]string, error) {
 	return md5List, nil
 }
 
+// 默认的同步模式, 不经过目标host的文件列表比对, 直接sync
 func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	// 准备src文件列表, 如果mg中zip选项为true, 则同时返回zip文件md5 map
 	tus := make(map[md5s]transUnit)
@@ -224,10 +233,11 @@ func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	}
 	tu.zipFileInfo = zipFI
 	tus[listMd5] = tu
-	// 返回tus
+	// 返回tus, 即传输任务单元, 默认同步模式, 所有目标host归属同一个传输任务单元
 	return tus, nil
 }
 
+// 更新模式, 由目标host决定自己请求哪些文件, 源host正合请求列表, 返回传输任务map
 func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	var tus = make(map[md5s]transUnit)
 	var fileMd5List []string
@@ -244,8 +254,6 @@ func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
 		if len(di.files) == 0 {
-			// re := ret{true, nil}
-			// retCh <- hostRet{hostIP, re}
 			putRetCh(di.hostIP, nil)
 			continue
 		}
@@ -269,6 +277,6 @@ func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 			tus[di.md5s] = tu
 		}
 	}
-	// 返回tus
+	// 返回tus, 即一个传输任务单元
 	return tus, nil
 }
