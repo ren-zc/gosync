@@ -195,7 +195,7 @@ func Traverse(path string) ([]string, error) {
 				lg.Println(fErr)
 				return fErr
 			}
-			md5Str = path + "," + md5Str
+			md5Str = path + ",," + md5Str
 			md5List = append(md5List, md5Str)
 		}
 		if info.Mode()&os.ModeSymlink != 0 {
