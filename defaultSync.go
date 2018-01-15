@@ -199,7 +199,7 @@ func Traverse(path string) ([]string, error) {
 			md5List = append(md5List, md5Str)
 		}
 		lg.Printf("ModeSymlink: %b", os.ModeSymlink)
-		lg.Printf("infor.Mode: %b", info.Mode())
+		lg.Printf("path: %s\t%b", path, info.Mode())
 		// lg.Println(info.Mode()&os.ModeSymlink == 1)
 		if info.Mode()&os.ModeSymlink == 1 {
 			// lg.Println("**********************symbol link*******************")
