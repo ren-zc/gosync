@@ -1,7 +1,7 @@
 package gosync
 
 import (
-	"archive/zip"
+	// "archive/zip"
 	// "fmt"
 	"bufio"
 	"encoding/gob"
@@ -9,7 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strconv"
+	// "strconv"
 	// "sync"
 )
 
@@ -208,8 +208,12 @@ func Traverse(path string) ([]string, error) {
 }
 
 // 默认的同步模式, 不经过目标host的文件列表比对, 直接sync
-func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
+func DefaultSync(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	// 准备src文件列表, 如果mg中zip选项为true, 则同时返回zip文件md5 map
+	hosts := make([]hostIP, 1)
+	for _, ipString := range targets {
+		hosts = append(hosts, hostIP(ipString))
+	}
 	tus := make(map[md5s]transUnit)
 	var fileMd5List []string
 	var zipFI zipFileInfo
@@ -218,8 +222,8 @@ func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	if traErr != nil {
 		return nil, traErr
 	}
-	listMd5 := Md5OfASlice(md5s(fileMd5List))
-	TravHosts(hosts, fileMd5List, listMd5, true)
+	listMd5 := Md5OfASlice(fileMd5List)
+	TravHosts(hosts, fileMd5List, md5s(listMd5), true)
 	tu := transUnit{}
 	tu.hosts = hosts
 	tu.fileMd5List = fileMd5List
@@ -232,13 +236,17 @@ func DefaultSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 		zipFI.md5s = zipMd5
 	}
 	tu.zipFileInfo = zipFI
-	tus[listMd5] = tu
+	tus[md5s(listMd5)] = tu
 	// 返回tus, 即传输任务单元, 默认同步模式, 所有目标host归属同一个传输任务单元
 	return tus, nil
 }
 
 // 更新模式, 由目标host决定自己请求哪些文件, 源host正合请求列表, 返回传输任务map
-func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
+func UpdateSync(mg *Message, targets []string) (map[md5s]transUnit, error) {
+	hosts := make([]hostIP, 1)
+	for _, ipString := range targets {
+		hosts = append(hosts, hostIP(ipString))
+	}
 	var tus = make(map[md5s]transUnit)
 	var fileMd5List []string
 	var zipFI zipFileInfo
@@ -247,8 +255,8 @@ func UpdateSync(mg *Message, hosts []string) (map[md5s]transUnit, error) {
 	if traErr != nil {
 		return nil, traErr
 	}
-	listMd5 := Md5OfASlice(md5s(fileMd5List))
-	TravHosts(hosts, fileMd5List, listMd5, true)
+	listMd5 := Md5OfASlice(fileMd5List)
+	TravHosts(hosts, fileMd5List, md5s(listMd5), true)
 	di := diffInfo{}
 	hostNum := len(hosts)
 	for i := 0; i < hostNum; i++ {

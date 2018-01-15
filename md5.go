@@ -38,7 +38,7 @@ func Md5OfASlice(s []string) string {
 	for _, v := range s {
 		io.WriteString(h, v)
 	}
-	m = fmt.Sprintf("%x", h.Sum(nil))
+	m := fmt.Sprintf("%x", h.Sum(nil))
 	return m
 }
 
