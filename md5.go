@@ -11,7 +11,7 @@ import (
 func Md5OfAFile(f string) (string, error) {
 	fi, fiErr := os.Open(f)
 	if fiErr != nil {
-		lg.Println(fiErr)
+		// lg.Println(fiErr)
 		return "", fiErr
 	}
 	defer fi.Close()
@@ -21,7 +21,7 @@ func Md5OfAFile(f string) (string, error) {
 	var e error
 	for {
 		s, e = r.ReadString('\n')
-		lg.Println(e)
+		// lg.Println(e)
 		io.WriteString(h, s)
 		if e != nil {
 			if e == io.EOF {
