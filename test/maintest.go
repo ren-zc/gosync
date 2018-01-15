@@ -17,7 +17,7 @@ func main() {
 	for _, v := range s1 {
 		fmt.Println(v)
 	}
-	fmt.Println(s1)
+	// fmt.Println(s1)
 	// fmt.Println(m1)
 	fmt.Println(e1)
 }
