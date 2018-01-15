@@ -223,7 +223,7 @@ func DefaultSync(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		return nil, traErr
 	}
 	listMd5 := Md5OfASlice(fileMd5List)
-	TravHosts(hosts, fileMd5List, md5s(listMd5), true)
+	TravHosts(targets, fileMd5List, md5s(listMd5), true)
 	tu := transUnit{}
 	tu.hosts = hosts
 	tu.fileMd5List = fileMd5List
@@ -256,7 +256,7 @@ func UpdateSync(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		return nil, traErr
 	}
 	listMd5 := Md5OfASlice(fileMd5List)
-	TravHosts(hosts, fileMd5List, md5s(listMd5), true)
+	TravHosts(targets, fileMd5List, md5s(listMd5), true)
 	di := diffInfo{}
 	hostNum := len(hosts)
 	for i := 0; i < hostNum; i++ {
