@@ -8,9 +8,8 @@ import (
 	"os"
 )
 
-func Md5OfAFile(f string) (string, error) {
+func Md5OfAFile(f string, info os.FileInfo) (string, error) {
 	fi, fiErr := os.Open(f)
-	// fi, fiErr := os.OpenFile(f, 0, os.ModeSymlink)
 	if fiErr != nil {
 		lg.Println(fiErr)
 		return "", fiErr
