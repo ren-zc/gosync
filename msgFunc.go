@@ -122,6 +122,10 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	if err != nil {
 		lg.Println(err)
 	}
+	err = cnWt.Flush()
+	if err != nil {
+		lg.Println(err)
+	}
 
 	// do symbol link change
 
