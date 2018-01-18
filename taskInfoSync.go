@@ -159,7 +159,7 @@ END:
 				diffFile.files = nil
 			}
 			break END
-		case hostMg := <-dataRecCh:
+		case hostMg = <-dataRecCh:
 			switch hostMg.MgType {
 			case "result":
 				if hostMg.b {
