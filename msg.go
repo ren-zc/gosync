@@ -3,7 +3,7 @@ package gosync
 type Message struct {
 	MgID      int    // reserved
 	MgType    string // cmd,auth,file,info,task
-	MgName    string // cmd name, auth username, file name, info name, task: DefaultSync/UpdateSync
+	MgName    string // cmd name, auth username, file name, info name, ** del: task: DefaultSync/UpdateSync**
 	MgByte    []byte // file piece
 	MgString  string // cmd option, autho user passwd, sync task target hosts
 	MgStrings []string
@@ -14,4 +14,5 @@ type Message struct {
 	Del       bool   // whether should the not exist files in src be deleted.
 	Zip       bool   // whether should files be compressed.
 	Overwrt   bool   // whether the conflicted files be overwrited.
+	b         bool   // other bool option
 }

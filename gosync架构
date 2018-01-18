@@ -40,7 +40,7 @@ gosync架构
 	type Message struct {
 		MgID      int    // reserved
 		MgType    string // cmd,auth,file,info,task
-		MgName    string // cmd name, auth username, file name, info name, task: DefaultSync/UpdateSync
+		MgName    string // cmd name, auth username, file name, info name, ** del: task: DefaultSync/UpdateSync**
 		MgByte    []byte // file piece
 		MgString  string // cmd option, autho user passwd, sync task target hosts
 		MgStrings []string
@@ -51,16 +51,21 @@ gosync架构
 		Del       bool   // whether should the not exist files in src be deleted.
 		Zip       bool   // whether should files be compressed.
 		Overwrt   bool   // whether the conflicted files be overwrited.
+		b         bool   // other bool option
 	}
 
 	gui向deamon发起任务：
 		MgID: 会话ID
 		MgType: task
-		MgName: DefaultSync/UpdateSync 二选一
+		//MgName: DefaultSync/UpdateSync 二选一
+		MgName: sync
 		MgString： 目标主机，各主机以逗号分隔，需做正则匹配
 		// StrOption: overwrite, deletion, zip选项
 		SrcPath: 源路径
 		DstPath: 目的路径
+		Del
+		Zip
+		Overwrt
 
 	错误信息：
 		MgType: info
@@ -72,12 +77,31 @@ gosync架构
 		MgString: error, not a recognizable MgName.
 		IntOption: 错误msg的MgID
 
-	传输files md5 list
+	传输files md5 list:
 		MgID
 		MgType: "allFilesMd5List"
 		MgString: md5s
 		MgStrings: []string
-		StrOption: default or update
+		//StrOption: default or update
+		DstPath
+		Del
+		Overwrt
+
+	目标主机返回diff list:
+		MgID: 同源host发来的message的MgID
+		MgType: "diffOfFilesMd5List"
+		MgString: md5s 用于check, 备用
+		MgStrings: []string
+
+	目标主机同步失败:
+		MgID: 同源host发来的message的MgID
+		MgType: "result"
+		MgString: "Traverse in target host failure"
+		b: false
+
+	目标主机心跳信息:
+		MgID
+		MgType: live
 
 
 详细步骤
@@ -118,6 +142,7 @@ gosync架构
 
 
 
-
+消息确认机制有待完善
+连接写入或读取超时机制有待完善
 
 

@@ -1,17 +1,15 @@
 package gosync
 
 import (
-	"flag"
-	// "fmt"
 	"bufio"
 	"encoding/gob"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 )
 
 func Client() {
-	var updateMode bool
 	var overwrite bool
 	var deletion bool
 	var zip bool
@@ -23,8 +21,7 @@ func Client() {
 	flag.StringVar(&lsnHost, "h", "127.0.0.1", "Please tell me the host ip which you want listen on.")
 	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
 	flag.StringVar(&srcpath, "src", ".", "Please specify the src file or directory path.")
-	flag.BoolVar(&updateMode, "u", false, "Please specify the sync mode. true/false.")
-	flag.BoolVar(&overwrite, "o", false, "Whether the modified files will be overwriten.")
+	flag.BoolVar(&overwrite, "o", true, "Whether the modified files will be overwriten.")
 	flag.BoolVar(&deletion, "d", false, "Whether the redundant files will be deleted.")
 	flag.BoolVar(&zip, "z", false, "Whether the redundant files will be compressed.")
 	flag.StringVar(&targets, "t", "", "Please specify the target hosts.")
@@ -33,26 +30,22 @@ func Client() {
 	var userTask = Message{}
 	userTask.MgID = RandId()
 	userTask.MgType = "task"
-	if updateMode {
-		userTask.MgName = "UpdateSync"
-		if overwrite {
-			userTask.Overwrt = true
-		}
-		if deletion {
-			userTask.Del = true
-		}
-	} else {
-		userTask.MgName = "DefaultSync"
+	userTask.MgName = "sync"
+	if overwrite {
+		userTask.Overwrt = true
+	}
+	if deletion {
+		userTask.Del = true
+	}
+	if zip {
+		userTask.Zip = true
 	}
 	userTask.MgString = targets
+	userTask.SrcPath = srcpath
+	userTask.DstPath = dstpath
 	conn, cnErr := net.Dial("tcp", lsnHost+":"+lsnPort)
 	if cnErr != nil {
 		log.Fatalln(cnErr)
-	}
-	userTask.SrcPath = srcpath
-	userTask.DstPath = dstpath
-	if zip {
-		userTask.Zip = true
 	}
 	ghandleConn(conn, userTask)
 }

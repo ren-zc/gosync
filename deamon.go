@@ -28,7 +28,7 @@ func DeamonStart() {
 			log.Println(err)
 			continue
 		}
-		dhandleConn(conn)
+		go dhandleConn(conn)
 	}
 }
 
@@ -51,6 +51,8 @@ func dhandleConn(conn net.Conn) {
 		hdTask(&mg, cnRd, cnWt, dec, enc)
 	case "file":
 		hdFile(&mg, cnRd, cnWt, dec, enc)
+	case "allFilesMd5List":
+		hdFileMd5List(&mg, cnRd, cnWt, dec, enc)
 	default:
 		hdNoType(&mg, cnRd, cnWt, dec, enc)
 	}
