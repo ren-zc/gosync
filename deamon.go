@@ -11,9 +11,14 @@ import (
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug
+var pwd string
 
 func init() {
 	lg = log.New(os.Stdout, "* ", log.Lshortfile)
+	pwd, err := os.Getwd()
+	if err != nil {
+		lg.Println(err)
+	}
 }
 
 var worker int

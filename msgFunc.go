@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jacenr/filediff/diff"
 	"log"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -36,6 +37,10 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		for k, v := range tus {
 			lg.Printf("%s\t", k)
 			lg.Println(v)
+		}
+		err = os.Chdir(pwd)
+		if err != nil {
+			lg.Println(err)
 		}
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
