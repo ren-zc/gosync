@@ -53,7 +53,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	hostNum := len(hosts)
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
-		lg.Println(di) // ****** test ******
+		// lg.Println(di) // ****** test ******
 		if di.files == nil {
 			continue
 		}
@@ -82,5 +82,6 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		}
 	}
 	// 返回tus, 即一个传输任务单元
+	lg.Println(tus) // ****** test ******
 	return tus, nil
 }
