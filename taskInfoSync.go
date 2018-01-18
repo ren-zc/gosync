@@ -43,7 +43,7 @@ type diffInfo struct {
 }
 
 // 用于接收各host的sync结果
-var retCh = make(chan hostRet)
+var retCh chan hostRet
 
 // 负责管理allConn, 使用retCh channel
 func cnMonitor(i int) {
@@ -79,6 +79,7 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
 	lg.Println("in TravHosts") // ****** test ******
 
 	allConn = map[hostIP]ret{}
+	retCh = make(chan hostRet)
 	hostNum := len(hosts)
 	go cnMonitor(hostNum)
 
