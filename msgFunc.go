@@ -153,6 +153,12 @@ func writeErrorMg(mg *Message, s string, cnWt *bufio.Writer, enc *gob.Encoder) {
 
 func checkTargets(mg *Message) (bool, []string) {
 	targets := strings.Split(mg.MgString, ",")
+
+	// ****** test ******
+	for _, v := range targets {
+		lg.Printf("ip: ", v)
+	}
+
 	ipReg, regErr := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	if regErr != nil {
 		log.Println(regErr)
