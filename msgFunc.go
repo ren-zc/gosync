@@ -117,6 +117,7 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	ret.MgType = "diffOfFilesMd5List"
 	ret.MgString = transFilesMd5 // for check, reserved
 	// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
+	fmt.Println(ret)
 	enc.Encode(ret)
 
 	// do symbol link change
