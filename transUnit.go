@@ -51,7 +51,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	TravHosts(targets, fileMd5List, md5s(listMd5), mg)
 	di := diffInfo{}
 	hostNum := len(hosts)
-	lg.Println(hostNum) // ****** test ******
+	// lg.Println(hostNum) // ****** test ******
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
 		// lg.Println(di) // ****** test ******
@@ -63,9 +63,10 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 			continue
 		}
 		tu, ok := tus[di.md5s]
-		lg.Println(ok) // ****** test ******
+		// lg.Println(ok) // ****** test ******
 		if ok {
 			tu.hosts = append(tu.hosts, di.hostIP)
+			lg.Println(tu.hosts)
 		} else {
 			h := []hostIP{}
 			h = append(h, di.hostIP)
@@ -86,6 +87,6 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		}
 	}
 	// 返回tus, 即一个传输任务单元
-	lg.Println(tus) // ****** test ******
+	// lg.Println(tus) // ****** test ******
 	return tus, nil
 }
