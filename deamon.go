@@ -13,7 +13,7 @@ import (
 var lg *log.Logger // 使log记录行号, 用于debug
 
 func init() {
-	lg = log.New(os.Stdout, "*", log.Lshortfile)
+	lg = log.New(os.Stdout, "* ", log.Lshortfile)
 }
 
 var worker int

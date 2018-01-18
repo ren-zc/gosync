@@ -83,7 +83,7 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
 	// 和所有host建立连接
 	var conn net.Conn
 	var cnErr error
-	var port = "8999"
+	var port = ":8999"
 	for _, host := range hosts {
 		conn, cnErr = net.Dial("tcp", host+port)
 		// 建立连接失败, 即此目标host同步失败
