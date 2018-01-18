@@ -32,7 +32,7 @@ type hostRet struct {
 	ret
 }
 
-var allConn = map[hostIP]ret{}   // 用于收集host返回的sync结果
+var allConn map[hostIP]ret       // 用于收集host返回的sync结果
 var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
 
 // host返回的请求文件列表
@@ -78,6 +78,7 @@ func putRetCh(host hostIP, err error) {
 func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
 	lg.Println("in TravHosts") // ****** test ******
 
+	allConn = map[hostIP]ret{}
 	hostNum := len(hosts)
 	go cnMonitor(hostNum)
 
@@ -148,7 +149,7 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message) {
 
 	var diffFile diffInfo
 	var diffFlag int
-END:
+ENDCONN:
 	for {
 		select {
 		case <-stop:
@@ -158,7 +159,7 @@ END:
 			if diffFlag == 1 {
 				diffFile.files = nil
 			}
-			break END
+			break ENDCONN
 		case hostMg = <-dataRecCh:
 			// lg.Println(hostMg) // ****** test ******
 			switch hostMg.MgType {
@@ -170,7 +171,7 @@ END:
 				}
 				putRetCh(hostIP(conn.RemoteAddr().String()), err)
 				ender <- struct{}{}
-				break END
+				break ENDCONN
 			case "diffOfFilesMd5List":
 				diffFile.files = hostMg.MgStrings
 				diffFile.hostIP = hostIP(conn.RemoteAddr().String())

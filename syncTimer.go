@@ -8,7 +8,7 @@ import (
 func setTimer(fresher, ender, stop chan struct{}, i int) {
 	n := 0
 	tick := time.Tick(1 * time.Minute)
-END:
+ENDTIMER:
 	for {
 		select {
 		case <-fresher:
@@ -17,7 +17,7 @@ END:
 			close(fresher)
 			close(ender)
 			close(stop)
-			break END
+			break ENDTIMER
 		case <-tick:
 			n++
 			if n == i {
@@ -25,7 +25,7 @@ END:
 				close(fresher)
 				close(ender)
 				close(stop)
-				break END
+				break ENDTIMER
 			}
 		}
 	}
