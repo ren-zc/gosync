@@ -68,6 +68,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		} else {
 			h := []hostIP{}
 			h = append(h, di.hostIP)
+			lg.Println(h) // ****** test ******
 			tu.hosts = h
 			tu.fileMd5List = di.files
 			if mg.Zip {
@@ -79,6 +80,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 				zipFI.md5s = zipMd5
 			}
 			tu.zipFileInfo = zipFI
+			lg.Println(tu) // ****** test ******
 			tus[di.md5s] = tu
 		}
 	}
