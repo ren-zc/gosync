@@ -34,7 +34,7 @@ func (tu *transUnit) String() string {
 func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	lg.Println("in getTransUnit") // ****** test ******
 
-	hosts := make([]hostIP, 1)
+	hosts := make([]hostIP, 0)
 	for _, ipString := range targets {
 		hosts = append(hosts, hostIP(ipString))
 	}

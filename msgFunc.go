@@ -156,7 +156,7 @@ func checkTargets(mg *Message) (bool, []string) {
 
 	// ****** test ******
 	for _, v := range targets {
-		lg.Printf("ip: ", v)
+		lg.Printf("ip: %s", v)
 	}
 
 	ipReg, regErr := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
