@@ -159,7 +159,7 @@ END:
 				diffFile.files = nil
 			}
 			break END
-		case hostMg <- dataRecCh:
+		case hostMg := <-dataRecCh:
 			switch hostMg.MgType {
 			case "result":
 				if hostMg.b {
@@ -173,7 +173,7 @@ END:
 			case "diffOfFilesMd5List":
 				diffFile.files = hostMg.MgStrings
 				diffFile.hostIP = hostIP(conn.RemoteAddr().String())
-				diffFile.md5s = hostMg.MgString
+				diffFile.md5s = md5s(hostMg.MgString)
 				diffCh <- diffFile
 				diffFlag = 1
 				fresher <- struct{}{}
@@ -184,10 +184,10 @@ END:
 	}
 }
 
-func dataReciver(dec gob.Decoder, dataRecCh chan Message) {
+func dataReciver(dec *gob.Decoder, dataRecCh chan Message) {
 	var hostMessage Message
 	for {
-		err = dec.Decode(&hostMessage)
+		err := dec.Decode(&hostMessage)
 		if err != nil {
 			lg.Println(err)
 			break
