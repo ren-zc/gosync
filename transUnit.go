@@ -27,7 +27,7 @@ type transUnit struct {
 	zipFileInfo
 }
 
-func (tu *transUnit) String() {
+func (tu *transUnit) String() string {
 	return fmt.Sprintf("%v\t%v\t%v\t%v\n", tu.hosts, tu.fileMd5List, tu.name, tu.md5s)
 }
 
