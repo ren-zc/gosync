@@ -2,8 +2,8 @@ package gosync
 
 import (
 	// "archive/zip"
-	"bufio"
-	"encoding/gob"
+	// "bufio"
+	// "encoding/gob"
 	"fmt"
 	"log"
 	"net"
