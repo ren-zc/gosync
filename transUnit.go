@@ -66,7 +66,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		// lg.Println(ok) // ****** test ******
 		if ok {
 			tu.hosts = append(tu.hosts, di.hostIP)
-			lg.Println(tu.hosts)
+			// lg.Println(tu.hosts)
 		} else {
 			h := []hostIP{}
 			h = append(h, di.hostIP)
@@ -83,8 +83,8 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 			}
 			tu.zipFileInfo = zipFI
 			// lg.Println(tu) // ****** test ******
-			tus[di.md5s] = tu
 		}
+		tus[di.md5s] = tu
 	}
 	// 返回tus, 即一个传输任务单元
 	// lg.Println(tus) // ****** test ******
