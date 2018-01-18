@@ -86,6 +86,6 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 		}
 	}
 	// 返回tus, 即一个传输任务单元
-	// lg.Println(tus) // ****** test ******
+	lg.Println(tus) // ****** test ******
 	return tus, nil
 }
