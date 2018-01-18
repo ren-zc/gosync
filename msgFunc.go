@@ -111,6 +111,7 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	for k, _ := range diffrmM {
 		transFiles = append(transFiles, k)
 	}
+	sort.Strings(transFiles)
 	transFilesMd5 := Md5OfASlice(transFiles)
 	ret.MgID = mg.MgID
 	ret.MgStrings = transFiles
