@@ -88,6 +88,7 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
 		conn, cnErr = net.Dial("tcp", host+port)
 		// 建立连接失败, 即此目标host同步失败
 		if cnErr != nil {
+			lg.Println(cnErr) // ****** test ******
 			putRetCh(hostIP(host), cnErr)
 			continue
 		}
@@ -100,6 +101,8 @@ var diffCh = make(chan diffInfo)
 // 发送源host的文件列表, 接收目标host的请求列表, 接收目标host的sync结果
 // flMd5: md5 of fileMd5List
 func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message) {
+	lg.Println("in hdRetConn") // ****** test ******
+
 	defer conn.Close()
 	// 包装conn
 	cnRd := bufio.NewReader(conn)
