@@ -62,6 +62,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 			continue
 		}
 		tu, ok := tus[di.md5s]
+		lg.Println(ok) // ****** test ******
 		if ok {
 			tu.hosts = append(tu.hosts, di.hostIP)
 		} else {
