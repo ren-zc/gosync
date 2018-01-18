@@ -139,7 +139,7 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message) {
 	fresher := make(chan struct{})
 	ender := make(chan struct{})
 	stop := make(chan struct{})
-	go setTimer(fresher, ender, stop, 10)
+	go setTimer(fresher, ender, stop, 1)
 
 	// 用于接收目标host发来的信息
 	var hostMg Message
@@ -153,7 +153,7 @@ END:
 		select {
 		case <-stop:
 			// 超时失败
-			err = fmt.Errorf("%s", "timeout 10")
+			err = fmt.Errorf("%s", "timeout 1")
 			putRetCh(hostIP(conn.RemoteAddr().String()), err)
 			if diffFlag == 1 {
 				diffFile.files = nil
