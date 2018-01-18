@@ -34,8 +34,8 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		}
 		// test fmt
 		for k, v := range tus {
-			fmt.Printf("%s\t", k)
-			fmt.Println(v)
+			lg.Printf("%s\t", k)
+			lg.Println(v)
 		}
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
