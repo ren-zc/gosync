@@ -51,6 +51,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	TravHosts(targets, fileMd5List, md5s(listMd5), mg)
 	di := diffInfo{}
 	hostNum := len(hosts)
+	lg.Println(hostNum) // ****** test ******
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
 		// lg.Println(di) // ****** test ******
@@ -80,7 +81,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 				zipFI.md5s = zipMd5
 			}
 			tu.zipFileInfo = zipFI
-			lg.Println(tu) // ****** test ******
+			// lg.Println(tu) // ****** test ******
 			tus[di.md5s] = tu
 		}
 	}
