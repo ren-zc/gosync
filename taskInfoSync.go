@@ -159,7 +159,7 @@ END:
 			}
 			break END
 		case hostMg = <-dataRecCh:
-			lg.Println(hostMg) // ****** test ******
+			// lg.Println(hostMg) // ****** test ******
 			switch hostMg.MgType {
 			case "result":
 				if hostMg.b {

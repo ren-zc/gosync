@@ -53,6 +53,7 @@ func getTransUnit(mg *Message, targets []string) (map[md5s]transUnit, error) {
 	hostNum := len(hosts)
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
+		lg.Println(di) // ****** test ******
 		if di.files == nil {
 			continue
 		}
