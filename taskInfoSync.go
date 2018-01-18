@@ -51,6 +51,7 @@ func cnMonitor(i int) {
 	var l int
 	for {
 		c = <-retCh
+		lg.Println(c) // ****** test ******
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
 		// 相等表示所有host已返回sync结果
