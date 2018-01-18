@@ -14,7 +14,8 @@ import (
 // hd: handle
 
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
-	// defer conn.Close()
+	lg.Println(mg)
+
 	var checkOk bool
 	var targets []string
 	switch mg.MgName {
@@ -22,21 +23,22 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
+		// get transUnits
+		lg.Println(targets)
+		var tus = make(map[md5s]transUnit)
+		tus, err := getTransUnit(mg, targets)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// test fmt
+		for k, v := range tus {
+			fmt.Printf("%s\t", k)
+			fmt.Println(v)
+		}
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
 	}
 
-	// get transUnits
-	var tus = make(map[md5s]transUnit)
-	tus, err := getTransUnit(mg, targets)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// test fmt
-	for k, v := range tus {
-		fmt.Printf("%s\t", k)
-		fmt.Println(v)
-	}
 }
 
 func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {

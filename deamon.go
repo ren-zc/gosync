@@ -5,7 +5,7 @@ import (
 	"encoding/gob"
 	"flag"
 	// "fmt"
-	"log"
+	// "log"
 	"net"
 )
 
@@ -20,12 +20,12 @@ func DeamonStart() {
 	flag.Parse()
 	svrln, err := net.Listen("tcp", lsnHost+":"+lsnPort)
 	if err != nil {
-		log.Fatalln(err)
+		lg.Fatalln(err)
 	}
 	for {
 		conn, err := svrln.Accept()
 		if err != nil {
-			log.Println(err)
+			lg.Println(err)
 			continue
 		}
 		go dhandleConn(conn)
@@ -33,6 +33,7 @@ func DeamonStart() {
 }
 
 func dhandleConn(conn net.Conn) {
+	lg.Println(conn.RemoteAddr().String())
 	defer conn.Close()
 	cnRd := bufio.NewReader(conn)
 	cnWt := bufio.NewWriter(conn)
@@ -41,7 +42,7 @@ func dhandleConn(conn net.Conn) {
 	var mg Message
 	rcvErr := dec.Decode(&mg)
 	if rcvErr != nil {
-		log.Println(rcvErr)
+		lg.Println(rcvErr)
 	}
 	// fmt.Println(mg)
 
