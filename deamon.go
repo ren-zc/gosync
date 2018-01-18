@@ -15,6 +15,7 @@ var pwd string
 
 func init() {
 	lg = log.New(os.Stdout, "* ", log.Lshortfile)
+	var err error
 	pwd, err = os.Getwd()
 	if err != nil {
 		lg.Println(err)
