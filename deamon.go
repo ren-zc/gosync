@@ -7,6 +7,7 @@ import (
 	// "fmt"
 	"log"
 	"net"
+	"os"
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug
