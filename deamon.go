@@ -5,9 +5,15 @@ import (
 	"encoding/gob"
 	"flag"
 	// "fmt"
-	// "log"
+	"log"
 	"net"
 )
+
+var lg *log.Logger // 使log记录行号, 用于debug
+
+func init() {
+	lg = log.New(os.Stdout, "Err ", log.Lshortfile)
+}
 
 var worker int
 
@@ -33,7 +39,7 @@ func DeamonStart() {
 }
 
 func dhandleConn(conn net.Conn) {
-	lg.Println(conn.RemoteAddr().String())
+	lg.Println(conn.RemoteAddr().String()) // ****** test ******
 	defer conn.Close()
 	cnRd := bufio.NewReader(conn)
 	cnWt := bufio.NewWriter(conn)

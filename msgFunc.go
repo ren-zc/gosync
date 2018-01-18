@@ -14,7 +14,7 @@ import (
 // hd: handle
 
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
-	lg.Println(mg)
+	lg.Println(mg) // ****** test ******
 
 	var checkOk bool
 	var targets []string
@@ -23,8 +23,10 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		if checkOk, targets = checkTargets(mg); !checkOk {
 			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 		}
+
+		lg.Println(targets) // ****** test ******
+
 		// get transUnits
-		lg.Println(targets)
 		var tus = make(map[md5s]transUnit)
 		tus, err := getTransUnit(mg, targets)
 		if err != nil {
@@ -51,6 +53,8 @@ var slinkNeedChange = make(map[string]string)
 var needDelete = make([]string, 1)
 
 func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
+	lg.Println("Conn established.")
+
 	var ret Message
 	localFilesMd5, err := Traverse(mg.DstPath)
 	if err != nil {

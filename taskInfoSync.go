@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"encoding/gob"
 	"fmt"
-	"log"
+	// "log"
 	"net"
 	"os"
 	// "path/filepath"
@@ -42,12 +42,6 @@ type diffInfo struct {
 	files []string // 需要更新的文件, 即diff文件列表
 }
 
-var lg *log.Logger // 使log记录行号, 用于debug
-
-func init() {
-	lg = log.New(os.Stdout, "Err ", log.Lshortfile)
-}
-
 // 用于接收各host的sync结果
 var retCh = make(chan hostRet)
 
@@ -81,6 +75,8 @@ func putRetCh(host hostIP, err error) {
 
 // 启动监控进程, 和各目标host建立连接
 func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
+	lg.Println("in TravHosts") // ****** test ******
+
 	hostNum := len(hosts)
 	go cnMonitor(hostNum)
 
