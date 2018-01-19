@@ -86,7 +86,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 			lg.Println(v)
 		}
 
-		// 整理allConn返回给客户端
+		// *** 整理allConn返回给客户端 ***
 		//
 
 		err = os.Chdir(pwd)
@@ -116,8 +116,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.MgType = "result"
 		ret.MgString = "Traverse in target host failure"
 		ret.b = false
-		// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
-		// enc.Encode(ret)
 		err = gbc.gobConnWt(ret)
 		if err != nil {
 			// *** 记录本地日志 ***
@@ -175,18 +173,11 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	ret.MgStrings = transFiles
 	ret.MgType = "diffOfFilesMd5List"
 	ret.MgString = transFilesMd5
-	// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
-	// err = enc.Encode(ret)
 	err = gbc.gobConnWt(ret)
 	if err != nil {
-		// lg.Println(err)
 		// *** 记录本地日志 ***
 		return
 	}
-	// err = cnWt.Flush()
-	// if err != nil {
-	// 	lg.Println(err)
-	// }
 
 	// do symbol link change
 
@@ -205,12 +196,10 @@ func writeErrorMg(mg *Message, s string, gbc *gobConn) {
 	errmg.MgType = "info"
 	errmg.MgString = s
 	errmg.IntOption = mg.MgID
-	// sendErr := enc.Encode(errmg)
 	sendErr := gbc.gobConnWt(errmg)
 	if sendErr != nil {
 		log.Println(sendErr)
 	}
-	// cnWt.Flush()
 }
 
 func checkTargets(mg *Message) (bool, []string) {

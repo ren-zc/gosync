@@ -52,20 +52,16 @@ func Client() {
 
 func ghandleConn(conn net.Conn, mg Message) {
 	defer conn.Close()
-	cnRd := bufio.NewReader(conn)
-	cnWt := bufio.NewWriter(conn)
-	dec := gob.NewDecoder(cnRd)
-	enc := gob.NewEncoder(cnWt)
-	encErr := enc.Encode(mg)
+	gbc := initGobConn(conn)
+	encErr := gbc.gobConnWt(mg)
 	if encErr != nil {
 		log.Println(encErr)
 	}
-	cnWt.Flush()
 
 	// ...waiting server response...
 
 	var newmg Message
-	rcvErr := dec.Decode(&newmg)
+	rcvErr := gbc.dec.Decode(&newmg)
 	if rcvErr != nil {
 		log.Println(rcvErr)
 	}

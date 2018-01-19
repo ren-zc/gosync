@@ -72,13 +72,8 @@ func DeamonStart() {
 
 func dhandleConn(conn net.Conn) {
 	defer conn.Close()
-	// cnRd := bufio.NewReader(conn)
-	// cnWt := bufio.NewWriter(conn)
-	// dec := gob.NewDecoder(cnRd)
-	// enc := gob.NewEncoder(cnWt)
 	gbc := initGobConn(conn)
 	var mg Message
-	// rcvErr:= := dec.Decode(&mg)
 	rcvErr := gbc.dec.Decode(&mg)
 	if rcvErr != nil {
 		lg.Println(rcvErr)
