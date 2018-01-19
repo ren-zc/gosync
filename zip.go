@@ -17,6 +17,7 @@ import (
 
 // 暂定option: -z, 由用户指定是否进行压缩, 注意是整体打包压缩.
 
+// 对f路径进行压缩
 func Zipfiles(f string) (string, error) {
 	fi, fiErr := os.Stat(f)
 	if fiErr != nil {
@@ -79,6 +80,7 @@ func Zipfiles(f string) (string, error) {
 	return zipFileName, nil
 }
 
+// 对FileList中的文件进行压缩
 func zipFileList(files []string) (string, error) {
 	zipFileName := "/tmp/" + strconv.Itoa(RandId())
 	zipfn, crtErr := os.Create(zipFileName)
@@ -94,6 +96,11 @@ func zipFileList(files []string) (string, error) {
 			}
 
 		}
+	}
+	// close zip
+	zipCloseErr := zipf.Close()
+	if zipCloseErr != nil {
+		return "None", zipCloseErr
 	}
 	return zipFileName, nil
 }

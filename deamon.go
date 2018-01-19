@@ -46,7 +46,6 @@ func DeamonStart() {
 }
 
 func dhandleConn(conn net.Conn) {
-	lg.Println(conn.RemoteAddr().String()) // ****** test ******
 	defer conn.Close()
 	cnRd := bufio.NewReader(conn)
 	cnWt := bufio.NewWriter(conn)

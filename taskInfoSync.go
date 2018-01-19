@@ -51,8 +51,6 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, di
 // 发送源host的文件列表, 接收目标host的请求列表, 接收目标host的sync结果
 // flMd5: md5 of fileMd5List
 func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
-	lg.Println("in hdRetConn") // ****** test ******
-
 	defer conn.Close()
 	// 包装conn
 	cnRd := bufio.NewReader(conn)
@@ -139,7 +137,7 @@ func dataReciver(dec *gob.Decoder, dataRecCh chan Message) {
 	for {
 		err := dec.Decode(&hostMessage)
 		if err != nil {
-			lg.Println(err)
+			// lg.Println(err)
 			break
 		}
 		dataRecCh <- hostMessage
