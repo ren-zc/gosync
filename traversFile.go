@@ -1,17 +1,8 @@
 package gosync
 
 import (
-	// "archive/zip"
-	// "bufio"
-	// "encoding/gob"
-	// "fmt"
-	// "log"
-	// "net"
 	"os"
 	"path/filepath"
-	// "sort"
-	// "strconv"
-	// "sync"
 )
 
 // walk源host要同步的文件, 生成md5, 并返回列表

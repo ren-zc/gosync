@@ -1,8 +1,6 @@
 package gosync
 
 import (
-	"bufio"
-	"encoding/gob"
 	"flag"
 	"fmt"
 	"log"

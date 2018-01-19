@@ -1,7 +1,6 @@
 package gosync
 
 import (
-	// "bufio"
 	"encoding/gob"
 	"fmt"
 	"net"

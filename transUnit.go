@@ -2,7 +2,6 @@ package gosync
 
 import (
 	"fmt"
-	// "sort"
 )
 
 // zip文件名和md5
