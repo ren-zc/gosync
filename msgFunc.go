@@ -43,14 +43,11 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 // hd: handle
 
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
-	lg.Println(mg) // ****** test ******
-
 	var checkOk bool
 	var targets []string
 	if checkOk, targets = checkTargets(mg); !checkOk {
 		writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 	}
-	lg.Println(targets) // ****** test ******
 
 	switch mg.MgName {
 	case "sync":
@@ -88,13 +85,14 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 			lg.Printf("%s\t", k)
 			lg.Println(v)
 		}
+
+		// 整理allConn返回给客户端
+		//
+
 		err = os.Chdir(pwd)
 		if err != nil {
 			lg.Println(err)
 		}
-
-		// 整理allConn返回给客户端
-		//
 
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
@@ -162,7 +160,6 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 			delete(diffrmM, k)
 		}
 	}
-	// needTrans = diffrmM
 
 	// do request needTrans files
 	transFiles := []string{}
@@ -174,9 +171,8 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	ret.MgID = mg.MgID
 	ret.MgStrings = transFiles
 	ret.MgType = "diffOfFilesMd5List"
-	ret.MgString = transFilesMd5 // for check, reserved
+	ret.MgString = transFilesMd5
 	// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
-	// fmt.Println(ret) // ****** test ******
 	err = enc.Encode(ret)
 	if err != nil {
 		lg.Println(err)

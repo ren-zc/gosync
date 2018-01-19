@@ -23,15 +23,7 @@ func (tu *transUnit) String() string {
 }
 
 func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRet) (map[md5s]transUnit, error) {
-	lg.Println("in getTransUnit") // ****** test ******
-
-	// hosts := make([]hostIP, 0)
-	// for _, ipString := range targets {
-	// 	hosts = append(hosts, hostIP(ipString))
-	// }
 	var tus = make(map[md5s]transUnit)
-	// var zipFI zipFileInfo
-	// hostNum := len(hosts)
 
 	di := diffInfo{}
 	for i := 0; i < hostNum; i++ {
@@ -46,11 +38,9 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRe
 		tu, ok := tus[di.md5s]
 		if ok {
 			tu.hosts = append(tu.hosts, di.hostIP)
-			// lg.Println(tu.hosts)
 		} else {
 			h := []hostIP{}
 			h = append(h, di.hostIP)
-			lg.Println(h) // ****** test ******
 			tu.hosts = h
 			tu.fileMd5List = di.files
 			zipFI := zipFileInfo{}

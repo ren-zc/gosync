@@ -35,20 +35,12 @@ func putRetCh(host hostIP, err error, retCh chan hostRet) {
 
 // 启动监控进程, 和各目标host建立连接
 func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
-	lg.Println("in TravHosts") // ****** test ******
 
-	// allConn = map[hostIP]ret{}
-	// retCh = make(chan hostRet)
-
-	// 和所有host建立连接
-	// var conn net.Conn
-	// var cnErr error
 	var port = ":8999"
 	for _, host := range hosts {
 		conn, cnErr := net.Dial("tcp", host+port)
 		// 建立连接失败, 即此目标host同步失败
 		if cnErr != nil {
-			lg.Println(cnErr) // ****** test ******
 			putRetCh(hostIP(host), cnErr, retCh)
 			continue
 		}
@@ -118,7 +110,6 @@ ENDCONN:
 			}
 			break ENDCONN
 		case hostMg = <-dataRecCh:
-			// lg.Println(hostMg) // ****** test ******
 			switch hostMg.MgType {
 			case "result":
 				if hostMg.b {
@@ -153,5 +144,4 @@ func dataReciver(dec *gob.Decoder, dataRecCh chan Message) {
 		}
 		dataRecCh <- hostMessage
 	}
-	lg.Println("END") // ****** test ******
 }
