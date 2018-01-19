@@ -53,12 +53,12 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRe
 			lg.Println(h) // ****** test ******
 			tu.hosts = h
 			tu.fileMd5List = di.files
+			zipFI := zipFileInfo{}
 			if zip {
 				zipName, zipMd5, traErr := Md5AndZip(di.files)
 				if traErr != nil {
 					return nil, traErr
 				}
-				zipFI := zipFileInfo{}
 				zipFI.name = zipName
 				zipFI.md5s = zipMd5
 			}
