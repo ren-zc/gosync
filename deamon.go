@@ -36,7 +36,8 @@ func initGobConn(conn net.Conn) *gobConn {
 	gbc.cnRd = bufio.NewReader(conn)
 	gbc.cnWt = bufio.NewWriter(conn)
 	gbc.dec = gob.NewDecoder(gbc.cnRd)
-	gbc.enc = gob.NewDecoder(gbc.cnWt)
+	gbc.enc = gob.NewEncoder(gbc.cnWt)
+	return gbc
 }
 
 func (gbc *gobConn) gobConnWt(mg Message) error {

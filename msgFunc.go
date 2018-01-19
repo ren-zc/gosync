@@ -46,7 +46,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 	var checkOk bool
 	var targets []string
 	if checkOk, targets = checkTargets(mg); !checkOk {
-		writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
+		writeErrorMg(mg, "error, not valid ip addr in MgString.", gbc)
 	}
 
 	switch mg.MgName {
@@ -95,7 +95,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		}
 
 	default:
-		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
+		writeErrorMg(mg, "error, not a recognizable MgName.", gbc)
 	}
 
 }
@@ -197,19 +197,20 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 func hdNoType(mg *Message, gbc *gobConn) {
 	// defer conn.Close()
-	writeErrorMg(mg, "error, not a recognizable message.", cnWt, enc)
+	writeErrorMg(mg, "error, not a recognizable message.", gbc)
 }
 
-func writeErrorMg(mg *Message, s string, cnWt *bufio.Writer, enc *gob.Encoder) {
+func writeErrorMg(mg *Message, s string, gbc *gobConn) {
 	errmg := Message{}
 	errmg.MgType = "info"
 	errmg.MgString = s
 	errmg.IntOption = mg.MgID
-	sendErr := enc.Encode(errmg)
+	// sendErr := enc.Encode(errmg)
+	sendErr := gbc.gobConnWt(errmg)
 	if sendErr != nil {
 		log.Println(sendErr)
 	}
-	cnWt.Flush()
+	// cnWt.Flush()
 }
 
 func checkTargets(mg *Message) (bool, []string) {
