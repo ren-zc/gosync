@@ -153,4 +153,5 @@ func dataReciver(dec *gob.Decoder, dataRecCh chan Message) {
 		}
 		dataRecCh <- hostMessage
 	}
+	lg.Println("END") // ****** test ******
 }
