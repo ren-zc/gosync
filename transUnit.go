@@ -2,7 +2,7 @@ package gosync
 
 import (
 	"fmt"
-	"sort"
+	// "sort"
 )
 
 // 传输单元, 代表一组相同同步任务的主机列表
@@ -24,9 +24,9 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo) (map[md5s]transUn
 	// 	hosts = append(hosts, hostIP(ipString))
 	// }
 	// var tus = make(map[md5s]transUnit)
-	// di := diffInfo{}
 	// hostNum := len(hosts)
 
+	di := diffInfo{}
 	for i := 0; i < hostNum; i++ {
 		di = <-diffCh
 		if di.files == nil {

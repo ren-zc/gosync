@@ -51,9 +51,9 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
 	lg.Println(mg) // ****** test ******
 
-	// var checkOk bool
-	// var targets []string
-	if checkOk, targets := checkTargets(mg); !checkOk {
+	var checkOk bool
+	var targets []string
+	if checkOk, targets = checkTargets(mg); !checkOk {
 		writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
 	}
 	lg.Println(targets) // ****** test ******
@@ -75,7 +75,10 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		var traErr error
 		fileMd5List, traErr = Traverse(mg.SrcPath)
 		if traErr != nil {
-			return nil, traErr
+			lg.Println(traErr)
+			// 将tarErr以Message的形式发送给客户端
+			// 待补充
+			return
 		}
 		sort.Strings(fileMd5List)
 		listMd5 := Md5OfASlice(fileMd5List)
