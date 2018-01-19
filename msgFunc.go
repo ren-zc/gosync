@@ -15,12 +15,6 @@ import (
 // ip addr
 type hostIP string
 
-// zip文件名和md5
-type zipFileInfo struct {
-	name string
-	md5s
-}
-
 // host返回的请求文件列表
 type diffInfo struct {
 	md5s // diff文件列表的md5
@@ -71,7 +65,6 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 
 		// traHosts, 用于获取文件列表和同步结果
 		var fileMd5List []string
-		var zipFI zipFileInfo
 		var traErr error
 		fileMd5List, traErr = Traverse(mg.SrcPath)
 		if traErr != nil {
@@ -82,11 +75,11 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		}
 		sort.Strings(fileMd5List)
 		listMd5 := Md5OfASlice(fileMd5List)
-		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh)
+		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh)
 
 		// get transUnits
 		var tus = make(map[md5s]transUnit)
-		tus, err := getTransUnit(mg.Zip, hostNum, diffCh)
+		tus, err := getTransUnit(mg.Zip, hostNum, diffCh, retCh)
 		if err != nil {
 			fmt.Println(err)
 		}
