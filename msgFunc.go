@@ -1,8 +1,8 @@
 package gosync
 
 import (
-	"bufio"
-	"encoding/gob"
+	// "bufio"
+	// "encoding/gob"
 	"fmt"
 	"github.com/jacenr/filediff/diff"
 	"log"
