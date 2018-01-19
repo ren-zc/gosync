@@ -24,6 +24,30 @@ func init() {
 
 var worker int
 
+type gobConn struct {
+	cnRd *bufio.Reader
+	cnWt *bufio.Writer
+	dec  *gob.Decoder
+	enc  *gob.Encoder
+}
+
+func initGobConn(conn net.Conn) *gobConn {
+	gbc := new(gobConn)
+	gbc.cnRd = bufio.NewReader(conn)
+	gbc.cnWt = bufio.NewWriter(conn)
+	gbc.dec = gob.NewDecoder(gbc.cnRd)
+	gbc.enc = gob.NewDecoder(gbc.cnWt)
+}
+
+func (gbc *gobConn) gobConnWt(mg Message) error {
+	err := gbc.enc.Encode(mg)
+	if err != nil {
+		return err
+	}
+	err = gbc.cnWt.Flush()
+	return err
+}
+
 func DeamonStart() {
 	var lsnHost string
 	var lsnPort string
@@ -47,12 +71,14 @@ func DeamonStart() {
 
 func dhandleConn(conn net.Conn) {
 	defer conn.Close()
-	cnRd := bufio.NewReader(conn)
-	cnWt := bufio.NewWriter(conn)
-	dec := gob.NewDecoder(cnRd)
-	enc := gob.NewEncoder(cnWt)
+	// cnRd := bufio.NewReader(conn)
+	// cnWt := bufio.NewWriter(conn)
+	// dec := gob.NewDecoder(cnRd)
+	// enc := gob.NewEncoder(cnWt)
+	gbc := initGobConn(conn)
 	var mg Message
-	rcvErr := dec.Decode(&mg)
+	// rcvErr:= := dec.Decode(&mg)
+	rcvErr := gbc.dec.Decode(&mg)
 	if rcvErr != nil {
 		lg.Println(rcvErr)
 	}
@@ -61,12 +87,12 @@ func dhandleConn(conn net.Conn) {
 	// **deal with the mg**
 	switch mg.MgType {
 	case "task":
-		hdTask(&mg, cnRd, cnWt, dec, enc)
+		hdTask(&mg, gbc)
 	case "file":
-		hdFile(&mg, cnRd, cnWt, dec, enc)
+		hdFile(&mg, gbc)
 	case "allFilesMd5List":
-		hdFileMd5List(&mg, cnRd, cnWt, dec, enc)
+		hdFileMd5List(&mg, gbc)
 	default:
-		hdNoType(&mg, cnRd, cnWt, dec, enc)
+		hdNoType(&mg, gbc)
 	}
 }

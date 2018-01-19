@@ -53,10 +53,11 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, di
 func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
 	defer conn.Close()
 	// 包装conn
-	cnRd := bufio.NewReader(conn)
-	cnWt := bufio.NewWriter(conn)
-	dec := gob.NewDecoder(cnRd)
-	enc := gob.NewEncoder(cnWt)
+	// cnRd := bufio.NewReader(conn)
+	// cnWt := bufio.NewWriter(conn)
+	// dec := gob.NewDecoder(cnRd)
+	// enc := gob.NewEncoder(cnWt)
+	gbc := initGobConn(conn)
 
 	// 发送fileMd5List
 	var fileMd5ListMg Message
@@ -67,20 +68,21 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, dif
 	fileMd5ListMg.DstPath = mg.DstPath
 	fileMd5ListMg.Del = mg.Del
 	fileMd5ListMg.Overwrt = mg.Overwrt
-	err := enc.Encode(fileMd5ListMg)
+	// err := enc.Encode(fileMd5ListMg)
+	err := gbc.gobConnWt(fileMd5ListMg)
 	// 如果encode失败, 则此conn对应的目标host同步失败
 	if err != nil {
 		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
 		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
 		return
 	}
-	err = cnWt.Flush()
+	// err = cnWt.Flush()
 	// 如果flush失败, 则此conn无法写入, 目标host同步失败
-	if err != nil {
-		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
-		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
-		return
-	}
+	// if err != nil {
+	// 	lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
+	// 	putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+	// 	return
+	// }
 
 	// 设置超时器, 1min
 	fresher := make(chan struct{})
@@ -91,7 +93,7 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, dif
 	// 用于接收目标host发来的信息
 	var hostMg Message
 	dataRecCh := make(chan Message)
-	go dataReciver(dec, dataRecCh)
+	go dataReciver(gbc.dec, dataRecCh)
 
 	var diffFile diffInfo
 	var diffFlag int

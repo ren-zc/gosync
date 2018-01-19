@@ -42,7 +42,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 
 // hd: handle
 
-func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
+func hdTask(mg *Message, gbc *gobConn) {
 	var checkOk bool
 	var targets []string
 	if checkOk, targets = checkTargets(mg); !checkOk {
@@ -100,11 +100,11 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 
 }
 
-func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
+func hdFile(mg *Message, gbc *gobConn) {
 	// defer conn.Close()
 }
 
-func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
+func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 1)
@@ -117,7 +117,12 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 		ret.MgString = "Traverse in target host failure"
 		ret.b = false
 		// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
-		enc.Encode(ret)
+		// enc.Encode(ret)
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+		}
+		return
 	}
 	sort.Strings(localFilesMd5)
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
@@ -171,14 +176,17 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	ret.MgType = "diffOfFilesMd5List"
 	ret.MgString = transFilesMd5
 	// encerr:= enc.Encode(ret) 暂时不考虑这种情况, 需配合源主机的超时机制
-	err = enc.Encode(ret)
+	// err = enc.Encode(ret)
+	err = gbc.gobConnWt(ret)
 	if err != nil {
-		lg.Println(err)
+		// lg.Println(err)
+		// *** 记录本地日志 ***
+		return
 	}
-	err = cnWt.Flush()
-	if err != nil {
-		lg.Println(err)
-	}
+	// err = cnWt.Flush()
+	// if err != nil {
+	// 	lg.Println(err)
+	// }
 
 	// do symbol link change
 
@@ -187,7 +195,7 @@ func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob
 	// do delete extra files
 }
 
-func hdNoType(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
+func hdNoType(mg *Message, gbc *gobConn) {
 	// defer conn.Close()
 	writeErrorMg(mg, "error, not a recognizable message.", cnWt, enc)
 }
