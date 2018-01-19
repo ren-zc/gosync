@@ -12,24 +12,78 @@ import (
 	"strings"
 )
 
+// ip addr
+type hostIP string
+
+// zip文件名和md5
+type zipFileInfo struct {
+	name string
+	md5s
+}
+
+// host返回的请求文件列表
+type diffInfo struct {
+	md5s // diff文件列表的md5
+	hostIP
+	files []string // 需要更新的文件, 即diff文件列表
+}
+
+// 负责管理allConn, 使用retCh channel
+func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan string) {
+	var c hostRet
+	var l int
+	for {
+		c = <-retCh
+		lg.Println(c) // ****** test ******
+		allConn[c.hostIP] = c.ret
+		l = len(allConn)
+		// 相等表示所有host已返回sync结果
+		if l == i {
+			break
+		}
+	}
+	close(retCh)
+	retReady <- "Done"
+}
+
 // hd: handle
 
 func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
 	lg.Println(mg) // ****** test ******
 
-	var checkOk bool
-	var targets []string
+	// var checkOk bool
+	// var targets []string
+	if checkOk, targets := checkTargets(mg); !checkOk {
+		writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
+	}
+	lg.Println(targets) // ****** test ******
+
 	switch mg.MgName {
 	case "sync":
-		if checkOk, targets = checkTargets(mg); !checkOk {
-			writeErrorMg(mg, "error, not valid ip addr in MgString.", cnWt, enc)
-		}
+		diffCh := make(chan diffInfo)
+		hostNum := len(targets)
 
-		lg.Println(targets) // ****** test ******
+		// 等待同步结果, 从retReady接收"Done"表示allConn写入完成
+		allConn := map[hostIP]ret{}   // 用于收集host返回的sync结果
+		retCh := make(chan hostRet)   // 用于接收各host的sync结果
+		retReady := make(chan string) // 从此channel读取到Done表示所有host已返回结果
+		go cnMonitor(hostNum, allConn, retCh, retReady)
+
+		// traHosts, 用于获取文件列表和同步结果
+		var fileMd5List []string
+		var zipFI zipFileInfo
+		var traErr error
+		fileMd5List, traErr = Traverse(mg.SrcPath)
+		if traErr != nil {
+			return nil, traErr
+		}
+		sort.Strings(fileMd5List)
+		listMd5 := Md5OfASlice(fileMd5List)
+		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh)
 
 		// get transUnits
 		var tus = make(map[md5s]transUnit)
-		tus, err := getTransUnit(mg, targets)
+		tus, err := getTransUnit(mg.Zip, hostNum, diffCh)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -42,6 +96,10 @@ func hdTask(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 		if err != nil {
 			lg.Println(err)
 		}
+
+		// 整理allConn返回给客户端
+		//
+
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", cnWt, enc)
 	}
@@ -52,13 +110,12 @@ func hdFile(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decode
 	// defer conn.Close()
 }
 
-// var needTrans map[string]string
-var slinkNeedCreat = make(map[string]string)
-var slinkNeedChange = make(map[string]string)
-var needDelete = make([]string, 1)
-
 func hdFileMd5List(mg *Message, cnRd *bufio.Reader, cnWt *bufio.Writer, dec *gob.Decoder, enc *gob.Encoder) {
 	lg.Println("Conn established.")
+
+	var slinkNeedCreat = make(map[string]string)
+	var slinkNeedChange = make(map[string]string)
+	var needDelete = make([]string, 1)
 
 	var ret Message
 	localFilesMd5, err := Traverse(mg.DstPath)
@@ -159,11 +216,6 @@ func writeErrorMg(mg *Message, s string, cnWt *bufio.Writer, enc *gob.Encoder) {
 
 func checkTargets(mg *Message) (bool, []string) {
 	targets := strings.Split(mg.MgString, ",")
-
-	// ****** test ******
-	for _, v := range targets {
-		lg.Printf("ip: %s", v)
-	}
 
 	ipReg, regErr := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	if regErr != nil {

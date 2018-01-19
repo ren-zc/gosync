@@ -1,24 +1,14 @@
 package gosync
 
 import (
-	// "archive/zip"
 	"bufio"
 	"encoding/gob"
 	"fmt"
-	// "log"
 	"net"
-	// "os"
-	// "path/filepath"
-	// "sort"
-	// "strconv"
-	// "sync"
 )
 
 // md5 string
 type md5s string
-
-// ip addr
-type hostIP string
 
 // host返回的结果
 type ret struct {
@@ -32,39 +22,8 @@ type hostRet struct {
 	ret
 }
 
-var allConn map[hostIP]ret       // 用于收集host返回的sync结果
-var retReady = make(chan string) // 从此channel读取到Done表示所有host已返回结果
-
-// host返回的请求文件列表
-type diffInfo struct {
-	md5s // diff文件列表的md5
-	hostIP
-	files []string // 需要更新的文件, 即diff文件列表
-}
-
-// 用于接收各host的sync结果
-var retCh chan hostRet
-
-// 负责管理allConn, 使用retCh channel
-func cnMonitor(i int) {
-	var c hostRet
-	var l int
-	for {
-		c = <-retCh
-		lg.Println(c) // ****** test ******
-		allConn[c.hostIP] = c.ret
-		l = len(allConn)
-		// 相等表示所有host已返回sync结果
-		if l == i {
-			break
-		}
-	}
-	close(retCh)
-	retReady <- "Done"
-}
-
 // 将host的sync结果push到channel
-func putRetCh(host hostIP, err error) {
+func putRetCh(host hostIP, err error, retCh chan hostRet) {
 	var re ret
 	if err != nil {
 		re = ret{false, err}
@@ -75,35 +34,31 @@ func putRetCh(host hostIP, err error) {
 }
 
 // 启动监控进程, 和各目标host建立连接
-func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message) {
+func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
 	lg.Println("in TravHosts") // ****** test ******
 
-	allConn = map[hostIP]ret{}
-	retCh = make(chan hostRet)
-	hostNum := len(hosts)
-	go cnMonitor(hostNum)
+	// allConn = map[hostIP]ret{}
+	// retCh = make(chan hostRet)
 
 	// 和所有host建立连接
-	var conn net.Conn
-	var cnErr error
+	// var conn net.Conn
+	// var cnErr error
 	var port = ":8999"
 	for _, host := range hosts {
-		conn, cnErr = net.Dial("tcp", host+port)
+		conn, cnErr := net.Dial("tcp", host+port)
 		// 建立连接失败, 即此目标host同步失败
 		if cnErr != nil {
 			lg.Println(cnErr) // ****** test ******
-			putRetCh(hostIP(host), cnErr)
+			putRetCh(hostIP(host), cnErr, retCh)
 			continue
 		}
-		go hdRetConn(conn, fileMd5List, flMd5, mg)
+		go hdRetConn(conn, fileMd5List, flMd5, mg, diffCh, retCh)
 	}
 }
 
-var diffCh = make(chan diffInfo)
-
 // 发送源host的文件列表, 接收目标host的请求列表, 接收目标host的sync结果
 // flMd5: md5 of fileMd5List
-func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message) {
+func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
 	lg.Println("in hdRetConn") // ****** test ******
 
 	defer conn.Close()
@@ -126,18 +81,18 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message) {
 	// 如果encode失败, 则此conn对应的目标host同步失败
 	if err != nil {
 		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
-		putRetCh(hostIP(conn.RemoteAddr().String()), err)
+		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
 		return
 	}
 	err = cnWt.Flush()
 	// 如果flush失败, 则此conn无法写入, 目标host同步失败
 	if err != nil {
 		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
-		putRetCh(hostIP(conn.RemoteAddr().String()), err)
+		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
 		return
 	}
 
-	// 设置超时器, 10min
+	// 设置超时器, 1min
 	fresher := make(chan struct{})
 	ender := make(chan struct{})
 	stop := make(chan struct{})
@@ -156,9 +111,10 @@ ENDCONN:
 		case <-stop:
 			// 超时失败
 			err = fmt.Errorf("%s", "timeout 1")
-			putRetCh(hostIP(conn.RemoteAddr().String()), err)
-			if diffFlag == 1 {
+			putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+			if diffFlag != 1 {
 				diffFile.files = nil
+				diffCh <- diffFile
 			}
 			break ENDCONN
 		case hostMg = <-dataRecCh:
@@ -170,7 +126,7 @@ ENDCONN:
 				} else {
 					err = fmt.Errorf("%s", hostMg.MgString)
 				}
-				putRetCh(hostIP(conn.RemoteAddr().String()), err)
+				putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
 				ender <- struct{}{}
 				break ENDCONN
 			case "diffOfFilesMd5List":
@@ -180,7 +136,7 @@ ENDCONN:
 				diffCh <- diffFile
 				diffFlag = 1
 				fresher <- struct{}{}
-			case "live": // backup use.
+			case "live": // heartbeat, backup use.
 				fresher <- struct{}{}
 			}
 		}
