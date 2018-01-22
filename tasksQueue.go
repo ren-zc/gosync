@@ -39,7 +39,7 @@ func (t *Tasks) ask(taskID string) bool {
 	if t.Status == Running {
 		return false
 	}
-	b := t.Curren == taskID
+	b := t.Current == taskID
 	if b {
 		taskMu.Lock()
 		defer taskMu.Unlock()

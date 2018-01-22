@@ -52,7 +52,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 	switch mg.MgName {
 	case "sync":
 		taskID := getTaskID(conn.LocalAddr().String())
-		t.put(taskeID)
+		t.put(taskID)
 		for {
 			if t.ask(taskID) {
 				break
@@ -135,7 +135,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 		ret.MgType = "result"
 		ret.MgString = "The src and dst on the same host."
 		ret.b = false
-		err = gbc.gobConnWt(ret)
+		err := gbc.gobConnWt(ret)
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
@@ -151,7 +151,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
 		ret.MgType = "live" // heartbeat
-		err = gbc.gobConnWt(ret)
+		err := gbc.gobConnWt(ret)
 		if err != nil {
 			// *** 记录本地日志 ***
 		}

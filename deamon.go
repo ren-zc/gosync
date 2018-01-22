@@ -88,7 +88,7 @@ func dhandleConn(conn net.Conn) {
 	case "file":
 		hdFile(&mg, gbc)
 	case "allFilesMd5List":
-		hdFileMd5List(&mg, gbc)
+		hdFileMd5List(&mg, gbc, conn)
 	default:
 		hdNoType(&mg, gbc)
 	}
