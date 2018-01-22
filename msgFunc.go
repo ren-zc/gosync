@@ -88,6 +88,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		// test fmt
 		for k, v := range tus {
 			lg.Printf("%s\t", k)
@@ -122,6 +123,7 @@ func hdFile(mg *Message, gbc *gobConn) {
 }
 
 func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
+	lg.Println("hdFileMd5List 1")
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 1)
@@ -157,6 +159,8 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 		}
 		time.Sleep(1 * time.Second)
 	}
+
+	lg.Println("hdFileMd5List 2")
 
 	// 遍历本地目标路径失败
 	localFilesMd5, err := Traverse(mg.DstPath)
