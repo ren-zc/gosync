@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/jacenr/filediff/diff"
 	"log"
+	"net"
 	"os"
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 )
 
 // ip addr
@@ -40,7 +42,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 
 // hd: handle
 
-func hdTask(mg *Message, gbc *gobConn) {
+func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 	var checkOk bool
 	var targets []string
 	if checkOk, targets = checkTargets(mg); !checkOk {
@@ -49,6 +51,14 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 	switch mg.MgName {
 	case "sync":
+		taskID := getTaskID(conn.LocalAddr().String())
+		t.put(taskeID)
+		for {
+			if t.ask(taskID) {
+				break
+			}
+			time.Sleep(1 * time.Second)
+		}
 		diffCh := make(chan diffInfo)
 		hostNum := len(targets)
 
@@ -70,7 +80,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		}
 		sort.Strings(fileMd5List)
 		listMd5 := Md5OfASlice(fileMd5List)
-		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh)
+		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh, taskID)
 
 		// get transUnits
 		var tus = make(map[md5s]transUnit)
@@ -84,6 +94,9 @@ func hdTask(mg *Message, gbc *gobConn) {
 			lg.Println(v)
 		}
 
+		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
+		//
+
 		// *** 整理allConn返回给客户端 ***
 		//
 
@@ -91,6 +104,12 @@ func hdTask(mg *Message, gbc *gobConn) {
 		if err != nil {
 			lg.Println(err)
 		}
+
+		// *** end taskID ***
+		t.tEnd(taskID)
+
+	case "exec":
+		// 预留, 后期扩展;
 
 	default:
 		writeErrorMg(mg, "error, not a recognizable MgName.", gbc)
@@ -102,14 +121,47 @@ func hdFile(mg *Message, gbc *gobConn) {
 	// defer conn.Close()
 }
 
-func hdFileMd5List(mg *Message, gbc *gobConn) {
+func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 1)
 
 	var ret Message
+
+	// 本机无须通过网络同步文件
+	if mg.TaskID == t.Current && t.Status == Running {
+		ret.TaskID = mg.TaskID
+		ret.MgID = mg.MgID
+		ret.MgType = "result"
+		ret.MgString = "The src and dst on the same host."
+		ret.b = false
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+		}
+		return
+	}
+
+	t.put(mg.TaskID)
+	defer t.tEnd(mg.TaskID)
+	for {
+		if t.ask(mg.TaskID) {
+			break
+		}
+		ret.TaskID = mg.TaskID
+		ret.MgID = mg.MgID
+		ret.MgType = "live" // heartbeat
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	// 遍历本地目标路径失败
 	localFilesMd5, err := Traverse(mg.DstPath)
 	if err != nil {
+		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
 		ret.MgType = "result"
 		ret.MgString = "Traverse in target host failure"
@@ -120,6 +172,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		}
 		return
 	}
+
 	sort.Strings(localFilesMd5)
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
 	// 重组成map
@@ -167,6 +220,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 	sort.Strings(transFiles)
 	transFilesMd5 := Md5OfASlice(transFiles)
+	ret.TaskID = mg.TaskID
 	ret.MgID = mg.MgID
 	ret.MgStrings = transFiles
 	ret.MgType = "diffOfFilesMd5List"
@@ -177,11 +231,13 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		return
 	}
 
-	// do symbol link change
+	// *** do symbol link change ***
 
-	// do symbol link create
+	// *** do symbol link create ***
 
-	// do delete extra files
+	// *** do delete extra files ***
+
+	// *** 阻塞直到, 从channel读取同步结果 ***
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {

@@ -1,6 +1,7 @@
 package gosync
 
 type Message struct {
+	TaskID    string
 	MgID      int    // reserved
 	MgType    string // cmd,auth,file,info,task
 	MgName    string // cmd name, auth username, file name, info name, ** del: task: DefaultSync/UpdateSync**

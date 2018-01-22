@@ -38,6 +38,7 @@ gosync架构
 
 通信协议:
 	type Message struct {
+		TaskID    string
 		MgID      int    // reserved
 		MgType    string // cmd,auth,file,info,task
 		MgName    string // cmd name, auth username, file name, info name, ** del: task: DefaultSync/UpdateSync**
@@ -78,6 +79,7 @@ gosync架构
 		IntOption: 错误msg的MgID
 
 	传输files md5 list:
+		TaskID
 		MgID
 		MgType: "allFilesMd5List"
 		MgString: md5s
@@ -88,10 +90,16 @@ gosync架构
 		Overwrt
 
 	目标主机返回diff list:
+		TaskID
 		MgID: 同源host发来的message的MgID
 		MgType: "diffOfFilesMd5List"
 		MgString: md5s 用于check, 备用
 		MgStrings: []string
+
+	目标主机返回heartbeat:
+		TaskID
+		MgID: 同源host发来的message的MgID
+		MgType: "live"
 
 	目标主机同步失败:
 		MgID: 同源host发来的message的MgID

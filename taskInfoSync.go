@@ -33,7 +33,7 @@ func putRetCh(host hostIP, err error, retCh chan hostRet) {
 }
 
 // 启动监控进程, 和各目标host建立连接
-func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
+func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet, taskID string) {
 
 	var port = ":8999"
 	for _, host := range hosts {
@@ -43,19 +43,20 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, di
 			putRetCh(hostIP(host), cnErr, retCh)
 			continue
 		}
-		go hdRetConn(conn, fileMd5List, flMd5, mg, diffCh, retCh)
+		go hdRetConn(conn, fileMd5List, flMd5, mg, diffCh, retCh, taskID)
 	}
 }
 
 // 发送源host的文件列表, 接收目标host的请求列表, 接收目标host的sync结果
 // flMd5: md5 of fileMd5List
-func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet) {
+func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, diffCh chan diffInfo, retCh chan hostRet, taskID string) {
 	defer conn.Close()
 	// 包装conn
 	gbc := initGobConn(conn)
 
 	// 发送fileMd5List
 	var fileMd5ListMg Message
+	fileMd5ListMg.TaskID = taskID
 	fileMd5ListMg.MgID = RandId()
 	fileMd5ListMg.MgType = "allFilesMd5List"
 	fileMd5ListMg.MgString = string(flMd5)
@@ -114,7 +115,7 @@ ENDCONN:
 				diffCh <- diffFile
 				diffFlag = 1
 				fresher <- struct{}{}
-			case "live": // heartbeat, backup use.
+			case "live": // heartbeat
 				fresher <- struct{}{}
 			}
 		}

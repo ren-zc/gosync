@@ -19,6 +19,8 @@ func init() {
 	if err != nil {
 		lg.Println(err)
 	}
+	q := []string{}
+	t = &Tasks{q, "", Complated}
 }
 
 var worker int
@@ -82,7 +84,7 @@ func dhandleConn(conn net.Conn) {
 	// **deal with the mg**
 	switch mg.MgType {
 	case "task":
-		hdTask(&mg, gbc)
+		hdTask(&mg, gbc, conn)
 	case "file":
 		hdFile(&mg, gbc)
 	case "allFilesMd5List":
