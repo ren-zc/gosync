@@ -20,7 +20,6 @@ ENDTIMER:
 			break ENDTIMER
 		case <-tick:
 			n++
-			lg.Println(n)
 			if n >= i {
 				stop <- struct{}{}
 				close(fresher)

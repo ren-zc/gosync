@@ -28,7 +28,6 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	var l int
 	for {
 		c = <-retCh
-		// lg.Println(c) // ****** test ******
 		lg.Printf("%s\t%s\n", c.hostIP, c.err)
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
@@ -158,7 +157,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.MgID = mg.MgID
 		ret.MgType = "live" // heartbeat
 		err := gbc.gobConnWt(ret)
-		lg.Println("waiting...")
+		// lg.Println("waiting...")
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
