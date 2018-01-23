@@ -3,6 +3,7 @@ package gosync
 import (
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -78,13 +79,17 @@ func GetLocalIP() string {
 	if err != nil {
 		return strconv.Itoa(RandId())
 	}
-	var ip net.IP
+	var ip string
 	for _, v := range addrs {
-		lg.Println(v.String())
-		ip = net.ParseIP(v.String())
-		lg.Println(ip.IsLoopback())
-		if !ip.IsLoopback() {
-			// return v.String()
+		// lg.Println(v.String())
+		// ip = net.ParseIP(v.String())
+		// lg.Println(ip.IsLoopback())
+		// if !ip.IsLoopback() {
+		// return v.String()
+		// }
+		ip = v.String()
+		if !strings.HasPrefix(ip, "127") && !strings.HasPrefix(ip, "::" && !strings.HasPrefix(ip, "0")) {
+			lg.Println(ip)
 		}
 	}
 	return ""
