@@ -82,6 +82,7 @@ func GetLocalIP() string {
 	for _, v := range addrs {
 		lg.Println(v.String())
 		ip = net.ParseIP(v.String())
+		lg.Println(ip.IsLoopback())
 		if !ip.IsLoopback() {
 			// return v.String()
 		}
