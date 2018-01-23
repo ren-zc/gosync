@@ -57,7 +57,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 			if t.ask(taskID) {
 				break
 			}
-			fmt.Println("hdTask")
+			lg.Println("hdTask")
 			time.Sleep(1 * time.Second)
 		}
 		diffCh := make(chan diffInfo)
