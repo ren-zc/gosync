@@ -55,7 +55,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		taskID := getTaskID()
 		t.put(taskID)
 		lg.Println(t)
-		time.Sleep(2 * time.Minute)
 		for {
 			if t.ask(taskID) {
 				break
@@ -85,6 +84,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		sort.Strings(fileMd5List)
 		listMd5 := Md5OfASlice(fileMd5List)
 		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh, taskID)
+		time.Sleep(2 * time.Minute)
 
 		// get transUnits
 		var tus = make(map[md5s]transUnit)
