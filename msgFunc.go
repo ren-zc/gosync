@@ -58,7 +58,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 			if t.ask(taskID) {
 				break
 			}
-			lg.Println("hdTask")
 			time.Sleep(1 * time.Second)
 		}
 		diffCh := make(chan diffInfo)
@@ -147,7 +146,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 
 	t.put(mg.TaskID)
-	lg.Println(t)
+	// lg.Println(t)
 	defer t.tEnd(mg.TaskID)
 	for {
 		if t.ask(mg.TaskID) {
