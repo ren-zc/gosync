@@ -106,6 +106,10 @@ ENDCONN:
 					err = fmt.Errorf("%s", hostMg.MgString)
 				}
 				putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+				if diffFlag != 1 {
+					diffFile.files = nil
+					diffCh <- diffFile
+				}
 				ender <- struct{}{}
 				break ENDCONN
 			case "diffOfFilesMd5List":
