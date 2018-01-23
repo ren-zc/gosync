@@ -83,14 +83,14 @@ func GetLocalIP() string {
 		lg.Println(v.String())
 		ip = net.ParseIP(v.String())
 		if !ip.IsLoopback() {
-			return v.String()
+			// return v.String()
 		}
 	}
 	return ""
 }
 
 func getTaskID() string {
-	taskId := GetLocalIP() + strconv.Itoa(idNumber)
+	taskId := GetLocalIP() + "." + strconv.Itoa(idNumber)
 	idNumber++
 	return taskId
 }
