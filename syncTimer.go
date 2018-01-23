@@ -7,7 +7,7 @@ import (
 // 30分钟超时时间
 func setTimer(fresher, ender, stop chan struct{}, i int) {
 	n := 0
-	tick := time.Tick(1 * time.Minute)
+	tick := time.Tick(1 * time.Second)
 ENDTIMER:
 	for {
 		select {
@@ -21,7 +21,7 @@ ENDTIMER:
 		case <-tick:
 			n++
 			lg.Println(n)
-			if n == i {
+			if n >= i {
 				stop <- struct{}{}
 				close(fresher)
 				close(ender)
