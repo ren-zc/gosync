@@ -34,7 +34,6 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRe
 			putRetCh(di.hostIP, nil, retCh)
 			continue
 		}
-		lg.Println(di.hostIP)
 		tu, ok := tus[di.md5s]
 		if ok {
 			tu.hosts = append(tu.hosts, di.hostIP)
