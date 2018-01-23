@@ -84,7 +84,7 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, dif
 	go dataReciver(gbc.dec, dataRecCh)
 
 	var diffFile diffInfo
-	var diffFlag int
+	var diffFlag int // 是否是在"diffOfFilesMd5List"返回之前返回了结果
 ENDCONN:
 	for {
 		select {

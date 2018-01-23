@@ -49,6 +49,9 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 		writeErrorMg(mg, "error, not valid ip addr in MgString.", gbc)
 	}
 
+	time.Sleep(2 * time.Minute)
+	lg.Println(t)
+
 	switch mg.MgName {
 	case "sync":
 		taskID := getTaskID(conn.LocalAddr().String())
@@ -131,7 +134,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 	var ret Message
 
 	// 本机无须通过网络同步文件
-	lg.Println(mg.TaskID == t.Current && t.Status == Running)
 	if mg.TaskID == t.Current && t.Status == Running {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
