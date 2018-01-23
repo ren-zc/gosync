@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/jacenr/filediff/diff"
 	"log"
-	"net"
+	// "net"
 	"os"
 	"regexp"
 	"sort"
@@ -42,7 +42,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 
 // hd: handle
 
-func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
+func hdTask(mg *Message, gbc *gobConn) {
 	var checkOk bool
 	var targets []string
 	if checkOk, targets = checkTargets(mg); !checkOk {
@@ -51,7 +51,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 
 	switch mg.MgName {
 	case "sync":
-		taskID := getTaskID(conn.LocalAddr().String())
+		taskID := getTaskID()
 		t.put(taskID)
 		lg.Println(t)
 		time.Sleep(2 * time.Minute)
@@ -125,7 +125,7 @@ func hdFile(mg *Message, gbc *gobConn) {
 	// defer conn.Close()
 }
 
-func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
+func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 1)

@@ -84,11 +84,11 @@ func dhandleConn(conn net.Conn) {
 	// **deal with the mg**
 	switch mg.MgType {
 	case "task":
-		hdTask(&mg, gbc, conn)
+		hdTask(&mg, gbc)
 	case "file":
 		hdFile(&mg, gbc)
 	case "allFilesMd5List":
-		hdFileMd5List(&mg, gbc, conn)
+		hdFileMd5List(&mg, gbc)
 	default:
 		hdNoType(&mg, gbc)
 	}

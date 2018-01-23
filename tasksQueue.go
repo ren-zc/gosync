@@ -1,6 +1,7 @@
 package gosync
 
 import (
+	"net"
 	"strconv"
 	"sync"
 )
@@ -71,8 +72,24 @@ func (t *Tasks) tEnd(taskID string) {
 	}
 }
 
-func getTaskID(ipStr string) string {
-	taskId := ipStr + "." + strconv.Itoa(idNumber)
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	// lg.Println(addrs)
+	if err != nil {
+		return strconv.Itoa(RandId())
+	}
+	var ip net.IP
+	for _, v := range addrs {
+		ip = net.ParseIP(v.String())
+		if !ip.IsLoopback() {
+			return v.String()
+		}
+	}
+	return ""
+}
+
+func getTaskID() string {
+	taskId := GetLocalIP() + strconv.Itoa(idNumber)
 	idNumber++
 	return taskId
 }
