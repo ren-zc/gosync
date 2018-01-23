@@ -55,7 +55,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		taskID := getTaskID()
 		t.put(taskID)
 		lg.Println(t)
-		// time.Sleep(2 * time.Minute)
+		time.Sleep(2 * time.Minute)
 		for {
 			if t.ask(taskID) {
 				break
