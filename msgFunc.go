@@ -132,6 +132,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 	var ret Message
 
 	// 本机无须通过网络同步文件
+	lg.Println(mg.TaskID == t.Current && t.Status == Running)
 	if mg.TaskID == t.Current && t.Status == Running {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
@@ -243,6 +244,8 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 	// *** do delete extra files ***
 
 	// *** 阻塞直到, 从channel读取同步结果 ***
+
+	lg.Println("hdFileMd5List 3")
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
