@@ -89,7 +89,8 @@ func GetLocalIP() string {
 		// }
 		ip = v.String()
 		if !strings.HasPrefix(ip, "127") && !strings.HasPrefix(ip, "::") && !strings.HasPrefix(ip, "0") {
-			lg.Println(ip)
+			// lg.Println(ip)
+			return ip
 		}
 	}
 	return ""
