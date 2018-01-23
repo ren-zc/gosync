@@ -53,8 +53,8 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 	case "sync":
 		taskID := getTaskID(conn.LocalAddr().String())
 		t.put(taskID)
-		time.Sleep(2 * time.Minute)
 		lg.Println(t)
+		time.Sleep(2 * time.Minute)
 		for {
 			if t.ask(taskID) {
 				break
