@@ -120,7 +120,7 @@ ENDCONN:
 				diffFlag = 1
 				fresher <- struct{}{}
 			case "live": // heartbeat
-				lg.Println(hostMg.MgType)
+				lg.Print("%s\t%v\n", conn.RemoteAddr().String(), hostMg.MgType)
 				fresher <- struct{}{}
 			}
 		}

@@ -53,7 +53,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 	case "sync":
 		taskID := getTaskID(conn.LocalAddr().String())
 		t.put(taskID)
-		// lg.Println(t)
+		lg.Println(t)
 		time.Sleep(2 * time.Minute)
 		for {
 			if t.ask(taskID) {
@@ -147,6 +147,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 	}
 
 	t.put(mg.TaskID)
+	lg.Println(t)
 	defer t.tEnd(mg.TaskID)
 	for {
 		if t.ask(mg.TaskID) {
@@ -156,6 +157,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn, conn net.Conn) {
 		ret.MgID = mg.MgID
 		ret.MgType = "live" // heartbeat
 		err := gbc.gobConnWt(ret)
+		lg.Println("waiting...")
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
