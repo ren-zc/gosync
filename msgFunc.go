@@ -53,8 +53,8 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 	case "sync":
 		taskID := getTaskID(conn.LocalAddr().String())
 		t.put(taskID)
-		lg.Println(t)
-		time.Sleep(2 * time.Minute)
+		// lg.Println(t)
+		// time.Sleep(2 * time.Minute)
 		for {
 			if t.ask(taskID) {
 				break
@@ -95,7 +95,7 @@ func hdTask(mg *Message, gbc *gobConn, conn net.Conn) {
 		// test fmt
 		for k, v := range tus {
 			lg.Printf("%s\t", k)
-			lg.Println(v)
+			lg.Println(v.hosts)
 		}
 
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
