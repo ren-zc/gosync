@@ -10,20 +10,21 @@ import (
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug
-var pwd string
+var cwd string
+var hostRetCh chan Message
 
 func init() {
 	lg = log.New(os.Stdout, "* ", log.Lshortfile)
 	var err error
-	pwd, err = os.Getwd()
+	cwd, err = os.Getwd()
 	if err != nil {
 		lg.Println(err)
 	}
 	q := []string{}
 	t = &Tasks{q, "", Complated}
+	hostRetCh = make(chan Message)
+	worker = 1
 }
-
-var worker int
 
 type gobConn struct {
 	cnRd *bufio.Reader

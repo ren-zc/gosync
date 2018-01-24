@@ -15,5 +15,12 @@ type Message struct {
 	Del       bool   // whether should the not exist files in src be deleted.
 	Zip       bool   // whether should files be compressed.
 	Overwrt   bool   // whether the conflicted files be overwrited.
-	b         bool   // other bool option
+	B         bool   // other bool option
+	M         map[hostIP]ret
+}
+
+type ClientRet struct {
+	MgID   int
+	MgType string
+	M      map[hostIP]ret
 }

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	// "sync"
 	"time"
 )
 
@@ -22,6 +23,11 @@ type diffInfo struct {
 	files []string // 需要更新的文件, 即diff文件列表
 }
 
+// type allConnRet struct {
+// 	mu sync.Mutex
+// 	m  map[hostIP]ret
+// }
+
 // 负责管理allConn, 使用retCh channel
 func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan string) {
 	var c hostRet
@@ -29,7 +35,9 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	for {
 		c = <-retCh
 		lg.Printf("%s\t%s\n", c.hostIP, c.err)
+		// acr.mu.Lock()
 		allConn[c.hostIP] = c.ret
+		// acr.mu.Unlock()
 		l = len(allConn)
 		// 相等表示所有host已返回sync结果
 		if l == i {
@@ -37,7 +45,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 		}
 	}
 	close(retCh)
-	retReady <- "Done"
+	close(retReady)
 }
 
 // hd: handle
@@ -64,17 +72,19 @@ func hdTask(mg *Message, gbc *gobConn) {
 		hostNum := len(targets)
 
 		// 等待同步结果, 从retReady接收"Done"表示allConn写入完成
-		allConn := map[hostIP]ret{}   // 用于收集host返回的sync结果
+		allConn := map[hostIP]ret{} // 用于收集host返回的sync结果
+		// mu := sync.Mutex
+		// acr := &allConnRet{mu, m}
 		retCh := make(chan hostRet)   // 用于接收各host的sync结果
 		retReady := make(chan string) // 从此channel读取到Done表示所有host已返回结果
 		go cnMonitor(hostNum, allConn, retCh, retReady)
 
 		// traHosts, 用于获取文件列表和同步结果
-		var fileMd5List []string
-		var traErr error
-		fileMd5List, traErr = Traverse(mg.SrcPath)
-		if traErr != nil {
-			lg.Println(traErr)
+		// var fileMd5List []string
+		// var traErr error
+		fileMd5List, err := Traverse(mg.SrcPath)
+		if err != nil {
+			lg.Println(err)
 			// 将tarErr以Message的形式发送给客户端
 			// 待补充
 			return
@@ -83,10 +93,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 		listMd5 := Md5OfASlice(fileMd5List)
 		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh, taskID)
 
-		// time.Sleep(2 * time.Minute)
-
 		// get transUnits
-		var tus = make(map[md5s]transUnit)
+		// var tus = make(map[md5s]transUnit)
 		tus, err := getTransUnit(mg.Zip, hostNum, diffCh, retCh)
 		if err != nil {
 			fmt.Println(err)
@@ -102,9 +110,19 @@ func hdTask(mg *Message, gbc *gobConn) {
 		//
 
 		// *** 整理allConn返回给客户端 ***
-		//
+		<-retReady
+		var cr ClientRet
+		cr.MgID = mg.MgID
+		cr.MgType = "result"
+		cr.M = allConn
+		err = gbc.gobConnWt(cr)
+		if err != nil {
+			// *** 记录本地日志 ***
+		}
+		return
 
-		err = os.Chdir(pwd)
+		// 返回任务开始前的目录
+		err = os.Chdir(cwd)
 		if err != nil {
 			lg.Println(err)
 		}
@@ -130,6 +148,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var needDelete = make([]string, 1)
 
 	var ret Message
+	var err error
 
 	// 本机无须通过网络同步文件
 	if mg.TaskID == t.Current && t.Status == Running {
@@ -137,8 +156,8 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.MgID = mg.MgID
 		ret.MgType = "result"
 		ret.MgString = "The src and dst on the same host."
-		ret.b = false
-		err := gbc.gobConnWt(ret)
+		ret.B = false
+		err = gbc.gobConnWt(ret)
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
@@ -155,7 +174,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
 		ret.MgType = "live" // heartbeat
-		err := gbc.gobConnWt(ret)
+		err = gbc.gobConnWt(ret)
 		// lg.Println("waiting...")
 		if err != nil {
 			// *** 记录本地日志 ***
@@ -170,7 +189,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.MgID = mg.MgID
 		ret.MgType = "result"
 		ret.MgString = "Traverse in target host failure"
-		ret.b = false
+		ret.B = false
 		err = gbc.gobConnWt(ret)
 		if err != nil {
 			// *** 记录本地日志 ***
@@ -218,6 +237,24 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		}
 	}
 
+	// *** do symbol link change: slinkNeedChange ***
+	// *** do symbol link create: slinkNeedCreat ***
+	// *** do delete extra files: needDelete ***
+	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete)
+	if err != nil {
+		ret.TaskID = mg.TaskID
+		ret.MgID = mg.MgID
+		ret.MgType = "result"
+		ret.MgString = "Local operation failed."
+		ret.B = false
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+			// *** 待改进: 回滚操作或者提示哪些文件已被修改 ***
+		}
+		return
+	}
+
 	// do request needTrans files
 	transFiles := []string{}
 	for k, _ := range diffrmM {
@@ -236,14 +273,13 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		return
 	}
 
-	// *** do symbol link change ***
-
-	// *** do symbol link create ***
-
-	// *** do delete extra files ***
-
 	// *** 阻塞直到, 从channel读取同步结果 ***
-
+	hR := <-hostRetCh
+	err = gbc.gobConnWt(hR)
+	if err != nil {
+		// *** 记录本地日志 ***
+		return
+	}
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {

@@ -53,6 +53,8 @@ gosync架构
 		Zip       bool   // whether should files be compressed.
 		Overwrt   bool   // whether the conflicted files be overwrited.
 		b         bool   // other bool option
+		m         map[hostIP]ret
+
 	}
 
 	gui向deamon发起任务：
@@ -110,6 +112,11 @@ gosync架构
 	目标主机心跳信息:
 		MgID
 		MgType: live
+
+	向client返回所有host的同步结果:
+		MgID
+		MgType : "result"
+		m: allConn
 
 
 详细步骤

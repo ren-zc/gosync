@@ -55,6 +55,7 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRe
 		}
 		tus[di.md5s] = tu
 	}
+	close(diffCh)
 	// 返回tus, 即一个传输任务单元
 	return tus, nil
 }

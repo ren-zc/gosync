@@ -100,7 +100,7 @@ ENDCONN:
 		case hostMg = <-dataRecCh:
 			switch hostMg.MgType {
 			case "result":
-				if hostMg.b {
+				if hostMg.B {
 					err = nil
 				} else {
 					err = fmt.Errorf("%s", hostMg.MgString)
