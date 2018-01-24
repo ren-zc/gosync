@@ -34,7 +34,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	var l int
 	for {
 		c = <-retCh
-		lg.Printf("%s\t%s\n", c.hostIP, c.err)
+		lg.Printf("%s\t%s\n", c.hostIP, c.Err)
 		// acr.mu.Lock()
 		allConn[c.hostIP] = c.ret
 		// acr.mu.Unlock()
