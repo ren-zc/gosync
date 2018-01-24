@@ -28,4 +28,5 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 			return err
 		}
 	}
+	return nil
 }

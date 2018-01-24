@@ -1,7 +1,7 @@
 package gosync
 
 import (
-	"os"
+// "os"
 )
 
 var worker int
