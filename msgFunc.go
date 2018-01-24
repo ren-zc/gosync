@@ -110,16 +110,16 @@ func hdTask(mg *Message, gbc *gobConn) {
 		//
 
 		// *** 整理allConn返回给客户端 ***
-		<-retReady
-		var cr ClientRet
-		cr.MgID = mg.MgID
-		cr.MgType = "result"
-		cr.M = allConn
-		err = gbc.gobConnWt(cr)
-		if err != nil {
-			// *** 记录本地日志 ***
-		}
-		return
+		// <-retReady
+		// var cr ClientRet
+		// cr.MgID = mg.MgID
+		// cr.MgType = "result"
+		// cr.M = allConn
+		// err = gbc.gobConnWt(cr)
+		// if err != nil {
+		// 	// *** 记录本地日志 ***
+		// 	return
+		// }
 
 		// 返回任务开始前的目录
 		err = os.Chdir(cwd)
