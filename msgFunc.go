@@ -145,7 +145,7 @@ func hdFile(mg *Message, gbc *gobConn) {
 func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
-	var needDelete = make([]string, 1)
+	var needDelete = make([]string, 0)
 
 	var ret Message
 	var err error
