@@ -197,6 +197,24 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		return
 	}
 
+	// *** do symbol link change: slinkNeedChange ***
+	// *** do symbol link create: slinkNeedCreat ***
+	// *** do delete extra files: needDelete ***
+	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete)
+	if err != nil {
+		ret.TaskID = mg.TaskID
+		ret.MgID = mg.MgID
+		ret.MgType = "result"
+		ret.MgString = "Local operation failed."
+		ret.B = false
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+			// *** 待改进: 回滚操作或者提示哪些文件已被修改 ***
+		}
+		return
+	}
+
 	sort.Strings(localFilesMd5)
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
 	// 重组成map
@@ -237,24 +255,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		}
 	}
 
-	// *** do symbol link change: slinkNeedChange ***
-	// *** do symbol link create: slinkNeedCreat ***
-	// *** do delete extra files: needDelete ***
-	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete)
-	if err != nil {
-		ret.TaskID = mg.TaskID
-		ret.MgID = mg.MgID
-		ret.MgType = "result"
-		ret.MgString = "Local operation failed."
-		ret.B = false
-		err = gbc.gobConnWt(ret)
-		if err != nil {
-			// *** 记录本地日志 ***
-			// *** 待改进: 回滚操作或者提示哪些文件已被修改 ***
-		}
-		return
-	}
-
 	// do request needTrans files
 	transFiles := []string{}
 	for k, _ := range diffrmM {
@@ -274,12 +274,12 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 
 	// *** 阻塞直到, 从channel读取同步结果 ***
-	hR := <-hostRetCh
-	err = gbc.gobConnWt(hR)
-	if err != nil {
-		// *** 记录本地日志 ***
-		return
-	}
+	// hR := <-hostRetCh
+	// err = gbc.gobConnWt(hR)
+	// if err != nil {
+	// 	// *** 记录本地日志 ***
+	// 	return
+	// }
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
