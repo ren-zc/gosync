@@ -42,7 +42,7 @@ func initGobConn(conn net.Conn) *gobConn {
 	return gbc
 }
 
-func (gbc *gobConn) gobConnWt(mg Message) error {
+func (gbc *gobConn) gobConnWt(mg interface{}) error {
 	err := gbc.enc.Encode(mg)
 	if err != nil {
 		return err

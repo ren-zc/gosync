@@ -11,8 +11,8 @@ type md5s string
 
 // host返回的结果
 type ret struct {
-	status bool
-	err    error
+	Status bool
+	Err    error
 }
 
 // host返回的结果
