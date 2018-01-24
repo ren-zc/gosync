@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"github.com/jacenr/filediff/diff"
 	"log"
-	// "net"
 	"os"
 	"regexp"
 	"sort"
 	"strings"
-	// "sync"
 	"time"
 )
 
@@ -23,11 +21,6 @@ type diffInfo struct {
 	files []string // 需要更新的文件, 即diff文件列表
 }
 
-// type allConnRet struct {
-// 	mu sync.Mutex
-// 	m  map[hostIP]ret
-// }
-
 // 负责管理allConn, 使用retCh channel
 func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan string) {
 	var c hostRet
@@ -35,9 +28,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	for {
 		c = <-retCh
 		lg.Printf("%s\t%s\n", c.hostIP, c.Err)
-		// acr.mu.Lock()
 		allConn[c.hostIP] = c.ret
-		// acr.mu.Unlock()
 		l = len(allConn)
 		// 相等表示所有host已返回sync结果
 		if l == i {
@@ -72,16 +63,12 @@ func hdTask(mg *Message, gbc *gobConn) {
 		hostNum := len(targets)
 
 		// 等待同步结果, 从retReady接收"Done"表示allConn写入完成
-		allConn := map[hostIP]ret{} // 用于收集host返回的sync结果
-		// mu := sync.Mutex
-		// acr := &allConnRet{mu, m}
+		allConn := map[hostIP]ret{}   // 用于收集host返回的sync结果
 		retCh := make(chan hostRet)   // 用于接收各host的sync结果
 		retReady := make(chan string) // 从此channel读取到Done表示所有host已返回结果
 		go cnMonitor(hostNum, allConn, retCh, retReady)
 
 		// traHosts, 用于获取文件列表和同步结果
-		// var fileMd5List []string
-		// var traErr error
 		fileMd5List, err := Traverse(mg.SrcPath)
 		if err != nil {
 			lg.Println(err)
@@ -94,7 +81,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh, taskID)
 
 		// get transUnits
-		// var tus = make(map[md5s]transUnit)
 		tus, err := getTransUnit(mg.Zip, hostNum, diffCh, retCh)
 		if err != nil {
 			fmt.Println(err)
@@ -109,7 +95,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
 		//
 
-		// *** 整理allConn返回给客户端 ***
+		// *** 将allConn返回给客户端 ***
 		<-retReady
 		var cr ClientRet
 		cr.MgID = mg.MgID

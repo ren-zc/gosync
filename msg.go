@@ -19,6 +19,7 @@ type Message struct {
 	M         map[hostIP]ret
 }
 
+// 定义一个小型的Message, 减小网络流量
 type ClientRet struct {
 	MgID   int
 	MgType string

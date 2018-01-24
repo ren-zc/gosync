@@ -11,6 +11,8 @@ import (
 
 var lg *log.Logger // 使log记录行号, 用于debug
 var cwd string
+
+// 接收本机最终同步结果, 并通过hdFileMd5List()发送给源主机
 var hostRetCh chan Message
 
 func init() {

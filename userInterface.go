@@ -56,7 +56,7 @@ func ghandleConn(conn net.Conn, mg Message) {
 		log.Println(encErr)
 	}
 
-	// ...waiting server response...
+	// ... waiting server response: allConn ...
 
 	var newmg Message
 	rcvErr := gbc.dec.Decode(&newmg)
