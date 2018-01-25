@@ -11,6 +11,7 @@ import (
 
 var lg *log.Logger // 使log记录行号, 用于debug
 var cwd string
+var transFilesMd5 map[string]string
 
 // 接收本机最终同步结果, 并通过hdFileMd5List()发送给源主机
 var hostRetCh chan Message
@@ -25,7 +26,8 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
-	worker = 1
+	// worker = 1
+	transFilesMd5 = make(map[string]string)
 }
 
 type gobConn struct {
