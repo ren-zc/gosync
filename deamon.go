@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"sync"
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug
@@ -27,7 +28,6 @@ func init() {
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
 	// worker = 1
-	transFilesMd5 = make(map[string]string)
 }
 
 type gobConn struct {
@@ -87,14 +87,66 @@ func dhandleConn(conn net.Conn) {
 	// fmt.Println(mg)
 
 	// **deal with the mg**
-	switch mg.MgType {
-	case "task":
-		hdTask(&mg, gbc)
-	case "file":
-		hdFile(&mg, gbc)
-	case "allFilesMd5List":
-		hdFileMd5List(&mg, gbc)
-	default:
-		hdNoType(&mg, gbc)
+	// var treeChiledNode []chan Message
+	// var fpb *filePieceBuf
+	putCh := make(chan *Message)
+CONNEND:
+	for {
+		switch mg.MgType {
+		case "task":
+			hdTask(&mg, gbc) // 发起任务
+			break CONNEND
+		case "hostList":
+			getCh := make(chan *Message)
+			fileTransEnd := make(chan struct{})
+			hosts := mg.MgString
+			treeChiledNode := tranFileTree(hosts)
+			fpb := newFpb()
+			go fpbMonitor(fpb, putCh, getCh)
+			go hdFile(treeChiledNode, getCh)
+			<-fileTransEnd
+			close(putCh)
+			break CONNEND
+		case "fileStream":
+			putCh <- &mg
+			// hdFileStream(&mg, gbc)
+			// break CONNEND
+		case "allFilesMd5List":
+			hdFileMd5List(&mg, gbc)
+			break CONNEND
+		default:
+			hdNoType(&mg, gbc)
+		}
+	}
+}
+
+func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd chan struct{}) {
+	var mg *Message
+	for {
+		mg = <-getCh
+		if mg == nil {
+			continue
+		}
+		// 分发和保存
+		//
+		// MgType: fileStream
+		// 接收到Message, 将其中的文件内容保存到本地
+		// 同时将Message原封不动的转发到[]chan Message的channel中
+
+		// 如果是zip文件, 比对zip文件的md5, 比对后进行解压
+
+		// 传输完成后, 和map transFilesMd5中的md5做对比
+		// 如果md5不匹配, 则向gbc返回重新发送文件的请求
+		// 重发请求格式:
+		// *** 待定 ***
+		// 暂定: log输出看结果分析原因
+
+		// 所有完成后, 将结果通知到retCh chan hostRet
+
+		// 退出
+		if mg.MgString == "allEnd" {
+			close(fileTransEnd)
+			break
+		}
 	}
 }

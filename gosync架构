@@ -52,10 +52,20 @@ gosync架构
 		Del       bool   // whether should the not exist files in src be deleted.
 		Zip       bool   // whether should files be compressed.
 		Overwrt   bool   // whether the conflicted files be overwrited.
-		b         bool   // other bool option
-		m         map[hostIP]ret
+		B         bool   // other bool option
+		M         map[hostIP]ret
 
 	}
+
+	src向个host发送file piece:
+		TaskID
+		MgID
+		MgType: fileStream
+		MgName: 文件名
+		MgByte 文件切片
+		IntOption 文件切片number
+		b 是否是最后一片, true表示是最后一片
+		MgString: "allEnd" // 用于通知所有文件均传输完成
 
 	gui向deamon发起任务：
 		MgID: 会话ID
@@ -117,6 +127,11 @@ gosync架构
 		MgID
 		MgType : "result"
 		m: allConn
+
+	向下一级host发送host list:
+		MgID
+		MgType: hostList
+		MgStrings
 
 
 详细步骤

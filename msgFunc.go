@@ -124,29 +124,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 	}
 }
 
-func hdFile(mg *Message, gbc *gobConn) {
-	// MgType: hostList
-	// 提取[]string, 调用tranFileTree(), 得到[]chan Message
-	// 同时还有worker个hdTreeNode() goroutine
-
-	// MgType: fileStream
-	//
-
-	// 接收到Message, 将其中的文件内容保存到本地
-	// 同时将Message原封不动的转发到[]chan Message的channel中
-
-	// 如果是zip文件, 比对zip文件的md5, 比对后进行解压
-
-	// 传输完成后, 和map transFilesMd5中的md5做对比
-	// 如果md5不匹配, 则向gbc返回重新发送文件的请求
-	// 重发请求格式:
-	// *** 待定 ***
-
-	// 所有完成后, 将结果通知到retCh chan hostRet
-
-	// 退出
-}
-
 func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
