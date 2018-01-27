@@ -7,7 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
-	"sync"
+	// "sync"
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug

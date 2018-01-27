@@ -7,7 +7,7 @@ package gosync
 // 用于整理文件byte片的顺序
 type filePieceBuf struct {
 	// mu sync.Mutex
-	m  map[string][int]*Message
+	m  map[string]map[int]*Message
 	fs []string
 	f  string
 	// e  map[string]int
@@ -17,7 +17,7 @@ type filePieceBuf struct {
 func newFpb() *filePieceBuf {
 	fpb := new(filePieceBuf)
 	// mu := sync.Mutex
-	m := make(map[string][int]*Message)
+	m := make(map[string]map[int]*Message)
 	fs := make([]string, 0, 2)
 	// e := make(map[string]int)
 	// fpb.mu = mu
