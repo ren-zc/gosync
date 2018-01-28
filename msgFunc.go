@@ -196,6 +196,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 			diffaddM[s[0]] = s[1]
 		}
 	}
+
+	// *** handle directory ***
+
 	// 整理
 	for k, _ := range diffaddM {
 		v2, ok := diffrmM[k]

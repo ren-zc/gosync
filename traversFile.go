@@ -27,6 +27,10 @@ func Traverse(path string) ([]string, error) {
 	md5List := make([]string, 10)
 	var md5Str string
 	WalkFunc := func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			md5Str = path + ",,Directory"
+			md5List = append(md5List, md5Str)
+		}
 		if info.Mode().IsRegular() {
 			// if !info.IsDir() {
 			md5Str, fErr = Md5OfAFile(path)
