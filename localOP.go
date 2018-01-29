@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string, needDelete []string) error {
+func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string, needDelete []string, needCreDir []string) error {
 	var err error
 	for k, v := range slinkNeedCreat {
 		err = os.Symlink(k, v)
@@ -26,7 +26,13 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 		return nil
 	}
 	for _, v := range needDelete {
-		err = os.Remove(v)
+		err = os.RemoveAll(v)
+		if err != nil {
+			return err
+		}
+	}
+	for _, v := range needCreDir {
+		err = os.MkdirAll(v, 0755)
 		if err != nil {
 			return err
 		}

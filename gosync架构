@@ -119,6 +119,27 @@ gosync架构
 		MgString: "Traverse in target host failure"
 		b: false
 
+	与下级host连接失败, 向上级host反馈连接失败信息:
+		MgType: "hostList"
+		MgStrings // 如果与下级的conn全部成功, 则反馈空的列表
+		MgString: "connRet"
+
+	像下级主机传递host list:
+		MgType: "hostList"
+		MgStrings
+
+	目标主机同步成功:
+		MgID: 同源host发来的message的MgID
+		MgType: "result"
+		MgString: ""
+		b: true
+
+	目标主机同步失败:
+		MgID: 同源host发来的message的MgID
+		MgType: "result"
+		MgString: "sync failed"
+		b: false
+
 	目标主机心跳信息:
 		MgID
 		MgType: live

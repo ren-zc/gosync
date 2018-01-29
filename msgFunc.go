@@ -94,6 +94,9 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
 		// *************** 补充代码中 ***************
+		for m, tu := range tus {
+			tranFile(m, tu)
+		}
 
 		// *** 将allConn返回给客户端 ***
 		<-retReady
@@ -128,6 +131,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 0)
+	var needCreDir = make([]string, 0)
 
 	var ret Message
 	var err error
@@ -197,8 +201,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		}
 	}
 
-	// *** handle directory ***
-
 	// 整理
 	for k, _ := range diffaddM {
 		v2, ok := diffrmM[k]
@@ -220,14 +222,19 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 			slinkNeedCreat[k] = strings.TrimPrefix(v, "symbolLink&&")
 			delete(diffrmM, k)
 		}
+		if v == "Directory" {
+			needCreDir = append(needDelDir, k)
+			delete(diffrmM, k)
+		}
 	}
 
-	transFilesMd5 = diffrmM
+	transFilesAndMd5 = diffrmM
 
 	// *** do symbol link change: slinkNeedChange ***
 	// *** do symbol link create: slinkNeedCreat ***
 	// *** do delete extra files: needDelete ***
-	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete)
+	// *** do local mkdir ***
+	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete, needCreDir)
 	if err != nil {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
@@ -255,14 +262,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	ret.MgType = "diffOfFilesMd5List"
 	ret.MgString = transFilesMd5
 	err = gbc.gobConnWt(ret)
-	if err != nil {
-		// *** 记录本地日志 ***
-		return
-	}
-
-	// *** 阻塞直到, 从channel读取同步结果 ***
-	hR := <-hostRetCh
-	err = gbc.gobConnWt(hR)
 	if err != nil {
 		// *** 记录本地日志 ***
 		return

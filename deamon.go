@@ -12,7 +12,7 @@ import (
 
 var lg *log.Logger // 使log记录行号, 用于debug
 var cwd string
-var transFilesMd5 map[string]string
+var transFilesAndMd5 map[string]string
 
 // 接收本机最终同步结果, 并通过hdFileMd5List()发送给源主机
 var hostRetCh chan Message
@@ -99,11 +99,19 @@ CONNEND:
 		case "hostList":
 			getCh := make(chan *Message)
 			fileTransEnd := make(chan struct{})
-			hosts := mg.MgString
-			treeChiledNode := tranFileTree(hosts)
+			hosts := mg.MgStrings
+			treeChiledNode, ConnErrHost := tranFileTree(hosts)
+			var connMg Message
+			connMg.MgByte = "hostList"
+			connMg.MgStrings = ConnErrHost
+			connMg.MgString = "connRet"
+			err = gbc.gobConnWt(connMg)
+			if err != nil {
+				// *** 记录本地日志 ***
+			}
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
-			go hdFile(treeChiledNode, getCh)
+			go hdFile(treeChiledNode, getCh, fileTransEnd)
 			<-fileTransEnd
 			close(putCh)
 			break CONNEND
@@ -113,6 +121,12 @@ CONNEND:
 			// break CONNEND
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
+			// *** 阻塞直到, 从channel读取同步结果 ***
+			hR := <-hostRetCh
+			err = gbc.gobConnWt(hR)
+			if err != nil {
+				// *** 记录本地日志 ***
+			}
 			break CONNEND
 		default:
 			hdNoType(&mg, gbc)

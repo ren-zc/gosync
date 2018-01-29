@@ -9,8 +9,24 @@ var worker int
 
 func tranFile(m md5s, tu *transUnit) {
 	// 整理hostIP列表, 同时转换成 []string
+	ipList := make([]string, 0)
+	for _, v := range tu.hosts {
+		ipList = append(ipList, string(v))
+	}
 
 	// 调用 tranFileTree(), 得到[]chan Message
+	hosts := make([]string, 0)
+	for _, v := range tu.hosts {
+		hosts = append(hosts, string(v))
+	}
+	treeChiledNode, ConnErrHost := tranFileTree(hosts)
+	for _, host := range ConnErrHost {
+		lg.Println(host) // 先输入查看连接错误的主机
+	}
+
+	for _, ch := range treeChiledNode {
+		// 写入一条测试信息
+	}
 
 	// 如果zip为true, 则开始传输zip文件, 包括zip的md5
 	// tranPerFile(zip)
@@ -21,9 +37,42 @@ func tranFile(m md5s, tu *transUnit) {
 	// 待所有文件传输完毕, 关闭各个channel
 }
 
-func tranFileTree(hosts []string) []chan Message {
+func tranFileTree(hosts []string) ([]chan Message, []string) {
 	// 从列表中取出worker个host进行连接
-
+	fileSteamChList := make([]chan Message, 0)
+	treeConnFailedList := make([]chan Message, 0)
+	ConnErrHost := make([]string, 0)
+	hostsLen := len(hostsLen)
+	var getHosts []string
+	if hostsLen <= worker {
+		getHosts = hosts
+		hosts = make([]string, 0)
+	} else {
+		getHosts = hosts[:worker]
+		hosts = hosts[worker:]
+	}
+	for _, h := range getHosts {
+		conn, err := net.Dial("tcp", h)
+		if err != nil {
+			ConnErrHost = append(ConnErrHost, h)
+			continue
+		}
+		fileStreamCh := make(chan Message)
+		treeConnFailed := make(chan Message)
+		fileSteamChList = append(fileSteamChList, fileStreamCh)
+		treeConnFailedList = append(treeConnFailedList, treeConnFailed)
+		go hdTreeNode(conn, fileStreamCh, treeConnFailed)
+	}
+	if len(hosts) != 0 {
+		// 传递host list
+	}
+	for _, ch := range treeConnFailedList {
+		mg := <-ch
+		if len(mg.MgStrings) != 0 {
+			ConnErrHost = append(ConnErrHost, mg.MgStrings)
+		}
+	}
+	return fileSteamChList, ConnErrHost
 	// fileStreamChList := make([]chan Message, worker)
 	// for ... make chan Message ... append ...
 	// go hdTreeNode(conn, fileStreamChList[i])
@@ -33,9 +82,35 @@ func tranFileTree(hosts []string) []chan Message {
 	// --> msgFunc.go hdFile()
 }
 
-func hdTreeNode(conn net.Conn, fileStreamCh chan Message) {
-	// defer close conn
-	// gbc
+func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Message) {
+	defer conn.Close()
+	gbc := initGobConn(conn)
+	list := <-fileStreamCh
+	err := gbc.gobConnWt(list)
+	if err != nil {
+		// *** 待处理 ***
+		lg.Println(err)
+	}
+	for {
+		var connMg Message
+		err := gbc.dec.Decode(&connMg)
+		if err != nil {
+			// *** 待处理 ***
+			lg.Println(err)
+		}
+		if connMg.MgString != "connRet" {
+			continue
+		} else {
+			treeConnFailed <- connMg
+			close(treeConnFailed)
+			break
+		}
+	}
+
+	// 下面等待文件数据流的到来, 先*** holding在这 ***, 等待tree文件流网测试完成
+
+	// 向conn另一端传递host list
+
 	// 接收channel中的内容, 并进行分发
 	// 如果收到重发请求...
 	// 如果channel关闭, 关闭conn, 则退出goroutine
