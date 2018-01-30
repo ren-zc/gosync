@@ -149,6 +149,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd cha
 		hR.MgType = "result"
 		hR.B = true
 		hostRetCh <- hR
+		lg.Println("put hR")
 		// ******************
 
 		// 分发和保存
