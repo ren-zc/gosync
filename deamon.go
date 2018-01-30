@@ -27,7 +27,7 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
-	// worker = 1
+	worker = 1
 }
 
 type gobConn struct {
@@ -123,6 +123,7 @@ CONNEND:
 			hdFileMd5List(&mg, gbc)
 			// *** 阻塞直到, 从channel读取同步结果 ***
 			hR := <-hostRetCh
+			lg.Println("get hR")
 			err = gbc.gobConnWt(hR)
 			if err != nil {
 				// *** 记录本地日志 ***
@@ -141,6 +142,14 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd cha
 		if mg == nil {
 			continue
 		}
+
+		// *** 测试连接树 ***
+		var hR Message
+		hR.MgType = "result"
+		hR.B = true
+		hostRetCh <- hR
+		// ******************
+
 		// 分发和保存
 		//
 		// MgType: fileStream

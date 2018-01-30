@@ -24,9 +24,19 @@ func tranFile(m md5s, tu *transUnit) {
 		lg.Println(host) // 先输入查看连接错误的主机
 	}
 
+	// 写入一条测试信息, 仅用于数据流网络的连接测试
+	var mg Message
+	mg.MgID = RandId()
+	mg.MgType = "fileStream"
+	mg.MgString = m
+	mg.IntOption = 1
+	mg.B = true
+	mg.MgStrings = "allEnd"
 	for _, ch := range treeChiledNode {
-		// 写入一条测试信息
+		ch <- mg
 	}
+
+	// for每一个文件, 打开, 读取, 遍历treeChiledNode分发
 
 	// 如果zip为true, 则开始传输zip文件, 包括zip的md5
 	// tranPerFile(zip)
@@ -64,8 +74,31 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		go hdTreeNode(conn, fileStreamCh, treeConnFailed)
 	}
 	if len(hosts) != 0 {
-		// 传递host list
+		// 分发host list
+		ChL := len(fileSteamChList)
+		HoL := len(hosts)
+		d := HoL / ChL
+		m := HoL % ChL
+		if m > 0 {
+			d++
+		}
+		for i := 0; i < ChL; i++ {
+			limit := (i + 1) * d
+			if limit >= HoL {
+				limit = HoL
+			}
+			subHosts := hosts[i*d : limit]
+			// 把subHosts封装到Message, 分发出去
+			var mg Message
+			mg.MgType = "hostList"
+			mg.MgStrings = subHosts
+			fileSteamChList[i] <- mg
+			if limit == HoL {
+				break
+			}
+		}
 	}
+	// 接收下级主机的反馈
 	for _, ch := range treeConnFailedList {
 		mg := <-ch
 		if len(mg.MgStrings) != 0 {
@@ -79,18 +112,19 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 
 	// 如果列表不为空, 把列表剩余host分成worker份通过channel分发出去
 	// MgType: file, MgName: hostList, MgStrings: []string
-	// --> msgFunc.go hdFile()
 }
 
 func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Message) {
 	defer conn.Close()
 	gbc := initGobConn(conn)
-	list := <-fileStreamCh
-	err := gbc.gobConnWt(list)
+	// 接收host list, 并分发到conn的另一端
+	listMg := <-fileStreamCh
+	err := gbc.gobConnWt(listMg)
 	if err != nil {
 		// *** 待处理 ***
 		lg.Println(err)
 	}
+	// 接收conn另一端的连接反馈, 并通过channel传递到tranFileTree()
 	for {
 		var connMg Message
 		err := gbc.dec.Decode(&connMg)
@@ -105,6 +139,10 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 			close(treeConnFailed)
 			break
 		}
+	}
+	// 接收文件数据流
+	for {
+		// 从fileStreamCh中接收mg, 分发到conn的另一端
 	}
 
 	// 下面等待文件数据流的到来, 先*** holding在这 ***, 等待tree文件流网测试完成
