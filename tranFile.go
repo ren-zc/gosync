@@ -54,6 +54,7 @@ func tranFile(m md5s, tu *transUnit) {
 }
 
 func tranFileTree(hosts []string) ([]chan Message, []string) {
+	lg.Println("in tranFileTree")
 	// 从列表中取出worker个host进行连接
 	fileSteamChList := make([]chan Message, 0)
 	treeConnFailedList := make([]chan Message, 0)
