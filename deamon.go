@@ -117,6 +117,7 @@ CONNEND:
 			close(putCh)
 			break CONNEND
 		case "fileStream":
+			lg.Println("get fileStream")
 			putCh <- &mg
 			// hdFileStream(&mg, gbc)
 			// break CONNEND
