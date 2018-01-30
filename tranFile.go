@@ -107,12 +107,12 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 				break
 			}
 		}
-	}
-	// 接收下级主机的反馈
-	for _, ch := range treeConnFailedList {
-		mg := <-ch
-		if len(mg.MgStrings) != 0 {
-			ConnErrHost = append(ConnErrHost, mg.MgStrings...)
+		// 接收下级主机的反馈
+		for _, ch := range treeConnFailedList {
+			mg := <-ch
+			if len(mg.MgStrings) != 0 {
+				ConnErrHost = append(ConnErrHost, mg.MgStrings...)
+			}
 		}
 	}
 	return fileSteamChList, ConnErrHost
@@ -135,6 +135,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 		lg.Println(listMg)
 		lg.Println(ok)
 		if !ok {
+			close(treeConnFailed)
 			break
 		}
 		// 从fileStreamCh中接收mg, 分发到conn的另一端
