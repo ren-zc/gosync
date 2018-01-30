@@ -9,6 +9,7 @@ var worker int
 
 func tranFile(m md5s, tu *transUnit) {
 	// 整理hostIP列表, 同时转换成 []string
+	lg.Println("in tranFile")
 	ipList := make([]string, 0)
 	for _, v := range tu.hosts {
 		ipList = append(ipList, string(v))
@@ -115,6 +116,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 }
 
 func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Message) {
+	lg.Println("in hdTreeNode")
 	defer conn.Close()
 	gbc := initGobConn(conn)
 	// 接收host list, 并分发到conn的另一端
