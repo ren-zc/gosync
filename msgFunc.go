@@ -95,7 +95,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
 		// *************** 补充代码中 ***************
 		for m, tu := range tus {
-			tranFile(m, tu)
+			tranFile(m, &tu)
 		}
 
 		// *** 将allConn返回给客户端 ***
@@ -223,7 +223,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 			delete(diffrmM, k)
 		}
 		if v == "Directory" {
-			needCreDir = append(needDelDir, k)
+			needCreDir = append(needCreDir, k)
 			delete(diffrmM, k)
 		}
 	}

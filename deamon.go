@@ -102,10 +102,10 @@ CONNEND:
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
 			var connMg Message
-			connMg.MgByte = "hostList"
+			connMg.MgType = "hostList"
 			connMg.MgStrings = ConnErrHost
 			connMg.MgString = "connRet"
-			err = gbc.gobConnWt(connMg)
+			err := gbc.gobConnWt(connMg)
 			if err != nil {
 				// *** 记录本地日志 ***
 			}
@@ -124,7 +124,7 @@ CONNEND:
 			// *** 阻塞直到, 从channel读取同步结果 ***
 			hR := <-hostRetCh
 			lg.Println("get hR")
-			err = gbc.gobConnWt(hR)
+			err := gbc.gobConnWt(hR)
 			if err != nil {
 				// *** 记录本地日志 ***
 			}

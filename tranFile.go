@@ -28,10 +28,10 @@ func tranFile(m md5s, tu *transUnit) {
 	var mg Message
 	mg.MgID = RandId()
 	mg.MgType = "fileStream"
-	mg.MgString = m
+	mg.MgString = string(m)
 	mg.IntOption = 1
 	mg.B = true
-	mg.MgStrings = "allEnd"
+	mg.MgString = "allEnd"
 	for _, ch := range treeChiledNode {
 		ch <- mg
 	}
@@ -52,7 +52,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	fileSteamChList := make([]chan Message, 0)
 	treeConnFailedList := make([]chan Message, 0)
 	ConnErrHost := make([]string, 0)
-	hostsLen := len(hostsLen)
+	hostsLen := len(hosts)
 	var getHosts []string
 	if hostsLen <= worker {
 		getHosts = hosts
