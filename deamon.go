@@ -112,12 +112,14 @@ CONNEND:
 			}
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
+			lg.Println("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh, fileTransEnd)
 			<-fileTransEnd
 			close(putCh)
 			break CONNEND
 		case "fileStream":
 			lg.Println("get fileStream")
+			lg.Println(mg)
 			putCh <- &mg
 			lg.Println("send fileStream")
 			// hdFileStream(&mg, gbc)
