@@ -140,6 +140,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd cha
 	var mg *Message
 	for {
 		mg = <-getCh
+		lg.Println("hd File get mg")
 		if mg == nil {
 			continue
 		}

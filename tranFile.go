@@ -130,17 +130,19 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	gbc := initGobConn(conn)
 	// 接收host list, 并分发到conn的另一端
 	for {
+		lg.Println("in hdTreeNode for")
 		listMg, ok := <-fileStreamCh
 		if !ok {
 			break
 		}
+		lg.Println(listMg)
+		// 从fileStreamCh中接收mg, 分发到conn的另一端
+		err := gbc.gobConnWt(listMg)
+		if err != nil {
+			// *** 待处理 ***
+			lg.Println(err)
+		}
 		if listMg.MgType == "hostList" {
-			lg.Println(listMg)
-			err := gbc.gobConnWt(listMg)
-			if err != nil {
-				// *** 待处理 ***
-				lg.Println(err)
-			}
 			for {
 				var connMg Message
 				err := gbc.dec.Decode(&connMg)
@@ -157,8 +159,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 				}
 			}
 		}
-		// 从fileStreamCh中接收mg, 分发到conn的另一端
-		// 下面等待文件数据流的到来, 先*** holding在这 ***, 等待tree文件流网测试完成
+		// 将mg中的数据写入本地文件
 	}
 	// 接收conn另一端的连接反馈, 并通过channel传递到tranFileTree()
 	// 接收文件数据流
