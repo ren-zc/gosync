@@ -119,6 +119,7 @@ CONNEND:
 		case "fileStream":
 			lg.Println("get fileStream")
 			putCh <- &mg
+			lg.Println("send fileStream")
 			// hdFileStream(&mg, gbc)
 			// break CONNEND
 		case "allFilesMd5List":
