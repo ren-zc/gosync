@@ -132,10 +132,11 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	for {
 		lg.Println("in hdTreeNode for")
 		listMg, ok := <-fileStreamCh
+		lg.Println(listMg)
+		lg.Println(ok)
 		if !ok {
 			break
 		}
-		lg.Println(listMg)
 		// 从fileStreamCh中接收mg, 分发到conn的另一端
 		err := gbc.gobConnWt(listMg)
 		if err != nil {
