@@ -27,7 +27,7 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
-	worker = 1
+	// worker = 1
 }
 
 type gobConn struct {

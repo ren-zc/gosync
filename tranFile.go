@@ -38,6 +38,10 @@ func tranFile(m md5s, tu *transUnit) {
 		ch <- mg
 	}
 
+	// ******
+	// 传送完成发送mg.MgString == "allEnd"的mg, 同时关闭fileStreamCh
+	// ******
+
 	// for每一个文件, 打开, 读取, 遍历treeChiledNode分发
 
 	// 如果zip为true, 则开始传输zip文件, 包括zip的md5
@@ -64,6 +68,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		hosts = hosts[worker:]
 	}
 	for _, h := range getHosts {
+		lg.Println(h)
 		conn, err := net.Dial("tcp", h)
 		if err != nil {
 			ConnErrHost = append(ConnErrHost, h)
@@ -123,36 +128,39 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	defer conn.Close()
 	gbc := initGobConn(conn)
 	// 接收host list, 并分发到conn的另一端
-	listMg := <-fileStreamCh
-	lg.Println(listMg)
-	err := gbc.gobConnWt(listMg)
-	if err != nil {
-		// *** 待处理 ***
-		lg.Println(err)
-	}
-	// 接收conn另一端的连接反馈, 并通过channel传递到tranFileTree()
 	for {
-		var connMg Message
-		err := gbc.dec.Decode(&connMg)
-		if err != nil {
-			// *** 待处理 ***
-			lg.Println(err)
-		}
-		if connMg.MgString != "connRet" {
-			continue
-		} else {
-			treeConnFailed <- connMg
-			close(treeConnFailed)
+		listMg, ok := <-fileStreamCh
+		if !ok {
 			break
 		}
-	}
-	// 接收文件数据流
-	for {
+		if listMg.MgType == "hostList" {
+			lg.Println(listMg)
+			err := gbc.gobConnWt(listMg)
+			if err != nil {
+				// *** 待处理 ***
+				lg.Println(err)
+			}
+			for {
+				var connMg Message
+				err := gbc.dec.Decode(&connMg)
+				if err != nil {
+					// *** 待处理 ***
+					lg.Println(err)
+				}
+				if connMg.MgString != "connRet" {
+					continue
+				} else {
+					treeConnFailed <- connMg
+					close(treeConnFailed)
+					break
+				}
+			}
+		}
 		// 从fileStreamCh中接收mg, 分发到conn的另一端
+		// 下面等待文件数据流的到来, 先*** holding在这 ***, 等待tree文件流网测试完成
 	}
-
-	// 下面等待文件数据流的到来, 先*** holding在这 ***, 等待tree文件流网测试完成
-
+	// 接收conn另一端的连接反馈, 并通过channel传递到tranFileTree()
+	// 接收文件数据流
 	// 向conn另一端传递host list
 
 	// 接收channel中的内容, 并进行分发
