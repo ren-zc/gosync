@@ -94,6 +94,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 			mg.MgType = "hostList"
 			mg.MgStrings = subHosts
 			fileSteamChList[i] <- mg
+			lg.Println("hostList mg send")
 			if limit == HoL {
 				break
 			}
@@ -121,6 +122,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	gbc := initGobConn(conn)
 	// 接收host list, 并分发到conn的另一端
 	listMg := <-fileStreamCh
+	lg.Println(listMg)
 	err := gbc.gobConnWt(listMg)
 	if err != nil {
 		// *** 待处理 ***
