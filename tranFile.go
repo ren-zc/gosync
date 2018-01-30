@@ -10,6 +10,7 @@ var worker int
 func tranFile(m md5s, tu *transUnit) {
 	// 整理hostIP列表, 同时转换成 []string
 	lg.Println("in tranFile")
+	lg.Printf("worker %d\n", worker)
 	ipList := make([]string, 0)
 	for _, v := range tu.hosts {
 		ipList = append(ipList, string(v))
