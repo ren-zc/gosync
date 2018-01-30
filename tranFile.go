@@ -102,7 +102,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	for _, ch := range treeConnFailedList {
 		mg := <-ch
 		if len(mg.MgStrings) != 0 {
-			ConnErrHost = append(ConnErrHost, mg.MgStrings)
+			ConnErrHost = append(ConnErrHost, mg.MgStrings...)
 		}
 	}
 	return fileSteamChList, ConnErrHost
