@@ -97,6 +97,7 @@ CONNEND:
 			hdTask(&mg, gbc) // 发起任务
 			break CONNEND
 		case "hostList":
+			lg.Println("in deamon hostList")
 			getCh := make(chan *Message)
 			fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
