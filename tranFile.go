@@ -75,6 +75,7 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		go hdTreeNode(conn, fileStreamCh, treeConnFailed)
 	}
 	if len(hosts) != 0 {
+		lg.Println(len(hosts))
 		// 分发host list
 		ChL := len(fileSteamChList)
 		HoL := len(hosts)
