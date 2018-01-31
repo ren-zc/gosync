@@ -101,12 +101,13 @@ ENDFPBM:
 		case getCh <- mg2:
 			if mg2 != nil {
 				sendPieces++
-				if sendPieces == allPieces {
-					close(getCh)
-					break ENDFPBM
-				}
+				lg.Println(mg2)
 			}
 			// lg.Println("fpbMonitor send fileStream")
+			if sendPieces == allPieces {
+				close(getCh)
+				break ENDFPBM
+			}
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
