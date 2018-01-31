@@ -25,6 +25,18 @@ func tranFile(m md5s, tu *transUnit) {
 	for _, host := range ConnErrHost {
 		lg.Println(host) // 先输入查看连接错误的主机
 	}
+	// 写入一条测试信息, 仅用于数据流网络的连接测试
+
+	var mg0 Message
+	mg0.MgID = RandId()
+	mg0.MgType = "fileStream"
+	mg0.MgString = string(m)
+	mg0.IntOption = 1
+	mg0.B = true
+	// mg0.MgString = "allEnd"
+	for _, ch := range treeChiledNode {
+		ch <- mg
+	}
 
 	// 写入一条测试信息, 仅用于数据流网络的连接测试
 	var mg Message

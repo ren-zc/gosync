@@ -100,7 +100,7 @@ CONNEND:
 		case "hostList":
 			lg.Println("in deamon hostList")
 			getCh := make(chan *Message)
-			fileTransEnd := make(chan struct{})
+			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
 			var connMg Message
@@ -114,11 +114,16 @@ CONNEND:
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
 			lg.Println("fpbMonitor start")
-			go hdFile(treeChiledNode, getCh, fileTransEnd)
-			<-fileTransEnd
-			close(putCh)
-			break CONNEND
+			go hdFile(treeChiledNode, getCh)
+			// <-fileTransEnd
+			// close(putCh)
+			// break CONNEND
 		case "fileStream":
+			// 退出
+			if mg.MgString == "allEnd" {
+				close(putCh)
+				break CONNEND
+			}
 			lg.Println("get fileStream")
 			lg.Println(mg)
 			putCh <- &mg
@@ -142,7 +147,7 @@ CONNEND:
 	}
 }
 
-func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd chan struct{}) {
+func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
 	if treeChiledNode == nil {
 		// 不进行分发, 只保存到本地
 	}
@@ -178,10 +183,5 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd cha
 
 		// 所有完成后, 将结果通知到retCh chan hostRet
 
-		// 退出
-		if mg.MgString == "allEnd" {
-			close(fileTransEnd)
-			break
-		}
 	}
 }
