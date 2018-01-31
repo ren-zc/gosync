@@ -104,7 +104,7 @@ ENDFPBM:
 				lg.Println(mg2)
 			}
 			// lg.Println("fpbMonitor send fileStream")
-			if sendPieces == allPieces {
+			if sendPieces != 0 && sendPieces == allPieces {
 				close(getCh)
 				break ENDFPBM
 			}
