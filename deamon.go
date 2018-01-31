@@ -98,7 +98,7 @@ CONNEND:
 			hdTask(&mg, gbc) // 发起任务
 			break CONNEND
 		case "hostList":
-			lg.Println("in deamon hostList")
+			// lg.Println("in deamon hostList")
 			getCh := make(chan *Message)
 			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
@@ -113,7 +113,7 @@ CONNEND:
 			}
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
-			lg.Println("fpbMonitor start")
+			// lg.Println("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh)
 			// <-fileTransEnd
 			// close(putCh)
