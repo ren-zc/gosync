@@ -84,7 +84,6 @@ ENDFPBM:
 		select {
 		case mg1, ok = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
 			// lg.Println(mg1)
-			lg.Println(ok)
 			if ok && mg1.MgString == "allEnd" {
 				allPieces = mg1.IntOption
 				lg.Println("allPieces setted")
