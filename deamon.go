@@ -135,6 +135,7 @@ CONNEND:
 			lg.Println(sendPieces)
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
+				lg.Println("putCh closed")
 				break CONNEND
 			}
 			// time.Sleep(10 * time.Second) // for debug
