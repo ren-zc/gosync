@@ -73,19 +73,19 @@ func (fpb *filePieceBuf) getFpb() *Message {
 }
 
 func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
-	var mg1 *Message
-	var mg2 *Message
-	var ok bool
+	// var mg1 *Message
+	// var mg2 *Message
+	// var ok bool
 	var allPieces int
 	var sendPieces int
 	var n int
 ENDFPBM:
 	for {
-		mg2 = fpb.getFpb()
+		mg2 := fpb.getFpb()
 		switch n {
 		case 0: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
 			n = 1
-			mg1, ok = <-putCh
+			mg1, ok := <-putCh
 			// lg.Println(mg1)
 			// lg.Println(ok)
 			if ok && mg1.MgString == "allEnd" {
