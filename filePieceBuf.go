@@ -89,7 +89,7 @@ ENDFPBM:
 				allPieces = mg1.IntOption
 				continue ENDFPBM
 			}
-			lg.Println("fpbMonitor get fileStream")
+			// lg.Println("fpbMonitor get fileStream")
 			// if !ok {
 			// 	close(getCh)
 			// 	lg.Println("getCh closed.")
