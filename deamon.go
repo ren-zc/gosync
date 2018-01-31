@@ -132,8 +132,9 @@ CONNEND:
 			putCh <- &mg
 			lg.Println("send fileStream")
 			sendPieces++
+			lg.Println(sendPieces)
 			if allPieces == (sendPieces - 1) {
-				// close(putCh)
+				close(putCh)
 				break CONNEND
 			}
 			// time.Sleep(10 * time.Second) // for debug
