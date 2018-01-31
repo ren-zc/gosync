@@ -87,6 +87,7 @@ ENDFPBM:
 			// lg.Println(ok)
 			if ok && mg1.MgString == "allEnd" {
 				allPieces = mg1.IntOption
+				lg.Println("allPieces setted")
 				continue ENDFPBM
 			}
 			// lg.Println("fpbMonitor get fileStream")
@@ -97,6 +98,7 @@ ENDFPBM:
 			// }
 			if ok && mg1.MgString != "allEnd" {
 				fpb.putFpb(mg1)
+				lg.Println("mg1 putted")
 			}
 		case getCh <- mg2:
 			if mg2 != nil {
