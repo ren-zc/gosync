@@ -125,6 +125,7 @@ CONNEND:
 			if mg.MgString == "allEnd" {
 				// close(putCh)
 				// break CONNEND
+				lg.Println("deamon allEnd")
 				allPieces = mg.IntOption
 			}
 			lg.Println("get fileStream")
