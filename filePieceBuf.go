@@ -92,7 +92,7 @@ ENDFPBM:
 				lg.Println(mg1)
 				allPieces = mg1.IntOption
 				lg.Println("allPieces setted")
-				continue ENDFPBM
+				// continue ENDFPBM
 			}
 			// lg.Println("fpbMonitor get fileStream")
 			// if !ok {
