@@ -128,7 +128,7 @@ CONNEND:
 			lg.Println(mg)
 			putCh <- &mg
 			lg.Println("send fileStream")
-			time.Sleep(10 * time.Second) // for debug
+			// time.Sleep(10 * time.Second) // for debug
 			// hdFileStream(&mg, gbc)
 			// break CONNEND
 		case "allFilesMd5List":
