@@ -88,8 +88,8 @@ ENDFPBM:
 			mg1, ok = <-putCh
 			// lg.Println(mg1)
 			// lg.Println(ok)
+			lg.Println(mg1)
 			if ok && mg1.MgString == "allEnd" {
-				lg.Println(mg1)
 				allPieces = mg1.IntOption
 				lg.Println("allPieces setted")
 				continue ENDFPBM
