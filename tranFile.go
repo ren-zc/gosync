@@ -35,7 +35,7 @@ func tranFile(m md5s, tu *transUnit) {
 	mg0.B = true
 	// mg0.MgString = "allEnd"
 	for _, ch := range treeChiledNode {
-		ch <- mg
+		ch <- mg0
 	}
 
 	// 写入一条测试信息, 仅用于数据流网络的连接测试
