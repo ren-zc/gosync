@@ -60,6 +60,9 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	treeConnFailedList := make([]chan Message, 0)
 	ConnErrHost := make([]string, 0)
 	hostsLen := len(hosts)
+	if hostsLen == 0 {
+		return nil, ConnErrHost
+	}
 	var getHosts []string
 	if hostsLen <= worker {
 		getHosts = hosts
@@ -81,6 +84,8 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		treeConnFailedList = append(treeConnFailedList, treeConnFailed)
 		go hdTreeNode(conn, fileStreamCh, treeConnFailed)
 	}
+	var mg Message
+	mg.MgType = "hostList"
 	if len(hosts) != 0 {
 		lg.Println(len(hosts))
 		// 分发host list
@@ -98,21 +103,24 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 			}
 			subHosts := hosts[i*d : limit]
 			// 把subHosts封装到Message, 分发出去
-			var mg Message
-			mg.MgType = "hostList"
 			mg.MgStrings = subHosts
 			fileSteamChList[i] <- mg
 			lg.Println("hostList mg send")
 			if limit == HoL {
-				break
+				fileSteamChList[i] <- mg
 			}
 		}
-		// 接收下级主机的反馈
-		for _, ch := range treeConnFailedList {
-			mg := <-ch
-			if len(mg.MgStrings) != 0 {
-				ConnErrHost = append(ConnErrHost, mg.MgStrings...)
-			}
+	} else {
+		for i := 0; i < ChL; i++ {
+			fileSteamChList[i] <- mg
+			lg.Println("hostList mg send")
+		}
+	}
+	// 接收下级主机的反馈
+	for _, ch := range treeConnFailedList {
+		mg := <-ch
+		if len(mg.MgStrings) != 0 {
+			ConnErrHost = append(ConnErrHost, mg.MgStrings...)
 		}
 	}
 	return fileSteamChList, ConnErrHost

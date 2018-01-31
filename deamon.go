@@ -141,6 +141,9 @@ CONNEND:
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan *Message, fileTransEnd chan struct{}) {
+	if treeChiledNode == nil {
+		// 不进行分发, 只保存到本地
+	}
 	var mg *Message
 	for {
 		mg = <-getCh
