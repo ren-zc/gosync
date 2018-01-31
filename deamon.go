@@ -119,6 +119,7 @@ CONNEND:
 			close(putCh)
 			break CONNEND
 		case "fileStream":
+			time.Sleep(10 * time.Second)
 			lg.Println("get fileStream")
 			lg.Println(mg)
 			putCh <- &mg
