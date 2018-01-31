@@ -75,13 +75,14 @@ func (fpb *filePieceBuf) getFpb() *Message {
 func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
 	var mg1 *Message
 	var mg2 *Message
+	var ok bool
 ENDFPBM:
 	for {
 		mg2 = fpb.getFpb()
 		select {
-		case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
+		case mg1, ok = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
 			lg.Println("fpbMonitor get fileStream")
-			if mg1 == nil {
+			if !ok {
 				close(getCh)
 				break ENDFPBM
 			}
