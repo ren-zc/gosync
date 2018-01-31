@@ -63,7 +63,7 @@ gosync架构
 		MgType: fileStream
 		MgName: 文件名
 		MgByte 文件切片
-		IntOption 文件切片number
+		IntOption 文件切片number / 当allend的情况下, 此字段为总的切片数
 		b 是否是最后一片, true表示是最后一片
 		MgString: "allEnd" // 用于通知所有文件均传输完成
 

@@ -93,6 +93,8 @@ CONNEND:
 		if rcvErr != nil {
 			lg.Println(rcvErr)
 		}
+		var allPieces int
+		var sendPieces int
 		switch mg.MgType {
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
@@ -121,13 +123,19 @@ CONNEND:
 		case "fileStream":
 			// 退出
 			if mg.MgString == "allEnd" {
-				close(putCh)
-				break CONNEND
+				// close(putCh)
+				// break CONNEND
+				allPieces = mg.IntOption
 			}
 			lg.Println("get fileStream")
 			lg.Println(mg)
 			putCh <- &mg
 			lg.Println("send fileStream")
+			sendPieces++
+			if allPieces == (sendPieces - 1) {
+				close(putCh)
+				break CONNEND
+			}
 			// time.Sleep(10 * time.Second) // for debug
 			// hdFileStream(&mg, gbc)
 			// break CONNEND
@@ -158,17 +166,13 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
 		if mg == nil {
 			continue
 		}
-		if treeChiledNode == nil {
-			// 不进行分发, 只保存到本地
-
-			// *** 测试连接树 ***
-			var hR Message
-			hR.MgType = "result"
-			hR.B = true
-			hostRetCh <- hR
-			lg.Println("put hR")
-			// ******************
-		}
+		// *** 测试连接树 ***
+		var hR Message
+		hR.MgType = "result"
+		hR.B = true
+		hostRetCh <- hR
+		lg.Println("put hR")
+		// ******************
 		// lg.Println("hd File get mg")
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
@@ -193,4 +197,5 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
 		// 所有完成后, 将结果通知到retCh chan hostRet
 
 	}
+	lg.Println("hdFile end")
 }

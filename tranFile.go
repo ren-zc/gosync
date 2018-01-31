@@ -30,6 +30,7 @@ func tranFile(m md5s, tu *transUnit) {
 	var mg0 Message
 	mg0.MgID = RandId()
 	mg0.MgType = "fileStream"
+	mg0.MgName = "testName"
 	mg0.MgString = string(m)
 	mg0.IntOption = 1
 	mg0.B = true
@@ -42,7 +43,7 @@ func tranFile(m md5s, tu *transUnit) {
 	var mg Message
 	mg.MgID = RandId()
 	mg.MgType = "fileStream"
-	mg.MgString = string(m)
+	// mg.MgString = string(m)
 	mg.IntOption = 1
 	mg.B = true
 	mg.MgString = "allEnd"
