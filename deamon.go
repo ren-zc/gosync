@@ -154,7 +154,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
 	var mg *Message
 	for {
 		mg = <-getCh
-		// lg.Println("hd File get mg")
+		lg.Println("hd File get mg")
 		if mg == nil {
 			continue
 		}
