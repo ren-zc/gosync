@@ -133,7 +133,7 @@ CONNEND:
 			lg.Println("send fileStream")
 			sendPieces++
 			lg.Println(sendPieces)
-			if allPieces == (sendPieces - 1) {
+			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
 				break CONNEND
 			}
