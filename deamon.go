@@ -80,25 +80,25 @@ func DeamonStart() {
 func dhandleConn(conn net.Conn) {
 	defer conn.Close()
 	gbc := initGobConn(conn)
-	var mg Message
-	rcvErr := gbc.dec.Decode(&mg)
-	if rcvErr != nil {
-		lg.Println(rcvErr)
-	}
 	// fmt.Println(mg)
 
 	// **deal with the mg**
 	// var treeChiledNode []chan Message
 	// var fpb *filePieceBuf
 	putCh := make(chan *Message)
+	var mg Message
 CONNEND:
 	for {
+		rcvErr := gbc.dec.Decode(&mg)
+		if rcvErr != nil {
+			lg.Println(rcvErr)
+		}
 		switch mg.MgType {
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
 			break CONNEND
 		case "hostList":
-			// lg.Println("in deamon hostList")
+			lg.Println("in deamon hostList")
 			getCh := make(chan *Message)
 			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
@@ -113,7 +113,7 @@ CONNEND:
 			}
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
-			// lg.Println("fpbMonitor start")
+			lg.Println("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh)
 			// <-fileTransEnd
 			// close(putCh)
