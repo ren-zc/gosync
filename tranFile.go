@@ -118,7 +118,9 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	}
 	// 接收下级主机的反馈
 	for _, ch := range treeConnFailedList {
+		lg.Println("in range channel")
 		mg := <-ch
+		lg.Println("get mg from treeConnFailed channel")
 		if len(mg.MgStrings) != 0 {
 			ConnErrHost = append(ConnErrHost, mg.MgStrings...)
 		}
