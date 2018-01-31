@@ -87,14 +87,14 @@ func dhandleConn(conn net.Conn) {
 	// var fpb *filePieceBuf
 	putCh := make(chan *Message)
 	var mg Message
+	var allPieces int
+	var sendPieces int
 CONNEND:
 	for {
 		rcvErr := gbc.dec.Decode(&mg)
 		if rcvErr != nil {
 			lg.Println(rcvErr)
 		}
-		var allPieces int
-		var sendPieces int
 		switch mg.MgType {
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
