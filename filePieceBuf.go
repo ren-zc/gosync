@@ -83,10 +83,10 @@ ENDFPBM:
 		mg2 = fpb.getFpb()
 		select {
 		case mg1, ok = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
-			if mg1.MgString == "allEnd" {
-				allPieces = mg1.IntOption
-				continue ENDFPBM
-			}
+			// if mg1.MgString == "allEnd" {
+			// 	allPieces = mg1.IntOption
+			// 	continue ENDFPBM
+			// }
 			lg.Println("fpbMonitor get fileStream")
 			// if !ok {
 			// 	close(getCh)
