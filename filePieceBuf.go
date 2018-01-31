@@ -87,7 +87,7 @@ ENDFPBM:
 			}
 			fpb.putFpb(mg1)
 		case getCh <- mg2:
-			lg.Println("fpbMonitor send fileStream")
+			// lg.Println("fpbMonitor send fileStream")
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
