@@ -160,13 +160,14 @@ CONNEND:
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 	var mg Message
+	var mg0 Message
 	var ok bool
 	for {
 		mg, ok = <-getCh
 		if !ok {
 			break
 		}
-		if mg == nil {
+		if mg == mg0 {
 			continue
 		}
 		lg.Println(mg)
@@ -180,7 +181,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		// lg.Println("hd File get mg")
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
-				ch <- *mg
+				ch <- mg
 			}
 		}
 
