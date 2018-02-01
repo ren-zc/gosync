@@ -34,7 +34,7 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 		f := make(map[int]*Message)
 		fpb.m[mg.MgName] = f
 	}
-	fpb.m[mg.MgName][mg.IntOption] = mg
+	fpb.m[mg.MgName][mg.IntOption] = &mg
 	fpb.fs = append(fpb.fs, mg.MgName)
 }
 
@@ -58,7 +58,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	}
 	fpb.i++
 	var ok bool
-	mg, ok = fpb.m[fpb.f][fpb.i]
+	mg, ok = *(fpb.m[fpb.f][fpb.i])
 	if !ok {
 		fpb.i--
 		return mg
