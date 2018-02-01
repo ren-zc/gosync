@@ -133,7 +133,7 @@ CONNEND:
 			putCh <- mg
 			lg.Println("send fileStream")
 			sendPieces++
-			lg.Println(sendPieces)
+			lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
 				lg.Println("putCh closed")
