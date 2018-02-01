@@ -72,6 +72,7 @@ func (fpb *filePieceBuf) getFpb() *Message {
 	return mg
 }
 
+/*
 func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
 	// var mg1 *Message
 	// var mg2 *Message
@@ -137,4 +138,12 @@ ENDFPBM:
 
 	}
 	lg.Println("fpbMonitor end")
+}
+*/
+func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
+	for {
+		mg := <-putCh
+		lg.Println(mg)
+		getCh <- mg
+	}
 }
