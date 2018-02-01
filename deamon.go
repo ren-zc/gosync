@@ -130,6 +130,7 @@ CONNEND:
 			}
 			lg.Println("get fileStream")
 			lg.Println(mg)
+			lg.Println(mg.MgStrings)
 			putCh <- mg
 			lg.Println("send fileStream")
 			sendPieces++
