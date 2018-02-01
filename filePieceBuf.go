@@ -115,14 +115,14 @@ ENDFPBM:
 				sendPieces++
 				lg.Println(sendPieces)
 				lg.Println(mg2)
-				lg.Println(sendPieces != 0 && sendPieces == allPieces)
-				if sendPieces != 0 && sendPieces == allPieces {
-					close(getCh)
-					lg.Println("getCh closed")
-					break ENDFPBM
-				}
 			}
 			// lg.Println("fpbMonitor send fileStream")
+			lg.Println(sendPieces != 0 && sendPieces == allPieces)
+			if sendPieces != 0 && sendPieces == allPieces {
+				close(getCh)
+				lg.Println("getCh closed")
+				break ENDFPBM
+			}
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
