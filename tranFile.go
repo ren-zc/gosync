@@ -169,6 +169,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 		}
 		if listMg.MgType == "hostList" {
 			for {
+				lg.Println("in wait child node return for")
 				var connMg Message
 				err := gbc.dec.Decode(&connMg)
 				if err != nil {
