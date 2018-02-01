@@ -58,7 +58,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	}
 	fpb.i++
 	var ok bool
-	mg, ok = *(fpb.m[fpb.f][fpb.i])
+	&mg, ok = fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
 		return mg
