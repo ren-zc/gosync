@@ -101,27 +101,30 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	HoL := len(hosts)
 	var mg Message
 	mg.MgType = "hostList"
-	if len(hosts) != 0 {
-		lg.Println(len(hosts))
+	if HoL != 0 {
+		lg.Println(HoL)
 		// 分发host list
 		d := HoL / ChL
 		m := HoL % ChL
 		if m > 0 {
 			d++
 		}
+		var n int
 		for i := 0; i < ChL; i++ {
+			if n == 1 {
+				fileSteamChList[i] <- mg
+				continue
+			}
 			limit := (i + 1) * d
 			if limit >= HoL {
 				limit = HoL
+				n = 1
 			}
 			subHosts := hosts[i*d : limit]
 			// 把subHosts封装到Message, 分发出去
 			mg.MgStrings = subHosts
 			fileSteamChList[i] <- mg
 			lg.Println("hostList mg send")
-			if limit == HoL {
-				fileSteamChList[i] <- mg
-			}
 		}
 	} else {
 		for i := 0; i < ChL; i++ {
@@ -181,6 +184,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 				} else {
 					treeConnFailed <- connMg
 					close(treeConnFailed)
+					lg.Println("get child node return")
 					break
 				}
 			}
