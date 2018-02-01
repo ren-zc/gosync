@@ -94,6 +94,7 @@ ENDFPBM:
 					allPieces = mg1.IntOption
 					lg.Println(allPieces)
 					lg.Println("allPieces setted")
+					getCh <- mg1
 					continue ENDFPBM
 				}
 				// lg.Println("fpbMonitor get fileStream")
