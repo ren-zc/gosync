@@ -85,7 +85,7 @@ func dhandleConn(conn net.Conn) {
 	// **deal with the mg**
 	// var treeChiledNode []chan Message
 	// var fpb *filePieceBuf
-	putCh := make(chan *Message)
+	putCh := make(chan Message)
 	var mg Message
 	var allPieces int
 	var sendPieces int
@@ -101,7 +101,7 @@ CONNEND:
 			break CONNEND
 		case "hostList":
 			lg.Println("in deamon hostList")
-			getCh := make(chan *Message)
+			getCh := make(chan Message)
 			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
@@ -130,7 +130,7 @@ CONNEND:
 			}
 			lg.Println("get fileStream")
 			lg.Println(mg)
-			putCh <- &mg
+			putCh <- mg
 			lg.Println("send fileStream")
 			sendPieces++
 			lg.Println(sendPieces)
@@ -158,8 +158,8 @@ CONNEND:
 	}
 }
 
-func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
-	var mg *Message
+func hdFile(treeChiledNode []chan Message, getCh chan Message) {
+	var mg Message
 	var ok bool
 	for {
 		mg, ok = <-getCh
