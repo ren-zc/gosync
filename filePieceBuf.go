@@ -72,7 +72,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	return mg
 }
 
-func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
+func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	var mg1 *Message
 	var mg2 *Message
 	var ok bool
