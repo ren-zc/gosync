@@ -39,13 +39,13 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
-	var mg Message
+	var mg *Message
 	// fpb.mu.Lock()
 	// defer fpb.mu.Unlock()
 	if fpb.f == "" {
 		l := len(fpb.fs)
 		if l == 0 {
-			return mg
+			return *mg
 		}
 		if l == 1 {
 			fpb.f = fpb.fs[0]
@@ -58,10 +58,10 @@ func (fpb *filePieceBuf) getFpb() Message {
 	}
 	fpb.i++
 	var ok bool
-	&mg, ok = fpb.m[fpb.f][fpb.i]
+	mg, ok = fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
-		return mg
+		return *mg
 	}
 	delete(fpb.m[fpb.f], fpb.i)
 	if mg.B { // 当前f的最后一片
@@ -69,7 +69,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 		fpb.f = ""
 		fpb.i = 0
 	}
-	return mg
+	return *mg
 }
 
 func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
