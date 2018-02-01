@@ -93,6 +93,7 @@ ENDFPBM:
 				if mg1.MgString == "allEnd" {
 					lg.Println(mg1)
 					allPieces = mg1.IntOption
+					lg.Println(allPieces)
 					lg.Println("allPieces setted")
 					continue ENDFPBM
 				}
@@ -112,6 +113,7 @@ ENDFPBM:
 			if mg2.MgType == "fileStream" {
 				n = 1
 				sendPieces++
+				lg.Println(sendPieces)
 				lg.Println(mg2)
 				if sendPieces != 0 && sendPieces == allPieces {
 					close(getCh)
