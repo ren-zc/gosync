@@ -134,6 +134,8 @@ CONNEND:
 			lg.Println("send fileStream")
 			sendPieces++
 			lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
+			lg.Println(allPieces > 0 && allPieces == sendPieces)
+			lg.Println(allPieces > 0 && allPieces == (sendPieces+1))
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
 				lg.Println("putCh closed")
