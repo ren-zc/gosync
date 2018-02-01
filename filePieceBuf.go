@@ -27,7 +27,7 @@ func newFpb() *filePieceBuf {
 	return fpb
 }
 
-func (fpb *filePieceBuf) putFpb(mg *Message) {
+func (fpb *filePieceBuf) putFpb(mg Message) {
 	// fpb.mu.Lock()
 	// defer fpb.mu.Unlock()
 	if fpb.m[mg.MgName] == nil {
@@ -38,8 +38,8 @@ func (fpb *filePieceBuf) putFpb(mg *Message) {
 	fpb.fs = append(fpb.fs, mg.MgName)
 }
 
-func (fpb *filePieceBuf) getFpb() *Message {
-	var mg *Message
+func (fpb *filePieceBuf) getFpb() Message {
+	var mg Message
 	// fpb.mu.Lock()
 	// defer fpb.mu.Unlock()
 	if fpb.f == "" {
@@ -72,54 +72,53 @@ func (fpb *filePieceBuf) getFpb() *Message {
 	return mg
 }
 
-/*
 func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
-	// var mg1 *Message
-	// var mg2 *Message
-	// var ok bool
+	var mg1 *Message
+	var mg2 *Message
+	var ok bool
 	var allPieces int
 	var sendPieces int
-	var n int
+	// var n int
 ENDFPBM:
 	for {
 		mg2 := fpb.getFpb()
-		switch n {
-		case 0: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
-			n = 1
-			mg1, ok := <-putCh
+		select {
+		case mg1, ok := <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
+			// n = 1
 			// lg.Println(mg1)
 			// lg.Println(ok)
-			if ok && mg1.MgString == "allEnd" {
-				lg.Println(mg1)
-				allPieces = mg1.IntOption
-				lg.Println("allPieces setted")
-				// continue ENDFPBM
+			if ok {
+				if mg1.MgString == "allEnd" {
+					lg.Println(mg1)
+					allPieces = mg1.IntOption
+					lg.Println("allPieces setted")
+					continue ENDFPBM
+				}
+				// lg.Println("fpbMonitor get fileStream")
+				// if !ok {
+				// 	close(getCh)
+				// 	lg.Println("getCh closed.")
+				// 	break ENDFPBM
+				// }
+				if mg1.MgString != "allEnd" {
+					lg.Println(mg1)
+					fpb.putFpb(mg1)
+					lg.Println("mg1 putted")
+				}
 			}
-			// lg.Println("fpbMonitor get fileStream")
-			// if !ok {
-			// 	close(getCh)
-			// 	lg.Println("getCh closed.")
-			// 	break ENDFPBM
-			// }
-			if ok && mg1.MgString != "allEnd" {
-				lg.Println(mg1)
-				fpb.putFpb(mg1)
-				lg.Println("mg1 putted")
-			}
-		case 1:
-			n = 0
-			getCh <- mg2
-			if mg2 != nil {
+		case getCh <- mg2:
+			// n = 0
+			if mg2.MgType == "fileStream" {
 				sendPieces++
 				lg.Println(mg2)
-				n = 1
+				// n = 1
+				if sendPieces != 0 && sendPieces == allPieces {
+					close(getCh)
+					lg.Println("getCh closed")
+					break ENDFPBM
+				}
 			}
 			// lg.Println("fpbMonitor send fileStream")
-			if sendPieces != 0 && sendPieces == allPieces {
-				close(getCh)
-				lg.Println("getCh closed")
-				break ENDFPBM
-			}
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
@@ -139,7 +138,8 @@ ENDFPBM:
 	}
 	lg.Println("fpbMonitor end")
 }
-*/
+
+/*
 func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	// for {
 	// 	mg := <-putCh
@@ -151,3 +151,4 @@ func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 		getCh <- v
 	}
 }
+*/

@@ -166,9 +166,9 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if !ok {
 			break
 		}
-		// if mg == nil {
-		// 	continue
-		// }
+		if mg.MgType != "fileStream" {
+			continue
+		}
 		lg.Println(mg)
 		// *** 测试连接树 ***
 		var hR Message
