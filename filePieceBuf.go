@@ -140,7 +140,7 @@ ENDFPBM:
 	lg.Println("fpbMonitor end")
 }
 */
-func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
+func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan *Message) {
 	// for {
 	// 	mg := <-putCh
 	// 	lg.Println(mg)
@@ -148,6 +148,6 @@ func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	// }
 	for v := range putCh {
 		lg.Println(v)
-		getCh <- v
+		getCh <- &v
 	}
 }

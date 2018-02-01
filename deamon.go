@@ -101,7 +101,7 @@ CONNEND:
 			break CONNEND
 		case "hostList":
 			lg.Println("in deamon hostList")
-			getCh := make(chan Message)
+			getCh := make(chan *Message)
 			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
@@ -158,16 +158,15 @@ CONNEND:
 	}
 }
 
-func hdFile(treeChiledNode []chan Message, getCh chan Message) {
-	var mg Message
-	var mg0 Message
+func hdFile(treeChiledNode []chan Message, getCh chan *Message) {
+	var mg *Message
 	var ok bool
 	for {
 		mg, ok = <-getCh
 		if !ok {
 			break
 		}
-		if mg == mg0 {
+		if mg == nil {
 			continue
 		}
 		lg.Println(mg)
@@ -181,7 +180,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		// lg.Println("hd File get mg")
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
-				ch <- mg
+				ch <- *mg
 			}
 		}
 
