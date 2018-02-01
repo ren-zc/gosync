@@ -102,11 +102,9 @@ ENDFPBM:
 				// 	lg.Println("getCh closed.")
 				// 	break ENDFPBM
 				// }
-				if mg1.MgString != "allEnd" {
-					lg.Println(mg1)
-					fpb.putFpb(mg1)
-					lg.Println("mg1 putted")
-				}
+				lg.Println(mg1)
+				fpb.putFpb(mg1)
+				lg.Println("mg1 putted")
 			}
 		case 1:
 			n = 0
