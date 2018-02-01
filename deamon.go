@@ -180,7 +180,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		// lg.Println("hd File get mg")
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
-				ch <- *mg
+				ch <- mg
 			}
 		}
 
