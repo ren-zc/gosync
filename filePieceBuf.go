@@ -141,9 +141,13 @@ ENDFPBM:
 }
 */
 func fpbMonitor(fpb *filePieceBuf, putCh chan *Message, getCh chan *Message) {
-	for {
-		mg := <-putCh
-		lg.Println(mg)
-		getCh <- mg
+	// for {
+	// 	mg := <-putCh
+	// 	lg.Println(mg)
+	// 	getCh <- mg
+	// }
+	for v := range putCh {
+		lg.Println(v)
+		getCh <- v
 	}
 }
