@@ -79,13 +79,14 @@ func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	var ok bool
 	var allPieces int
 	var sendPieces int
-	// var n int
+	var n int
 ENDFPBM:
 	for {
 		mg2 = fpb.getFpb()
-		select {
-		case mg1, ok = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
-			// n = 1
+		switch n {
+		case 0: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
+			n = 1
+			mg1, ok = <-putCh
 			// lg.Println(mg1)
 			// lg.Println(ok)
 			if ok {
@@ -107,12 +108,13 @@ ENDFPBM:
 					lg.Println("mg1 putted")
 				}
 			}
-		case getCh <- mg2:
-			// n = 0
+		case 1:
+			n = 0
+			getCh <- mg2
 			if mg2.MgType == "fileStream" {
+				n = 1
 				sendPieces++
 				lg.Println(mg2)
-				// n = 1
 				if sendPieces != 0 && sendPieces == allPieces {
 					close(getCh)
 					lg.Println("getCh closed")
