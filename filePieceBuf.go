@@ -39,7 +39,8 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
-	var mg *Message
+	// var mg *Message
+	mg := &(Message{})
 	// fpb.mu.Lock()
 	// defer fpb.mu.Unlock()
 	if fpb.f == "" {
