@@ -90,7 +90,7 @@ func dhandleConn(conn net.Conn) {
 	var sendPieces int
 CONNEND:
 	for {
-		var mg Message
+		var mg Message // ****** 把mg写在for外部复用mg, 有BUG!!!, 两次写入的某些mg字段会被组合覆写!!! ******
 		rcvErr := gbc.dec.Decode(&mg)
 		if rcvErr != nil {
 			lg.Println(rcvErr)
@@ -131,9 +131,11 @@ CONNEND:
 			lg.Println("get fileStream")
 			lg.Println(mg)
 			lg.Println(mg.MgStrings)
-			putCh <- mg
+			putCh <- mg // ****** 用channel传递指针有BUG!!!, 慎用 ******
 			lg.Println("send fileStream")
 			sendPieces++
+			lg.Println(allPieces)
+			lg.Println(sendPieces)
 			lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
 			lg.Println(allPieces > 0 && allPieces == sendPieces)
 			lg.Println(allPieces > 0 && allPieces == (sendPieces+1))
