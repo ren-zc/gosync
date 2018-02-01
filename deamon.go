@@ -86,11 +86,11 @@ func dhandleConn(conn net.Conn) {
 	// var treeChiledNode []chan Message
 	// var fpb *filePieceBuf
 	putCh := make(chan Message)
-	var mg Message
 	var allPieces int
 	var sendPieces int
 CONNEND:
 	for {
+		var mg Message
 		rcvErr := gbc.dec.Decode(&mg)
 		if rcvErr != nil {
 			lg.Println(rcvErr)
