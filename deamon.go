@@ -61,7 +61,7 @@ func DeamonStart() {
 	var lsnPort string
 	flag.StringVar(&lsnHost, "h", "", "Please tell me the host ip which you want listen on.")
 	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
-	flag.IntVar(&worker, "-n", 2, "The worker number.")
+	flag.IntVar(&worker, "-n", 1, "The worker number.")
 	flag.Parse()
 	svrln, err := net.Listen("tcp", lsnHost+":"+lsnPort)
 	if err != nil {
@@ -170,6 +170,14 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 			continue
 		}
 		lg.Println(mg)
+
+		// lg.Println("hd File get mg")
+		if treeChiledNode != nil {
+			for _, ch := range treeChiledNode {
+				ch <- mg
+			}
+		}
+
 		// *** 测试连接树 ***
 		var hR Message
 		hR.MgType = "result"
@@ -177,12 +185,6 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		hostRetCh <- hR
 		lg.Println("put hR")
 		// ******************
-		// lg.Println("hd File get mg")
-		if treeChiledNode != nil {
-			for _, ch := range treeChiledNode {
-				ch <- mg
-			}
-		}
 
 		// 分发和保存
 		//
