@@ -21,7 +21,8 @@ func init() {
 	var err error
 	cwd, err = os.Getwd()
 	if err != nil {
-		lg.Println(err)
+		// lg.Println(err)
+		DubugInfor(err)
 	}
 	q := []string{}
 	t = &Tasks{q, "", Complated}
@@ -63,12 +64,15 @@ func DeamonStart() {
 	flag.Parse()
 	svrln, err := net.Listen("tcp", lsnHost+":"+lsnPort)
 	if err != nil {
-		lg.Fatalln(err)
+		// lg.Fatalln(err)
+		DubugInfor(err)
+		os.Exit(1)
 	}
 	for {
 		conn, err := svrln.Accept()
 		if err != nil {
-			lg.Println(err)
+			// lg.Println(err)
+			DubugInfor(err)
 			continue
 		}
 		go dhandleConn(conn)
@@ -86,14 +90,16 @@ CONNEND:
 		var mg Message // ****** 把mg写在for外部复用mg, 有BUG!!!, 两次写入的某些mg字段会被组合覆写!!! ******
 		rcvErr := gbc.dec.Decode(&mg)
 		if rcvErr != nil {
-			lg.Println(rcvErr)
+			// lg.Println(rcvErr)
+			DubugInfor(rcvErr)
 		}
 		switch mg.MgType {
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
 			break CONNEND
 		case "hostList":
-			lg.Println("in deamon hostList")
+			// lg.Println("in deamon hostList")
+			DubugInfor("in deamon hostList")
 			getCh := make(chan Message)
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
@@ -107,30 +113,39 @@ CONNEND:
 			}
 			fpb := newFpb()
 			go fpbMonitor(fpb, putCh, getCh)
-			lg.Println("fpbMonitor start")
+			// lg.Println("fpbMonitor start")
+			DubugInfor("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh)
 		case "fileStream":
 			if mg.MgString == "allEnd" {
-				lg.Println("allPieces setted")
+				// lg.Println("allPieces setted")
+				DubugInfor("allPieces setted")
 				allPieces = mg.IntOption
 			}
-			lg.Println("get fileStream")
-			lg.Println(mg)
-			lg.Println(mg.MgStrings)
+			// lg.Println("get fileStream")
+			DubugInfor("get fileStream")
+			// lg.Println(mg)
+			DubugInfor(mg)
+			// lg.Println(mg.MgStrings)
+			DubugInfor(mg.MgStrings)
 			putCh <- mg // ****** 若用channel传递指针有BUG!!!, 慎用 ******
-			lg.Println("send fileStream")
+			// lg.Println("send fileStream")
+			DubugInfor("send fileStream")
 			sendPieces++
-			lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
+			// lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
+			DubugInfor(allPieces > 0 && allPieces == (sendPieces-1))
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
-				lg.Println("putCh closed")
+				// lg.Println("putCh closed")
+				DubugInfor("putCh closed")
 				break CONNEND
 			}
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			// *** 阻塞直到, 从channel读取同步结果 ***
 			hR := <-hostRetCh
-			lg.Println("get hR")
+			// lg.Println("get hR")
+			DubugInfor("get hR")
 			err := gbc.gobConnWt(hR)
 			if err != nil {
 				// *** 记录本地日志 ***
@@ -153,7 +168,8 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if mg.MgType != "fileStream" {
 			continue
 		}
-		lg.Println(mg)
+		// lg.Println(mg)
+		DubugInfor(mg)
 
 		// 对所有message进行转发
 		if treeChiledNode != nil {
@@ -169,7 +185,8 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 			hR.MgType = "result"
 			hR.B = true
 			hostRetCh <- hR
-			lg.Println("put hR")
+			// lg.Println("put hR")
+			DubugInfor("put hR")
 			// ******************
 		}
 
@@ -190,5 +207,6 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		// 所有完成后, 将结果通知到retCh chan hostRet
 
 	}
-	lg.Println("hdFile end")
+	// lg.Println("hdFile end")
+	DubugInfor("hdFile end")
 }

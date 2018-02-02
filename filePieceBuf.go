@@ -73,22 +73,29 @@ ENDFPBM:
 			mg1, ok = <-putCh
 			if ok {
 				if mg1.MgString == "allEnd" {
-					lg.Println(mg1)
+					// lg.Println(mg1)
+					DubugInfor(mg1)
 					allPieces = mg1.IntOption
-					lg.Println(allPieces)
-					lg.Println("allPieces setted")
+					// lg.Println(allPieces)
+					DubugInfor(allPieces)
+					// lg.Println("allPieces setted")
+					DubugInfor("allPieces setted")
 					getCh <- mg1
 					continue ENDFPBM
 				}
-				lg.Println(mg1)
+				// lg.Println(mg1)
+				DubugInfor(mg1)
 				fpb.putFpb(mg1)
-				lg.Println("mg1 putted")
+				// lg.Println("mg1 putted")
+				DubugInfor("mg1 putted")
 			}
 		case 1:
-			lg.Println(sendPieces != 0 && sendPieces == allPieces)
+			// lg.Println(sendPieces != 0 && sendPieces == allPieces)
+			DubugInfor(sendPieces != 0 && sendPieces == allPieces)
 			if sendPieces != 0 && sendPieces == allPieces {
 				close(getCh)
-				lg.Println("getCh closed")
+				// lg.Println("getCh closed")
+				DubugInfor("getCh closed")
 				break ENDFPBM
 			}
 			n = 0
@@ -97,12 +104,15 @@ ENDFPBM:
 				continue ENDFPBM
 			}
 			getCh <- mg2
-			lg.Println(mg2)
+			// lg.Println(mg2)
+			DubugInfor(mg2)
 			if mg2.MgType == "fileStream" {
 				n = 1
 				sendPieces++
-				lg.Println(sendPieces)
-				lg.Println(mg2)
+				// lg.Println(sendPieces)
+				DubugInfor(sendPieces)
+				// lg.Println(mg2)
+				DubugInfor(mg2)
 			}
 		}
 		// select {
@@ -121,7 +131,8 @@ ENDFPBM:
 		// }
 
 	}
-	lg.Println("fpbMonitor end")
+	// lg.Println("fpbMonitor end")
+	DubugInfor("fpbMonitor end")
 }
 
 /* 简单测试

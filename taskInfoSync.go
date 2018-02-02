@@ -67,7 +67,8 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, dif
 	err := gbc.gobConnWt(fileMd5ListMg)
 	// 如果encode失败, 则此conn对应的目标host同步失败
 	if err != nil {
-		lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
+		// lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
+		DubugInfor(conn.RemoteAddr().String(), "\t", err)
 		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
 		return
 	}
