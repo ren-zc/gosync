@@ -1,35 +1,23 @@
 package gosync
 
-// import (
-// 	"sync"
-// )
-
 // 用于整理文件byte片的顺序
 type filePieceBuf struct {
-	// mu sync.Mutex
 	m  map[string]map[int]*Message
 	fs []string
 	f  string
-	// e  map[string]int
-	i int // 要读取的下一个piece number
+	i  int // 要读取的下一个piece number
 }
 
 func newFpb() *filePieceBuf {
 	fpb := new(filePieceBuf)
-	// mu := sync.Mutex
 	m := make(map[string]map[int]*Message)
 	fs := make([]string, 0, 2)
-	// e := make(map[string]int)
-	// fpb.mu = mu
 	fpb.m = m
-	// fpb.e = e
 	fpb.fs = fs
 	return fpb
 }
 
 func (fpb *filePieceBuf) putFpb(mg Message) {
-	// fpb.mu.Lock()
-	// defer fpb.mu.Unlock()
 	if fpb.m[mg.MgName] == nil {
 		f := make(map[int]*Message)
 		fpb.m[mg.MgName] = f
@@ -39,10 +27,7 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
-	// var mg *Message
 	mg := &(Message{})
-	// fpb.mu.Lock()
-	// defer fpb.mu.Unlock()
 	if fpb.f == "" {
 		l := len(fpb.fs)
 		if l == 0 {
@@ -82,13 +67,10 @@ func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	var n int
 ENDFPBM:
 	for {
-		// lg.Println(n)
 		switch n {
 		case 0: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么ok=false
 			n = 1
 			mg1, ok = <-putCh
-			// lg.Println(mg1)
-			// lg.Println(ok)
 			if ok {
 				if mg1.MgString == "allEnd" {
 					lg.Println(mg1)
@@ -98,22 +80,22 @@ ENDFPBM:
 					getCh <- mg1
 					continue ENDFPBM
 				}
-				// lg.Println("fpbMonitor get fileStream")
-				// if !ok {
-				// 	close(getCh)
-				// 	lg.Println("getCh closed.")
-				// 	break ENDFPBM
-				// }
 				lg.Println(mg1)
 				fpb.putFpb(mg1)
 				lg.Println("mg1 putted")
 			}
 		case 1:
+			lg.Println(sendPieces != 0 && sendPieces == allPieces)
+			if sendPieces != 0 && sendPieces == allPieces {
+				close(getCh)
+				lg.Println("getCh closed")
+				break ENDFPBM
+			}
 			n = 0
 			mg2 = fpb.getFpb()
-			// if mg2.MgType != "fileStream" {
-			// 	continue ENDFPBM
-			// }
+			if mg2.MgType != "fileStream" {
+				continue ENDFPBM
+			}
 			// lg.Println("mg2 will be push to getCh")
 			getCh <- mg2
 			lg.Println(mg2)
@@ -124,12 +106,6 @@ ENDFPBM:
 				lg.Println(mg2)
 			}
 			// lg.Println("fpbMonitor send fileStream")
-			lg.Println(sendPieces != 0 && sendPieces == allPieces)
-			if sendPieces != 0 && sendPieces == allPieces {
-				close(getCh)
-				lg.Println("getCh closed")
-				break ENDFPBM
-			}
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil

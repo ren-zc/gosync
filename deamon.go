@@ -7,8 +7,6 @@ import (
 	"log"
 	"net"
 	"os"
-	// "time"
-	// "sync"
 )
 
 var lg *log.Logger // 使log记录行号, 用于debug
@@ -28,8 +26,7 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
-	DebugFlag = false
-	// worker = 1
+	DebugFlag = true
 }
 
 type gobConn struct {
@@ -81,11 +78,6 @@ func DeamonStart() {
 func dhandleConn(conn net.Conn) {
 	defer conn.Close()
 	gbc := initGobConn(conn)
-	// fmt.Println(mg)
-
-	// **deal with the mg**
-	// var treeChiledNode []chan Message
-	// var fpb *filePieceBuf
 	putCh := make(chan Message)
 	var allPieces int
 	var sendPieces int
@@ -103,7 +95,6 @@ CONNEND:
 		case "hostList":
 			lg.Println("in deamon hostList")
 			getCh := make(chan Message)
-			// fileTransEnd := make(chan struct{})
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
 			var connMg Message
@@ -118,14 +109,8 @@ CONNEND:
 			go fpbMonitor(fpb, putCh, getCh)
 			lg.Println("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh)
-			// <-fileTransEnd
-			// close(putCh)
-			// break CONNEND
 		case "fileStream":
-			// 退出
 			if mg.MgString == "allEnd" {
-				// close(putCh)
-				// break CONNEND
 				lg.Println("allPieces setted")
 				allPieces = mg.IntOption
 			}
@@ -135,19 +120,12 @@ CONNEND:
 			putCh <- mg // ****** 若用channel传递指针有BUG!!!, 慎用 ******
 			lg.Println("send fileStream")
 			sendPieces++
-			lg.Println(allPieces)
-			lg.Println(sendPieces)
 			lg.Println(allPieces > 0 && allPieces == (sendPieces-1))
-			lg.Println(allPieces > 0 && allPieces == sendPieces)
-			lg.Println(allPieces > 0 && allPieces == (sendPieces+1))
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
 				lg.Println("putCh closed")
 				break CONNEND
 			}
-			// time.Sleep(10 * time.Second) // for debug
-			// hdFileStream(&mg, gbc)
-			// break CONNEND
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			// *** 阻塞直到, 从channel读取同步结果 ***
@@ -177,7 +155,6 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		}
 		lg.Println(mg)
 
-		// lg.Println("hd File get mg")
 		// 对所有message进行转发
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
