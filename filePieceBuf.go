@@ -114,7 +114,7 @@ ENDFPBM:
 			// if mg2.MgType != "fileStream" {
 			// 	continue ENDFPBM
 			// }
-			lg.Println("mg2 will be push to getCh")
+			// lg.Println("mg2 will be push to getCh")
 			getCh <- mg2
 			lg.Println(mg2)
 			if mg2.MgType == "fileStream" {
