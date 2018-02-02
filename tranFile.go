@@ -9,7 +9,8 @@ var worker int
 
 func tranFile(m md5s, tu *transUnit) {
 	// 整理hostIP列表, 同时转换成 []string
-	lg.Println("in tranFile")
+	// lg.Println("in tranFile")
+	DubugInfor("in tranFile")
 	lg.Printf("worker %d\n", worker)
 	ipList := make([]string, 0)
 	for _, v := range tu.hosts {
@@ -23,9 +24,8 @@ func tranFile(m md5s, tu *transUnit) {
 	}
 	treeChiledNode, ConnErrHost := tranFileTree(hosts)
 	for _, host := range ConnErrHost {
-		lg.Println(host) // 先输入查看连接错误的主机
+		lg.Println(host) // 输出查看连接错误的主机
 	}
-	// 写入一条测试信息, 仅用于数据流网络的连接测试
 
 	var mg0 Message
 	mg0.MgID = RandId()

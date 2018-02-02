@@ -28,6 +28,7 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
+	DebugFlag = true
 	// worker = 1
 }
 
