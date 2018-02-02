@@ -131,7 +131,7 @@ CONNEND:
 			lg.Println("get fileStream")
 			lg.Println(mg)
 			lg.Println(mg.MgStrings)
-			putCh <- mg // ****** 用channel传递指针有BUG!!!, 慎用 ******
+			putCh <- mg // ****** 若用channel传递指针有BUG!!!, 慎用 ******
 			lg.Println("send fileStream")
 			sendPieces++
 			lg.Println(allPieces)

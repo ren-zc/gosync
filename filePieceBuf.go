@@ -118,8 +118,8 @@ ENDFPBM:
 				lg.Println(mg2)
 			}
 			// lg.Println("fpbMonitor send fileStream")
-			lg.Println(sendPieces != 0 && sendPieces == (allPieces+1))
-			if sendPieces != 0 && sendPieces == (allPieces+1) {
+			lg.Println(sendPieces != 0 && sendPieces == allPieces)
+			if sendPieces != 0 && sendPieces == allPieces {
 				close(getCh)
 				lg.Println("getCh closed")
 				break ENDFPBM
