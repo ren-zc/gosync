@@ -171,9 +171,9 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if !ok {
 			break
 		}
-		if mg.MgType != "fileStream" {
-			continue
-		}
+		// if mg.MgType != "fileStream" {
+		// 	continue
+		// }
 		lg.Println(mg)
 
 		// lg.Println("hd File get mg")
