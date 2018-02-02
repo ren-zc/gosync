@@ -15,7 +15,7 @@ var lg *log.Logger // 使log记录行号, 用于debug
 var cwd string
 var transFilesAndMd5 map[string]string
 
-// 接收本机最终同步结果, 并通过hdFileMd5List()发送给源主机
+// 接收本机最终同步结果, 并通过hdFileMd5List()发送给源主机, 全局变量, 不关闭
 var hostRetCh chan Message
 
 func init() {
@@ -61,7 +61,7 @@ func DeamonStart() {
 	var lsnPort string
 	flag.StringVar(&lsnHost, "h", "", "Please tell me the host ip which you want listen on.")
 	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
-	flag.IntVar(&worker, "-n", 1, "The worker number.")
+	flag.IntVar(&worker, "-n", 4, "The worker number.")
 	flag.Parse()
 	svrln, err := net.Listen("tcp", lsnHost+":"+lsnPort)
 	if err != nil {
