@@ -161,7 +161,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.MgID = mg.MgID
 		ret.MgType = "live" // heartbeat
 		err = gbc.gobConnWt(ret)
-		// lg.Println("waiting...")
 		if err != nil {
 			// *** 记录本地日志 ***
 		}

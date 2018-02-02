@@ -96,7 +96,6 @@ ENDFPBM:
 			if mg2.MgType != "fileStream" {
 				continue ENDFPBM
 			}
-			// lg.Println("mg2 will be push to getCh")
 			getCh <- mg2
 			lg.Println(mg2)
 			if mg2.MgType == "fileStream" {
@@ -105,7 +104,6 @@ ENDFPBM:
 				lg.Println(sendPieces)
 				lg.Println(mg2)
 			}
-			// lg.Println("fpbMonitor send fileStream")
 		}
 		// select {
 		// case mg1 = <-putCh: // 当putCh发送方确认文件传输任务完成, 就会关闭putCh, 那么mg1==nil
@@ -126,7 +124,7 @@ ENDFPBM:
 	lg.Println("fpbMonitor end")
 }
 
-/*
+/* 简单测试
 func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
 	// for {
 	// 	mg := <-putCh
