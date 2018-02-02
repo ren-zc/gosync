@@ -185,7 +185,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		}
 
 		// 仅对非"allEnd"的message进行保存
-		if mg1.MgString != "allEnd" {
+		if mg.MgString != "allEnd" {
 			// *** 测试连接树 ***
 			var hR Message
 			hR.MgType = "result"
