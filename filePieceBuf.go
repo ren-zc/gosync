@@ -111,9 +111,10 @@ ENDFPBM:
 		case 1:
 			n = 0
 			mg2 = fpb.getFpb()
-			if mg2.MgType != "fileStream" {
-				continue ENDFPBM
-			}
+			// if mg2.MgType != "fileStream" {
+			// 	continue ENDFPBM
+			// }
+			lg.Println("mg2 will be push to getCh")
 			getCh <- mg2
 			lg.Println(mg2)
 			if mg2.MgType == "fileStream" {

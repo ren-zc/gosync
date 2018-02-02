@@ -171,25 +171,29 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if !ok {
 			break
 		}
-		// if mg.MgType != "fileStream" {
-		// 	continue
-		// }
+		if mg.MgType != "fileStream" {
+			continue
+		}
 		lg.Println(mg)
 
 		// lg.Println("hd File get mg")
+		// 对所有message进行转发
 		if treeChiledNode != nil {
 			for _, ch := range treeChiledNode {
 				ch <- mg
 			}
 		}
 
-		// *** 测试连接树 ***
-		var hR Message
-		hR.MgType = "result"
-		hR.B = true
-		hostRetCh <- hR
-		lg.Println("put hR")
-		// ******************
+		// 仅对非"allEnd"的message进行保存
+		if mg1.MgString != "allEnd" {
+			// *** 测试连接树 ***
+			var hR Message
+			hR.MgType = "result"
+			hR.B = true
+			hostRetCh <- hR
+			lg.Println("put hR")
+			// ******************
+		}
 
 		// 分发和保存
 		//
