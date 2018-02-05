@@ -35,7 +35,8 @@ func Traverse(path string) ([]string, error) {
 			// if !info.IsDir() {
 			md5Str, fErr = Md5OfAFile(path)
 			if fErr != nil {
-				lg.Println(fErr)
+				// lg.Println(fErr)
+				PrintInfor(fErr)
 				return fErr
 			}
 			md5Str = path + ",," + md5Str
@@ -54,7 +55,8 @@ func Traverse(path string) ([]string, error) {
 	}
 	fErr = filepath.Walk(base, WalkFunc)
 	if fErr != nil {
-		lg.Println(fErr)
+		// lg.Println(fErr)
+		PrintInfor(fErr)
 		return nil, fErr
 	}
 	return md5List, nil
