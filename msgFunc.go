@@ -195,9 +195,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	diffrmM := make(map[string]string)
 	diffaddM := make(map[string]string)
 
-	DubugInfor(diffrmM)
-	DubugInfor(diffaddM)
-
 	for _, v := range diffrm {
 		s := strings.Split(v, ",,")
 		if len(s) != 1 {
@@ -210,6 +207,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 			diffaddM[s[0]] = s[1]
 		}
 	}
+
+	DubugInfor(diffrmM)
+	DubugInfor(diffaddM)
 
 	// 整理
 	for k, _ := range diffaddM {
