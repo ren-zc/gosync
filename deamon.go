@@ -25,7 +25,7 @@ func init() {
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
 	DebugFlag = true
-	gob.Register(errors.errorString)
+	gob.Register(errors.New(""))
 }
 
 type gobConn struct {
