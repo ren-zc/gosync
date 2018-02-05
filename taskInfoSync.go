@@ -2,7 +2,7 @@ package gosync
 
 import (
 	"encoding/gob"
-	"fmt"
+	// "fmt"
 	"net"
 )
 
