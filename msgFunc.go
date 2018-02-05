@@ -35,6 +35,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	}
 	close(retCh)
 	close(retReady)
+	DubugInfor("retReady channel closed.")
 }
 
 // hd: handle
@@ -106,6 +107,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 			// *** 记录本地日志 ***
 			return
 		}
+
+		DubugInfor("the result returned to the client.")
 
 		// 返回任务开始前的目录
 		err = os.Chdir(cwd)
