@@ -241,7 +241,8 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
 		ret.MgType = "result"
-		ret.MgString = "Local operation failed."
+		// ret.MgString = "Local operation failed."
+		ret.MgString = err.Error()
 		ret.B = false
 		err = gbc.gobConnWt(ret)
 		if err != nil {
