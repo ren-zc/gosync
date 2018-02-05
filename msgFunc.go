@@ -1,9 +1,7 @@
 package gosync
 
 import (
-	// "fmt"
 	"github.com/jacenr/filediff/diff"
-	// "log"
 	"os"
 	"regexp"
 	"sort"
@@ -27,7 +25,6 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	var l int
 	for {
 		c = <-retCh
-		// lg.Printf("%s\t%v\n", c.hostIP, c.Err)
 		DubugInfor(c.hostIP, "\t", c.Err)
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
@@ -72,7 +69,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// traHosts, 用于获取文件列表和同步结果
 		fileMd5List, err := Traverse(mg.SrcPath)
 		if err != nil {
-			// lg.Println(err)
 			PrintInfor(err)
 			// 将tarErr以Message的形式发送给客户端
 			// 待补充
@@ -85,15 +81,12 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// get transUnits
 		tus, err := getTransUnit(mg.Zip, hostNum, diffCh, retCh)
 		if err != nil {
-			// fmt.Println(err)
 			PrintInfor(err)
 		}
 
 		// test fmt
 		for k, v := range tus {
-			// lg.Printf("%s\t", k)
 			DubugInfor(k, "\t", v.hosts)
-			// lg.Println(v.hosts)
 		}
 
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
@@ -117,7 +110,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// 返回任务开始前的目录
 		err = os.Chdir(cwd)
 		if err != nil {
-			// lg.Println(err)
 			PrintInfor(err)
 		}
 
@@ -158,7 +150,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	t.put(mg.TaskID)
 	DubugInfor(t)
-	// lg.Println(t)
 	defer t.end(mg.TaskID)
 	for {
 		if t.ask(mg.TaskID) {
@@ -286,7 +277,6 @@ func writeErrorMg(mg *Message, s string, gbc *gobConn) {
 	errmg.IntOption = mg.MgID
 	sendErr := gbc.gobConnWt(errmg)
 	if sendErr != nil {
-		// log.Println(sendErr)
 		PrintInfor(sendErr)
 	}
 }
@@ -296,7 +286,6 @@ func checkTargets(mg *Message) (bool, []string) {
 
 	ipReg, regErr := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	if regErr != nil {
-		// log.Println(regErr)
 		PrintInfor(regErr)
 	}
 	for _, v := range targets {
