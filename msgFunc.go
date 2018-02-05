@@ -105,6 +105,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		err = gbc.gobConnWt(cr)
 		if err != nil {
 			// *** 记录本地日志 ***
+			PrintInfor(err)
 			return
 		}
 
