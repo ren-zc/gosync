@@ -25,7 +25,7 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	var l int
 	for {
 		c = <-retCh
-		DubugInfor(c.hostIP, "\t", c.Err)
+		DubugInfor(c.hostIP, "\t", c.ErrStr)
 		allConn[c.hostIP] = c.ret
 		l = len(allConn)
 		// 相等表示所有host已返回sync结果
