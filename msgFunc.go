@@ -51,6 +51,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 	case "sync":
 		taskID := getTaskID()
 		t.put(taskID)
+		defer t.end(taskID)
 		for {
 			if t.ask(taskID) {
 				break
@@ -119,7 +120,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		}
 
 		// *** end taskID ***
-		t.end(taskID)
 		DubugInfor(t)
 
 	case "exec":

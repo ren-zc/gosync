@@ -125,6 +125,7 @@ CONNEND:
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
 			// *** 阻塞直到, 从channel读取同步结果 ***
+			// ****** 记得清理生成的临时文件 ******
 			hR := <-hostRetCh
 			DubugInfor("get hR")
 			err := gbc.gobConnWt(hR)
