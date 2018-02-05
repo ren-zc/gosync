@@ -14,7 +14,7 @@ func DubugInfor(a ...interface{}) {
 	}
 }
 
-// 输出信息
+// 输出信息, 备用
 func PrintInfor(a ...interface{}) {
 	getInfor(2, a...)
 }
