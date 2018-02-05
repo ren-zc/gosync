@@ -53,13 +53,13 @@ func hdTask(mg *Message, gbc *gobConn) {
 	case "sync":
 		taskID := getTaskID()
 		t.put(taskID)
-		DubugInfor(t)
 		for {
 			if t.ask(taskID) {
 				break
 			}
 			time.Sleep(1 * time.Second)
 		}
+		DubugInfor(t)
 		diffCh := make(chan diffInfo)
 		hostNum := len(targets)
 
@@ -272,7 +272,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		// *** 记录本地日志 ***
 		return
 	}
-	DubugInfor(t)
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {

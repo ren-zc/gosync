@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"encoding/gob"
 	"flag"
-	"log"
+	// "log"
 	"net"
 	"os"
 )
 
-var lg *log.Logger // 使log记录行号, 用于debug
+// var lg *log.Logger // 使log记录行号, 用于debug
 var cwd string
 var transFilesAndMd5 map[string]string
 
@@ -17,7 +17,7 @@ var transFilesAndMd5 map[string]string
 var hostRetCh chan Message
 
 func init() {
-	lg = log.New(os.Stdout, "* ", log.Lshortfile)
+	// lg = log.New(os.Stdout, "* ", log.Lshortfile)
 	var err error
 	cwd, err = os.Getwd()
 	if err != nil {
@@ -142,6 +142,7 @@ CONNEND:
 			}
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
+			DubugInfor(t)
 			// *** 阻塞直到, 从channel读取同步结果 ***
 			hR := <-hostRetCh
 			// lg.Println("get hR")
