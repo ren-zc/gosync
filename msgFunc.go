@@ -102,6 +102,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		cr.MgID = mg.MgID
 		cr.MgType = "result"
 		cr.M = allConn
+		DubugInfor(cr)
 		err = gbc.gobConnWt(cr)
 		if err != nil {
 			// *** 记录本地日志 ***
