@@ -3,7 +3,7 @@ package gosync
 import (
 	"bufio"
 	"encoding/gob"
-	"errors"
+	// "errors"
 	"flag"
 	"net"
 	"os"
@@ -25,7 +25,7 @@ func init() {
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message)
 	DebugFlag = true
-	gob.Register(errors.New(""))
+	// gob.Register(errors.New("")) // gob register errors.errorString bug
 }
 
 type gobConn struct {

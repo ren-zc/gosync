@@ -31,7 +31,7 @@ func getTransUnit(zip bool, hostNum int, diffCh chan diffInfo, retCh chan hostRe
 			continue
 		}
 		if len(di.files) == 0 {
-			putRetCh(di.hostIP, nil, retCh)
+			putRetCh(di.hostIP, "", retCh)
 			continue
 		}
 		tu, ok := tus[di.md5s]

@@ -12,7 +12,7 @@ type md5s string
 // host返回的结果
 type ret struct {
 	Status bool
-	Err    error
+	ErrStr string
 }
 
 // host返回的结果
@@ -22,12 +22,12 @@ type hostRet struct {
 }
 
 // 将host的sync结果push到channel
-func putRetCh(host hostIP, err error, retCh chan hostRet) {
+func putRetCh(host hostIP, errStr string, retCh chan hostRet) {
 	var re ret
-	if err != nil {
-		re = ret{false, err}
+	if errStr != "" {
+		re = ret{false, errStr}
 	} else {
-		re = ret{true, nil}
+		re = ret{true, ""}
 	}
 	retCh <- hostRet{host, re}
 }
@@ -40,7 +40,7 @@ func TravHosts(hosts []string, fileMd5List []string, flMd5 md5s, mg *Message, di
 		conn, cnErr := net.Dial("tcp", host+port)
 		// 建立连接失败, 即此目标host同步失败
 		if cnErr != nil {
-			putRetCh(hostIP(host), cnErr, retCh)
+			putRetCh(hostIP(host), cnErr.Error(), retCh)
 			continue
 		}
 		go hdRetConn(conn, fileMd5List, flMd5, mg, diffCh, retCh, taskID)
@@ -69,7 +69,7 @@ func hdRetConn(conn net.Conn, fileMd5List []string, flMd5 md5s, mg *Message, dif
 	if err != nil {
 		// lg.Printf("%s\t%s\n", conn.RemoteAddr().String(), err)
 		DubugInfor(conn.RemoteAddr().String(), "\t", err)
-		putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+		putRetCh(hostIP(conn.RemoteAddr().String()), err.Error(), retCh)
 		return
 	}
 
@@ -91,8 +91,8 @@ ENDCONN:
 		select {
 		case <-stop:
 			// 超时失败
-			err = fmt.Errorf("%s", "timeout 60s")
-			putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+			// err = fmt.Errorf("%s", "timeout 60s")
+			putRetCh(hostIP(conn.RemoteAddr().String()), "timeout 60s", retCh)
 			if diffFlag != 1 {
 				diffFile.files = nil
 				diffCh <- diffFile
@@ -106,7 +106,7 @@ ENDCONN:
 				} else {
 					err = fmt.Errorf("%s", hostMg.MgString)
 				}
-				putRetCh(hostIP(conn.RemoteAddr().String()), err, retCh)
+				putRetCh(hostIP(conn.RemoteAddr().String()), err.Error(), retCh)
 				if diffFlag != 1 {
 					diffFile.files = nil
 					diffCh <- diffFile
