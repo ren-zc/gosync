@@ -32,9 +32,9 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 			return err
 		}
 	}
-	if len(needDelete) == 0 {
-		return nil
-	}
+	// if len(needDelete) == 0 {
+	// 	return nil
+	// }
 	for _, v := range needDelete {
 		err = os.RemoveAll(v)
 		if err != nil {
