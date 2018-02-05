@@ -6,6 +6,13 @@ import (
 
 func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string, needDelete []string, needCreDir []string) error {
 	var err error
+	for _, v := range needCreDir {
+		err = os.MkdirAll(v, 0755)
+		if err != nil {
+			DubugInfor(err)
+			return err
+		}
+	}
 	for k, v := range slinkNeedCreat {
 		err = os.Symlink(k, v)
 		if err != nil {
@@ -20,13 +27,6 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 			return err
 		}
 		err = os.Symlink(k, v)
-		if err != nil {
-			DubugInfor(err)
-			return err
-		}
-	}
-	for _, v := range needCreDir {
-		err = os.MkdirAll(v, 0755)
 		if err != nil {
 			DubugInfor(err)
 			return err
