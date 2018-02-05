@@ -1,7 +1,7 @@
 package gosync
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/jacenr/filediff/diff"
 	// "log"
 	"os"
