@@ -101,12 +101,15 @@ ENDCONN:
 		case hostMg = <-dataRecCh:
 			switch hostMg.MgType {
 			case "result":
+				var errStr string
 				if hostMg.B {
 					err = nil
+					errStr = ""
 				} else {
-					err = fmt.Errorf("%s", hostMg.MgString)
+					// err = fmt.Errorf("%s", hostMg.MgString)
+					errStr = hostMg.MgString
 				}
-				putRetCh(hostIP(conn.RemoteAddr().String()), err.Error(), retCh)
+				putRetCh(hostIP(conn.RemoteAddr().String()), errStr, retCh)
 				if diffFlag != 1 {
 					diffFile.files = nil
 					diffCh <- diffFile
