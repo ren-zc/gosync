@@ -73,7 +73,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		fileMd5List, err := Traverse(mg.SrcPath)
 		if err != nil {
 			// lg.Println(err)
-			DubugInfor(err)
+			PrintInfor(err)
 			// 将tarErr以Message的形式发送给客户端
 			// 待补充
 			return
@@ -85,7 +85,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// get transUnits
 		tus, err := getTransUnit(mg.Zip, hostNum, diffCh, retCh)
 		if err != nil {
-			fmt.Println(err)
+			// fmt.Println(err)
+			PrintInfor(err)
 		}
 
 		// test fmt
