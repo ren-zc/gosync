@@ -81,7 +81,7 @@ func dhandleConn(conn net.Conn) {
 	var sendPieces int
 CONNEND:
 	for {
-		var mg Message // ****** 把mg写在for外部复用mg, 有BUG!!!, 两次写入的某些mg字段会被组合覆写!!! ******
+		var mg Message // ****** 若把mg写在for外部复用mg, 有BUG!!!, 两次写入的某些mg字段会被组合覆写!!! ******
 		rcvErr := gbc.dec.Decode(&mg)
 		if rcvErr != nil {
 			DubugInfor(rcvErr)
@@ -91,7 +91,6 @@ CONNEND:
 			hdTask(&mg, gbc) // 发起任务
 			break CONNEND
 		case "hostList":
-			DubugInfor("in deamon hostList")
 			getCh := make(chan Message)
 			hosts := mg.MgStrings
 			treeChiledNode, ConnErrHost := tranFileTree(hosts)
@@ -112,13 +111,9 @@ CONNEND:
 				DubugInfor("allPieces setted")
 				allPieces = mg.IntOption
 			}
-			DubugInfor("get fileStream")
 			DubugInfor(mg)
-			DubugInfor(mg.MgStrings)
 			putCh <- mg // ****** 若用channel传递指针有BUG!!!, 慎用 ******
-			DubugInfor("send fileStream")
 			sendPieces++
-			DubugInfor(allPieces > 0 && allPieces == (sendPieces-1))
 			if allPieces > 0 && allPieces == (sendPieces-1) {
 				close(putCh)
 				DubugInfor("putCh closed")
@@ -152,7 +147,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if mg.MgType != "fileStream" {
 			continue
 		}
-		DubugInfor(mg)
+		DubugInfor("hdFile get Message: ", mg)
 
 		// 对所有message进行转发
 		if treeChiledNode != nil {

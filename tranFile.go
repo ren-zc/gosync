@@ -10,7 +10,6 @@ var worker int
 func tranFile(m md5s, tu *transUnit) {
 	// 整理hostIP列表, 同时转换成 []string
 	DubugInfor("in tranFile")
-	DubugInfor(worker)
 	ipList := make([]string, 0)
 	for _, v := range tu.hosts {
 		ipList = append(ipList, string(v))
@@ -23,7 +22,7 @@ func tranFile(m md5s, tu *transUnit) {
 	}
 	treeChiledNode, ConnErrHost := tranFileTree(hosts)
 	for _, host := range ConnErrHost {
-		DubugInfor(host)
+		PrintInfor(host)
 	}
 
 	var mg0 Message
@@ -64,7 +63,6 @@ func tranFile(m md5s, tu *transUnit) {
 }
 
 func tranFileTree(hosts []string) ([]chan Message, []string) {
-	// lg.Println("in tranFileTree")
 	DubugInfor("in tranFileTree")
 	// 从列表中取出worker个host进行连接
 	fileSteamChList := make([]chan Message, 0)
@@ -83,7 +81,6 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		hosts = hosts[worker:]
 	}
 	for _, h := range getHosts {
-		DubugInfor(h)
 		conn, err := net.Dial("tcp", h)
 		if err != nil {
 			ConnErrHost = append(ConnErrHost, h)
@@ -100,7 +97,6 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	var mg Message
 	mg.MgType = "hostList"
 	if HoL != 0 {
-		DubugInfor(HoL)
 		// 分发host list
 		d := HoL / ChL
 		m := HoL % ChL
@@ -132,7 +128,6 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 	}
 	// 接收下级主机的反馈
 	for _, ch := range treeConnFailedList {
-		DubugInfor("in range channel")
 		mg := <-ch
 		DubugInfor("get mg from treeConnFailed channel")
 		if len(mg.MgStrings) != 0 {
@@ -154,10 +149,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	gbc := initGobConn(conn)
 	// 接收host list, 并分发到conn的另一端
 	for {
-		DubugInfor("in hdTreeNode for")
 		listMg, ok := <-fileStreamCh
-		DubugInfor(listMg)
-		DubugInfor(ok)
 		if !ok {
 			close(treeConnFailed)
 			break
@@ -166,16 +158,15 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 		err := gbc.gobConnWt(listMg)
 		if err != nil {
 			// *** 待处理 ***
-			DubugInfor(err)
+			PrintInfor(err)
 		}
 		if listMg.MgType == "hostList" {
 			for {
-				DubugInfor("in wait child node return for")
 				var connMg Message
 				err := gbc.dec.Decode(&connMg)
 				if err != nil {
 					// *** 待处理 ***
-					DubugInfor(err)
+					PrintInfor(err)
 				}
 				if connMg.MgString != "connRet" {
 					continue
