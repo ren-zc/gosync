@@ -52,7 +52,7 @@ func (t *Tasks) ask(taskID string) bool {
 
 // task执行完成时, 把status置为false, 从队列中取出第一个元素赋值给current
 // 同时将元素从队列中删除
-func (t *Tasks) tEnd(taskID string) {
+func (t *Tasks) end(taskID string) {
 	taskMu.Lock()
 	defer taskMu.Unlock()
 	t.Status = Complated

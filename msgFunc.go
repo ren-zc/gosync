@@ -122,7 +122,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 		}
 
 		// *** end taskID ***
-		t.tEnd(taskID)
+		t.end(taskID)
+		DubugInfor(t)
 
 	case "exec":
 		// 预留, 后期扩展;
@@ -156,8 +157,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 
 	t.put(mg.TaskID)
+	DubugInfor(t)
 	// lg.Println(t)
-	defer t.tEnd(mg.TaskID)
+	defer t.end(mg.TaskID)
 	for {
 		if t.ask(mg.TaskID) {
 			break
@@ -270,6 +272,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		// *** 记录本地日志 ***
 		return
 	}
+	DubugInfor(t)
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
