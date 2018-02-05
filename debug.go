@@ -10,16 +10,16 @@ var DebugFlag bool
 // 用于debug时输出文件号及行号, Dubug-->Debug, 错别字
 func DubugInfor(a ...interface{}) {
 	if DebugFlag {
-		getInfor(a..., 2)
+		getInfor(2, a...)
 	}
 }
 
 // 输出信息
 func PrintInfor(a ...interface{}) {
-	getInfor(a..., 2)
+	getInfor(2, a...)
 }
 
-func getInfor(a ...interface{}, depth int) {
+func getInfor(depth int, a ...interface{}) {
 	var file string
 	var line int
 	var ok bool
