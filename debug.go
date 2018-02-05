@@ -14,9 +14,15 @@ func DubugInfor(a ...interface{}) {
 	}
 }
 
-// 输出信息, 备用
+// 输出信息
 func PrintInfor(a ...interface{}) {
-	getInfor(2, a...)
+	// getInfor(2, a...) // 输出带行号的信息, 有性能损失, 还是直接用fmt吧
+
+	// 仅输出必要信息, 不带文件名和行号
+	for _, v := range a {
+		fmt.Printf("%v", v)
+	}
+	fmt.Println()
 }
 
 func getInfor(depth int, a ...interface{}) {
