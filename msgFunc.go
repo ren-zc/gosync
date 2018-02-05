@@ -232,6 +232,15 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	transFilesAndMd5 = diffrmM
 
+	DubugInfor("slinkNeedCreat")
+	DubugInfor(slinkNeedCreat)
+	DubugInfor("slinkNeedChange")
+	DubugInfor(slinkNeedChange)
+	DubugInfor("needDelete")
+	DubugInfor(needDelete)
+	DubugInfor("needCreDir")
+	DubugInfor(needCreDir)
+
 	// *** do symbol link change: slinkNeedChange ***
 	// *** do symbol link create: slinkNeedCreat ***
 	// *** do delete extra files: needDelete ***
