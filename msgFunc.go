@@ -194,6 +194,10 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	// 重组成map
 	diffrmM := make(map[string]string)
 	diffaddM := make(map[string]string)
+
+	DubugInfor(diffrmM)
+	DubugInfor(diffaddM)
+
 	for _, v := range diffrm {
 		s := strings.Split(v, ",,")
 		if len(s) != 1 {
