@@ -217,12 +217,15 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	DubugInfor("diffaddM")
 	DubugInfor(diffaddM)
 
+	DubugInfor(mg.Overwrt)
+
 	// 整理
 	for k, _ := range diffaddM {
 		DubugInfor(k)
 		v2, ok := diffrmM[k]
 		if ok {
 			if !mg.Overwrt {
+				DubugInfor(k, " will not be trans-ed.")
 				delete(diffrmM, k)
 			}
 			if mg.Overwrt {
