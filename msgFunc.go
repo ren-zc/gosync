@@ -35,6 +35,9 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	}
 	close(retCh)
 	close(retReady)
+
+	// *** 若zip选项为真, 则清理zip文件 ***
+
 	DubugInfor("retReady channel closed.")
 }
 
@@ -86,15 +89,14 @@ func hdTask(mg *Message, gbc *gobConn) {
 			PrintInfor(err)
 		}
 
-		// test fmt
-		for k, v := range tus {
-			DubugInfor(k, "\t", v.hosts)
-		}
-
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
 		// *************** 补充代码中 ***************
 		for m, tu := range tus {
-			tranFile(m, &tu)
+			DubugInfor(k, "\t", v.hosts)
+			tranFile(m, &tu) // go tranFile(m, &tu) ?
+
+			// *** 若zip选项为真, 则收集zip文件名, 以某种方式传给cnMonitor进行处理 ***
+
 		}
 
 		// *** 将allConn返回给客户端 ***
