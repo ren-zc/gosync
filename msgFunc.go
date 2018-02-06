@@ -186,6 +186,10 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 
 	sort.Strings(localFilesMd5)
+
+	DubugInfor(mg.MgStrings)
+	DubugInfor(localFilesMd5)
+
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
 
 	DubugInfor(diffrm)
