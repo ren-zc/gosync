@@ -218,23 +218,28 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	// 整理
 	for k, _ := range diffaddM {
 		v2, ok := diffrmM[k]
-		if ok && !mg.Overwrt {
-			delete(diffrmM, k)
-		}
-		if ok && mg.Overwrt {
-			if strings.HasPrefix(v2, "symbolLink&&") {
-				slinkNeedChange[k] = strings.TrimPrefix(v2, "symbolLink&&")
+		if ok {
+			if !mg.Overwrt {
 				delete(diffrmM, k)
+			}
+			if mg.Overwrt {
+				if strings.HasPrefix(v2, "symbolLink&&") {
+					slinkNeedChange[k] = strings.TrimPrefix(v2, "symbolLink&&")
+					delete(diffrmM, k)
+				}
+				needDelete = append(needDelete, k)
 			}
 		}
 		if !ok && mg.Del {
 			needDelete = append(needDelete, k)
 		}
+
 	}
 	for k, v := range diffrmM {
 		if strings.HasPrefix(v, "symbolLink&&") {
 			slinkNeedCreat[k] = strings.TrimPrefix(v, "symbolLink&&")
 			delete(diffrmM, k)
+			continue
 		}
 		if v == "Directory" {
 			needCreDir = append(needCreDir, k)
@@ -243,6 +248,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	}
 
 	transFilesAndMd5 = diffrmM
+
+	DubugInfor("diffrmM")
+	DubugInfor(diffrmM)
 
 	DubugInfor("slinkNeedCreat")
 	DubugInfor(slinkNeedCreat)
