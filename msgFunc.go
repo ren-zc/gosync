@@ -275,6 +275,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	// do request needTrans files
 	transFiles := []string{}
+
+	DubugInfor(transFiles)
+
 	for k, _ := range diffrmM {
 		transFiles = append(transFiles, k)
 	}

@@ -14,7 +14,8 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 		}
 	}
 	for k, v := range slinkNeedCreat {
-		err = os.Symlink(k, v)
+		// err = os.Symlink(k, v)
+		err = os.Symlink(v, k)
 		if err != nil {
 			DubugInfor(err)
 			return err
@@ -26,7 +27,8 @@ func localOP(slinkNeedCreat map[string]string, slinkNeedChange map[string]string
 			DubugInfor(err)
 			return err
 		}
-		err = os.Symlink(k, v)
+		// err = os.Symlink(k, v)
+		err = os.Symlink(v, k)
 		if err != nil {
 			DubugInfor(err)
 			return err
