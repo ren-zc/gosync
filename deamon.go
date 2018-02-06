@@ -7,6 +7,7 @@ import (
 	"flag"
 	"net"
 	"os"
+	"runtime"
 )
 
 var cwd string
@@ -76,6 +77,7 @@ func DeamonStart() {
 }
 
 func dhandleConn(conn net.Conn) {
+	defer runtime.GC()
 	defer conn.Close()
 	gbc := initGobConn(conn)
 	putCh := make(chan Message)
@@ -137,6 +139,7 @@ CONNEND:
 			hdNoType(&mg, gbc)
 		}
 	}
+	// runtime.GC()
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
