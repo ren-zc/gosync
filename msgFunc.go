@@ -187,17 +187,17 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	sort.Strings(localFilesMd5)
 
-	DubugInfor(mg.MgStrings)
-	DubugInfor(localFilesMd5)
+	// DubugInfor(mg.MgStrings)
+	// DubugInfor(localFilesMd5)
 
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
 
-	DubugInfor(diffrm)
-	DubugInfor(diffadd)
+	// DubugInfor(diffrm)
+	// DubugInfor(diffadd)
 
 	// 重组成map
-	diffrmM := make(map[string]string)
-	diffaddM := make(map[string]string)
+	// diffrmM := make(map[string]string)
+	// diffaddM := make(map[string]string)
 
 	for _, v := range diffrm {
 		s := strings.Split(v, ",,")
@@ -227,10 +227,12 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 					slinkNeedChange[k] = strings.TrimPrefix(v2, "symbolLink&&")
 					delete(diffrmM, k)
 				}
+				DubugInfor(k, " will be deleted.")
 				needDelete = append(needDelete, k)
 			}
 		}
 		if !ok && mg.Del {
+			DubugInfor(k, " will be deleted.")
 			needDelete = append(needDelete, k)
 		}
 
