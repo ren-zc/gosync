@@ -217,7 +217,10 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	DubugInfor("diffaddM")
 	DubugInfor(diffaddM)
 
+	DubugInfor("overwrite")
 	DubugInfor(mg.Overwrt)
+	DubugInfor("delete")
+	DubugInfor(mg.Del)
 
 	// 整理
 	for k, _ := range diffaddM {
