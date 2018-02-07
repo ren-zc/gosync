@@ -95,18 +95,18 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// *************** 补充代码中 ***************
 		// 限制并发数为goTus个
 		zips := []string{}
-		gos := make(chan struct{}, goTus)
-		for i := 0; i < goTus; i++ {
-			gos <- struct{}{}
-		}
+		// gos := make(chan struct{}, goTus)
+		// for i := 0; i < goTus; i++ {
+		// 	gos <- struct{}{}
+		// }
 		for m, tu := range tus {
 			DubugInfor(m, "\t", tu.hosts)
-			// tranFile(m, &tu) // go tranFile(m, &tu) ? goroutine的数量 ? !!!!!! 待改进的地方!!!!!!
-			go func() {
-				st := <-gos
-				tranFile(m, &tu)
-				gos <- st
-			}()
+			tranFile(m, &tu) // go tranFile(m, &tu) ? goroutine的数量 ? !!!!!! 待改进的地方!!!!!!
+			// go func() {
+			// 	st := <-gos
+			// 	tranFile(m, &tu)
+			// 	gos <- st
+			// }()
 
 			// 收集zip文件名, 待task完成时删除其中的zip文件
 			if mg.Zip {
