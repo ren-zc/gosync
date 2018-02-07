@@ -142,14 +142,13 @@ CONNEND:
 	// runtime.GC()
 }
 
-func hdFile(treeChiledNode []chan Message, getCh chan Message) { // 当前目录?
+func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 	var mg Message
 	var ok bool
 	for {
 		mg, ok = <-getCh
 		if !ok {
 			// 从getCh读取失败, 说明所有文件读取完成
-			// 对传输的文件进行校验
 			break
 		}
 		// if mg.MgType != "fileStream" {
@@ -165,18 +164,9 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) { // 当前目录
 		}
 
 		// 仅对非"allEnd"的message进行保存
-		// 即保存文件切片到本地
 		if mg.MgString != "allEnd" {
-			// *** 测试连接树 ***
-			var hR Message
-			hR.MgType = "result"
-			hR.B = true
-			hostRetCh <- hR
-			DubugInfor("put hR")
-			// ******************
+			// 保存文件切片到本地
 		}
-
-		DubugInfor(os.Getwd())
 
 		// 分发和保存
 		//
@@ -195,5 +185,20 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) { // 当前目录
 		// 所有完成后, 将结果通知到retCh chan hostRet
 
 	}
+	DubugInfor(os.Getwd()) // debug 查看是否在dst目录
+	// 对传输的文件进行校验
+	// *** 校验代码写在此 ***
+	// 若zip选项为true, 则先对比zip的md5, 然后解压缩
+	// 校验过程: 对每个文件先生成md5, 然后和map transFilesMd5中的md5做对比
+	// 若有一个文件的md5不匹配, 则输出, 并返回传输失败的结果
+
+	// *** 测试连接树 ***
+	var hR Message
+	hR.MgType = "result"
+	hR.B = true
+	hostRetCh <- hR
+	DubugInfor("put hR")
+	// ******************
+
 	DubugInfor("hdFile end")
 }
