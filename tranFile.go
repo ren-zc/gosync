@@ -25,6 +25,12 @@ func tranFile(m md5s, tu *transUnit) {
 		PrintInfor(host)
 	}
 
+	// 开始传送文件, 定义一个n, 用于累加所有文件的切片数量
+	// 若是zip元文件, message中应附带mg.Zip字段
+	// 若传输的文件本身就是一个zip文件, 切勿设置mg.Zip字段
+	//
+
+	// 测试用的message
 	var mg0 Message
 	mg0.MgID = RandId()
 	mg0.MgType = "fileStream"
@@ -36,7 +42,10 @@ func tranFile(m md5s, tu *transUnit) {
 		ch <- mg0
 	}
 
-	// 写入一条测试信息, 仅用于数据流网络的连接测试
+	// ******
+	// 传送完成发送mg.MgString == "allEnd"的mg, 同时关闭fileStreamCh
+	// IntOption标识传输的文件切片数量, 不包括IntOption本身所在的message
+	// ******
 	var mg Message
 	mg.MgID = RandId()
 	mg.MgType = "fileStream"
@@ -47,10 +56,7 @@ func tranFile(m md5s, tu *transUnit) {
 		ch <- mg
 	}
 
-	// ******
-	// 传送完成发送mg.MgString == "allEnd"的mg, 同时关闭fileStreamCh
-	// ******
-
+	// 以下为旧的coments, 仅供参考:
 	// for每一个文件, 打开, 读取, 遍历treeChiledNode分发
 
 	// 如果zip为true, 则开始传输zip文件, 包括zip的md5

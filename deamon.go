@@ -108,7 +108,7 @@ CONNEND:
 				// *** 记录本地日志 ***
 			}
 			fpb := newFpb()
-			go fpbMonitor(fpb, putCh, getCh)
+			go fpbMonitor(fpb, putCh, getCh) // 对收到的文件切片进行缓冲排序
 			DubugInfor("fpbMonitor start")
 			go hdFile(treeChiledNode, getCh)
 		case "fileStream":
@@ -127,8 +127,7 @@ CONNEND:
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
-			// *** 阻塞直到, 从channel读取同步结果 ***
-			// ****** 记得清理生成的临时文件 ******
+			// *** 阻塞直到,从channel读取同步结果 ***
 			hR := <-hostRetCh
 			DubugInfor("get hR")
 			err := gbc.gobConnWt(hR)
@@ -143,17 +142,19 @@ CONNEND:
 	// runtime.GC()
 }
 
-func hdFile(treeChiledNode []chan Message, getCh chan Message) {
+func hdFile(treeChiledNode []chan Message, getCh chan Message) { // 当前目录?
 	var mg Message
 	var ok bool
 	for {
 		mg, ok = <-getCh
 		if !ok {
+			// 从getCh读取失败, 说明所有文件读取完成
+			// 对传输的文件进行校验
 			break
 		}
-		if mg.MgType != "fileStream" {
-			continue
-		}
+		// if mg.MgType != "fileStream" {
+		// 	continue
+		// }
 		DubugInfor("hdFile get Message: ", mg)
 
 		// 对所有message进行转发
@@ -164,6 +165,7 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		}
 
 		// 仅对非"allEnd"的message进行保存
+		// 即保存文件切片到本地
 		if mg.MgString != "allEnd" {
 			// *** 测试连接树 ***
 			var hR Message
@@ -173,6 +175,8 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 			DubugInfor("put hR")
 			// ******************
 		}
+
+		DubugInfor(os.Getwd())
 
 		// 分发和保存
 		//
