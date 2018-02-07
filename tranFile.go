@@ -56,7 +56,6 @@ func tranFile(m md5s, tu *transUnit) {
 	for _, ch := range treeChiledNode {
 		ch <- mg
 		close(ch)
-		DubugInfor("a fileStreamCh be closed.")
 	}
 
 	// 以下为旧的coments, 仅供参考:
@@ -160,7 +159,6 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	for {
 		listMg, ok := <-fileStreamCh
 		if !ok {
-			DubugInfor("hdTreeNode will be breaked.")
 			break // 主动break会close conn, 会不会导致下游node panic? 有待深究!
 			// continue
 		}

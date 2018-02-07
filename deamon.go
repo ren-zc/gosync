@@ -148,6 +148,11 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		mg, ok = <-getCh
 		if !ok {
 			// 从getCh读取失败, 说明所有文件读取完成
+			if treeChiledNode != nil {
+				for _, ch := range treeChiledNode {
+					close(ch)
+				}
+			}
 			break
 		}
 		// if mg.MgType != "fileStream" {
