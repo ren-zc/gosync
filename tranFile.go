@@ -143,12 +143,6 @@ func tranFileTree(hosts []string) ([]chan Message, []string) {
 		}
 	}
 	return fileSteamChList, ConnErrHost
-	// fileStreamChList := make([]chan Message, worker)
-	// for ... make chan Message ... append ...
-	// go hdTreeNode(conn, fileStreamChList[i])
-
-	// 如果列表不为空, 把列表剩余host分成worker份通过channel分发出去
-	// MgType: file, MgName: hostList, MgStrings: []string
 }
 
 func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Message) {
@@ -185,15 +179,8 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 				break
 			}
 		}
-		// 将mg中的数据写入本地文件
 	}
-	// 接收conn另一端的连接反馈, 并通过channel传递到tranFileTree()
-	// 接收文件数据流
-	// 向conn另一端传递host list
-
-	// 接收channel中的内容, 并进行分发
-	// 如果收到重发请求...
-	// 如果channel关闭, 关闭conn, 则退出goroutine
+	// 如果channel被关闭, 关闭conn, 退出goroutine
 	DubugInfor("hdTreeNode closed.")
 }
 
