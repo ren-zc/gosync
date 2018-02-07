@@ -132,9 +132,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 			PrintInfor(err)
 		}
 
-		// *** end taskID ***
-		DubugInfor(t)
-
 	case "exec":
 		// 预留, 后期扩展;
 

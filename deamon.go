@@ -93,6 +93,7 @@ CONNEND:
 		switch mg.MgType {
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
+			DubugInfor(t)
 			break CONNEND
 		case "hostList":
 			getCh := make(chan Message)
