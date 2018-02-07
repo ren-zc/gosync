@@ -119,8 +119,11 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 		// 清理临时生成的zip文件
 		for _, zip := range zips {
-			// err = os.Remove(zip)
-			DubugInfor(zip)
+			DubugInfor(zip, ", this zip file will be deleted.")
+			err = os.Remove(zip)
+			if err != nil {
+				PrintInfor(zip, "delete fail, ", err)
+			}
 		}
 
 		// 返回任务开始前的目录
