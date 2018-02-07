@@ -93,7 +93,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		// *************** 补充代码中 ***************
 		zips := []string{}
 		for m, tu := range tus {
-			DubugInfor(k, "\t", v.hosts)
+			DubugInfor(m, "\t", tu.hosts)
 			tranFile(m, &tu) // go tranFile(m, &tu) ?
 
 			// *** 若zip选项为真, 则收集zip文件名, 以某种方式传给cnMonitor进行处理或其他合适的地方进行处理 ***
