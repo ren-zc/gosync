@@ -91,12 +91,15 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
 		// *************** 补充代码中 ***************
+		zips := []string{}
 		for m, tu := range tus {
 			DubugInfor(k, "\t", v.hosts)
 			tranFile(m, &tu) // go tranFile(m, &tu) ?
 
-			// *** 若zip选项为真, 则收集zip文件名, 以某种方式传给cnMonitor进行处理 ***
-
+			// *** 若zip选项为真, 则收集zip文件名, 以某种方式传给cnMonitor进行处理或其他合适的地方进行处理 ***
+			if mg.Zip {
+				zips = append(zips, tu.zipFileInfo.name)
+			}
 		}
 
 		// *** 将allConn返回给客户端 ***
@@ -112,8 +115,13 @@ func hdTask(mg *Message, gbc *gobConn) {
 			PrintInfor(err)
 			return
 		}
-
 		DubugInfor("the result returned to the client.")
+
+		// 清理临时生成的zip文件
+		for _, zip := range zips {
+			// err = os.Remove(zip)
+			DubugInfor(zip)
+		}
 
 		// 返回任务开始前的目录
 		err = os.Chdir(cwd)
