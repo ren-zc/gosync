@@ -94,7 +94,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		zips := []string{}
 		for m, tu := range tus {
 			DubugInfor(m, "\t", tu.hosts)
-			tranFile(m, &tu) // go tranFile(m, &tu) ?
+			tranFile(m, &tu) // go tranFile(m, &tu) ? goroutine的数量 ? !!!!!! 待改进的地方!!!!!!
 
 			// *** 若zip选项为真, 则收集zip文件名, 以某种方式传给cnMonitor进行处理或其他合适的地方进行处理 ***
 			if mg.Zip {

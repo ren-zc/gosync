@@ -139,7 +139,6 @@ CONNEND:
 			hdNoType(&mg, gbc)
 		}
 	}
-	// runtime.GC()
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
@@ -167,38 +166,21 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		if mg.MgString != "allEnd" {
 			// 保存文件切片到本地
 		}
-
-		// 分发和保存
-		//
-		// MgType: fileStream
-		// 接收到Message, 将其中的文件内容保存到本地
-		// 同时将Message原封不动的转发到[]chan Message的channel中
-
-		// 如果是zip文件, 比对zip文件的md5, 比对后进行解压
-
-		// 传输完成后, 和map transFilesMd5中的md5做对比
-		// 如果md5不匹配, 则向gbc返回重新发送文件的请求
-		// 重发请求格式:
-		// *** 待定 ***
-		// 暂定: log输出看结果分析原因
-
-		// 所有完成后, 将结果通知到retCh chan hostRet
-
 	}
-	DubugInfor(os.Getwd()) // debug 查看是否在dst目录
+	DubugInfor(os.Getwd()) // 查看当前目录是否是dst目录
+
 	// 对传输的文件进行校验
 	// *** 校验代码写在此 ***
 	// 若zip选项为true, 则先对比zip的md5, 然后解压缩
 	// 校验过程: 对每个文件先生成md5, 然后和map transFilesMd5中的md5做对比
-	// 若有一个文件的md5不匹配, 则输出, 并返回传输失败的结果
+	// 若有一个文件的md5不匹配, 则打印不匹配的项, 待所有文件比对完成传输失败的结果
 
-	// *** 测试连接树 ***
+	// 若文件比对成功, 则发送成功的message到hostRetCh
 	var hR Message
 	hR.MgType = "result"
 	hR.B = true
 	hostRetCh <- hR
 	DubugInfor("put hR")
-	// ******************
 
 	DubugInfor("hdFile end")
 }

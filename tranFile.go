@@ -3,18 +3,19 @@ package gosync
 import (
 	// "os"
 	"net"
+	// "time"
 )
 
 var worker int
 
 func tranFile(m md5s, tu *transUnit) {
-	// 整理hostIP列表, 同时转换成 []string
 	DubugInfor("in tranFile")
-	ipList := make([]string, 0)
-	for _, v := range tu.hosts {
-		ipList = append(ipList, string(v))
-	}
+	// ipList := make([]string, 0)
+	// for _, v := range tu.hosts {
+	// 	ipList = append(ipList, string(v))
+	// }
 
+	// 整理hostIP列表, 同时转换成 []string
 	// 调用 tranFileTree(), 得到[]chan Message
 	hosts := make([]string, 0)
 	for _, v := range tu.hosts {
@@ -54,6 +55,7 @@ func tranFile(m md5s, tu *transUnit) {
 	mg.MgString = "allEnd"
 	for _, ch := range treeChiledNode {
 		ch <- mg
+		close(ch)
 	}
 
 	// 以下为旧的coments, 仅供参考:
@@ -157,8 +159,8 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	for {
 		listMg, ok := <-fileStreamCh
 		if !ok {
-			close(treeConnFailed)
-			break
+			break // 主动break会close conn, 会不会导致下游node panic? 有待深究!
+			// continue
 		}
 		// 从fileStreamCh中接收mg, 分发到conn的另一端
 		err := gbc.gobConnWt(listMg)
@@ -176,12 +178,11 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 				}
 				if connMg.MgString != "connRet" {
 					continue
-				} else {
-					treeConnFailed <- connMg
-					close(treeConnFailed)
-					DubugInfor("get child node return")
-					break
 				}
+				treeConnFailed <- connMg
+				close(treeConnFailed)
+				DubugInfor("get child node return")
+				break
 			}
 		}
 		// 将mg中的数据写入本地文件
@@ -193,6 +194,7 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	// 接收channel中的内容, 并进行分发
 	// 如果收到重发请求...
 	// 如果channel关闭, 关闭conn, 则退出goroutine
+	DubugInfor("hdTreeNode closed.")
 }
 
 func tranPerFile(fileStreamChList []chan Message, fileName string, zipMd5 md5s) {
