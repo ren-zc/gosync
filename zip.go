@@ -148,7 +148,7 @@ func Unzip(zipfile string) error {
 			return err
 		}
 		// _, err = io.CopyN(os.Stdout, rc, 68)
-		_, err = io.Copy(f, zf)
+		_, err = io.Copy(f, rc)
 		if err != nil {
 			return nil
 		}

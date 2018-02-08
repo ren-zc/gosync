@@ -183,11 +183,12 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip bool, mgID int) (int, error) {
 	var m int
 	var err error
-	var p, e = make([]byte, 4096)
+	var p = make([]byte, 4096)
+	var e = make([]byte, 0)
 	// var mgID = RandId()
 	for _, file := range fileNames {
 		var f *os.File
-		var p int
+		var i int
 		f, err = os.Open(file)
 		if err != nil {
 			// 待补充
@@ -197,7 +198,7 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 			var fp Message
 			var n int
 			m++
-			p++
+			i++
 			n, err = r.Read(p)
 			if n > 0 {
 				if n < 4096 {
@@ -215,7 +216,7 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 			fp.MgType = "fileStream"
 			fp.MgName = file
 			fp.MgByte = e
-			fp.IntOption = p
+			fp.IntOption = i
 			fp.Zip = Zip
 			for _, ch := range fileStreamChList {
 				ch <- fp
