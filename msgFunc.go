@@ -102,12 +102,12 @@ func hdTask(mg *Message, gbc *gobConn) {
 		for m, tu := range tus {
 			DubugInfor(m, "\t", tu.hosts)
 			// tranFile(m, &tu) // go tranFile(m, &tu) ? goroutine的数量 ? !!!!!! 待改进的地方!!!!!!
-			go func() {
+			go func(m md5s, tu transUnit) {
 				st := <-gos
 				tranFile(m, &tu)
 				DubugInfor("a tu on going")
 				gos <- st
-			}()
+			}(m, tu)
 
 			// 收集zip文件名, 待task完成时删除其中的zip文件
 			if mg.Zip {
@@ -138,6 +138,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 				PrintInfor(zip, "delete fail, ", err)
 			}
 		}
+
+		close(gos)
 
 		// 返回任务开始前的目录
 		err = os.Chdir(cwd)
