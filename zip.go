@@ -131,3 +131,29 @@ func zipOne(zipf *zip.Writer, f string) error {
 	}
 	return nil
 }
+
+func Unzip(zipfile string) error {
+	r, err := zip.OpenReader(zipfile)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	for _, zf := range r.File {
+		rc, err := zf.Open()
+		if err != nil {
+			return err
+		}
+		f, err := os.Create(zf.Name)
+		if err != nil {
+			return err
+		}
+		// _, err = io.CopyN(os.Stdout, rc, 68)
+		_, err = io.Copy(f, zf)
+		if err != nil {
+			return nil
+		}
+		rc.Close()
+		f.Close()
+	}
+	return nil
+}

@@ -38,8 +38,6 @@ func cnMonitor(i int, allConn map[hostIP]ret, retCh chan hostRet, retReady chan 
 	close(retCh)
 	close(retReady)
 
-	// *** 若zip选项为真, 则清理zip文件 ***
-
 	DubugInfor("retReady channel closed.")
 }
 
@@ -77,8 +75,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		fileMd5List, err := Traverse(mg.SrcPath)
 		if err != nil {
 			PrintInfor(err)
-			// 将tarErr以Message的形式发送给客户端
-			// 待补充
+			// 将tarErr以Message的形式发送给客户端, 待补充
 			return
 		}
 		sort.Strings(fileMd5List)
@@ -91,9 +88,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 			PrintInfor(err)
 		}
 
-		// *** 对每个tu执行同步文件操作, 将最终结果push到retCh ***
-		// *************** 补充代码中 ***************
-		// 限制并发数为goTus个
+		// 执行goTus个goroutine对每个tu执行同步文件操作, 将最终结果push到retCh
 		zips := []string{}
 		gos := make(chan struct{}, goTus)
 		for i := 0; i < goTus; i++ {
@@ -101,7 +96,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 		}
 		for m, tu := range tus {
 			DubugInfor(m, "\t", tu.hosts)
-			// tranFile(m, &tu) // go tranFile(m, &tu) ? goroutine的数量 ? !!!!!! 待改进的地方!!!!!!
+			// tranFile(m, &tu)
 			go func(m md5s, tu transUnit) {
 				st := <-gos
 				tranFile(m, &tu)
@@ -109,7 +104,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 				gos <- st
 			}(m, tu)
 
-			// 收集zip文件名, 待task完成时删除其中的zip文件
+			// 收集zip文件名, 待task完成后删除其中的zip文件
 			if mg.Zip {
 				zips = append(zips, tu.zipFileInfo.name)
 			}
@@ -212,13 +207,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	sort.Strings(localFilesMd5)
 
-	// DubugInfor(mg.MgStrings)
-	// DubugInfor(localFilesMd5)
-
 	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
-
-	// DubugInfor(diffrm)
-	// DubugInfor(diffadd)
 
 	// 重组成map
 	diffrmM := make(map[string]string)
@@ -297,16 +286,12 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	DubugInfor("needCreDir")
 	DubugInfor(needCreDir)
 
-	// *** do symbol link change: slinkNeedChange ***
-	// *** do symbol link create: slinkNeedCreat ***
-	// *** do delete extra files: needDelete ***
-	// *** do local mkdir ***
+	// 接收新文件的本地操作
 	err = localOP(slinkNeedCreat, slinkNeedChange, needDelete, needCreDir)
 	if err != nil {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
 		ret.MgType = "result"
-		// ret.MgString = "Local operation failed."
 		ret.MgString = err.Error()
 		ret.B = false
 		err = gbc.gobConnWt(ret)
@@ -340,7 +325,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
-	// defer conn.Close()
 	writeErrorMg(mg, "error, not a recognizable message.", gbc)
 }
 

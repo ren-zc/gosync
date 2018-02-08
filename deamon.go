@@ -128,7 +128,7 @@ CONNEND:
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
-			// *** 阻塞直到,从channel读取同步结果 ***
+			// *** 阻塞, 直到从channel读取同步结果 ***
 			hR := <-hostRetCh
 			DubugInfor("get hR")
 			err := gbc.gobConnWt(hR)
@@ -145,6 +145,10 @@ CONNEND:
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 	var mg Message
 	var ok bool
+	var f *os.File
+	var err error
+	var currentFile string
+	var Zip bool
 	for {
 		mg, ok = <-getCh
 		if !ok {
@@ -171,17 +175,52 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 		// 仅对非"allEnd"的message进行保存
 		if mg.MgString != "allEnd" {
 			// 保存文件切片到本地
+			if mg.IntOption == 1 {
+				currentFile = mg.MgName
+				Zip = mg.Zip
+				f, err = os.Create(mg.MgName)
+				if err != nil {
+					// 处理错误
+				}
+			}
+			_, err = f.Write(mg.MgByte)
+			if err != nil {
+				// 处理错误
+			}
+			if mg.B {
+				err = f.Close()
+				if err != nil {
+					// 处理错误
+				}
+			}
 		}
 	}
+
 	DubugInfor(os.Getwd()) // 查看当前目录是否是dst目录
+
+	// 若zip选项为true, 解压缩
+	if Zip {
+		Unzip(currentFile)
+	}
 
 	// 对传输的文件进行校验
 	// *** 校验代码写在此 ***
-	// 若zip选项为true, 则先对比zip的md5, 然后解压缩
 	// 校验过程: 对每个文件先生成md5, 然后和map transFilesMd5中的md5做对比
 	// 若有一个文件的md5不匹配, 则打印不匹配的项, 待所有文件比对完成传输失败的结果
+	for file, md5 := range transFilesAndMd5 {
+		m, err := Md5OfAFile(file)
+		if err != nil {
+			// 待补充代码
+			PrintInfor(file, " ", err)
+		}
+		if m == md5 {
+			DubugInfor(file, " ", true)
+		} else {
+			DubugInfor(file, " ", false)
+		}
+	}
 
-	// 若文件比对成功, 则发送成功的message到hostRetCh
+	// 若文件比对成功, 则发送成功的message(如下所示)到hostRetCh
 	var hR Message
 	hR.MgType = "result"
 	hR.B = true

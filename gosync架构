@@ -58,14 +58,14 @@ gosync架构
 	}
 
 	src向个host发送file piece:
-		TaskID
 		MgID
 		MgType: fileStream
 		MgName: 文件名
 		MgByte 文件切片
-		IntOption 文件切片number / 当allend的情况下, 此字段为总的切片数
-		b 是否是最后一片, true表示是最后一片
-		MgString: "allEnd" // 用于通知所有文件均传输完成
+		IntOption 文件切片number // 当allend的情况下, 此字段为总的切片数
+		MgString: "allEnd" // 用于通知所有文件均传输完成, 当设置此字段后, 除了MgType的其他字段将被忽略
+		B 是否是当前file的最后一片
+		Z 传送的是否是zip元文件(需要解压缩)
 
 	gui向deamon发起任务：
 		MgID: 会话ID

@@ -25,3 +25,15 @@ type ClientRet struct {
 	MgType string
 	M      map[hostIP]ret
 }
+
+// type filePiece struct {
+// 	TaskID    string
+// 	MgID      int
+// 	MgType    string // "fileStream"
+// 	MgName    string // 文件名
+// 	MgByte    []byte // 文件内容切片
+// 	IntOption int    // 切片序号
+// 	MgString  string // 用于标识所有切片发送完成
+// 	B         bool   // 是否是文件的最后一片
+// 	Zip       bool   // 是否是元压缩文件(需解压缩)
+// }

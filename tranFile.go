@@ -1,8 +1,10 @@
 package gosync
 
 import (
-	// "os"
+	"bufio"
+	"io"
 	"net"
+	"os"
 	// "time"
 )
 
@@ -10,10 +12,6 @@ var worker int
 
 func tranFile(m md5s, tu *transUnit) {
 	DubugInfor("in tranFile")
-	// ipList := make([]string, 0)
-	// for _, v := range tu.hosts {
-	// 	ipList = append(ipList, string(v))
-	// }
 
 	// 整理hostIP列表, 同时转换成 []string
 	// 调用 tranFileTree(), 得到[]chan Message
@@ -29,45 +27,43 @@ func tranFile(m md5s, tu *transUnit) {
 	// 开始传送文件, 定义一个n, 用于累加所有文件的切片数量
 	// 若是zip元文件, message中应附带mg.Zip字段
 	// 若传输的文件本身就是一个zip文件, 切勿设置mg.Zip字段
-	//
-
-	// 测试用的message
-	var mg0 Message
-	mg0.MgID = RandId()
-	mg0.MgType = "fileStream"
-	mg0.MgName = "testName"
-	mg0.MgString = string(m)
-	mg0.IntOption = 1
-	mg0.B = true
-	for _, ch := range treeChiledNode {
-		ch <- mg0
+	fileNames := []string{}
+	Zip := false
+	mgID := RandId()
+	if tu.zipFileInfo.name != "" {
+		Zip = true
+		fileNames = append(fileNames, tu.zipFileInfo.name)
+	} else {
+		fileNames = tu.fileMd5List
 	}
+
+	n, _ := tranByFileList(treeChiledNode, fileNames, Zip, mgID)
+
+	// 调试用的message
+	// var mg0 Message
+	// mg0.MgID = RandId()
+	// mg0.MgType = "fileStream"
+	// mg0.MgName = "testName"
+	// mg0.MgString = string(m)
+	// mg0.IntOption = 1
+	// mg0.B = true
+	// for _, ch := range treeChiledNode {
+	// 	ch <- mg0
+	// }
 
 	// ******
 	// 传送完成发送mg.MgString == "allEnd"的mg, 同时关闭fileStreamCh
 	// IntOption标识传输的文件切片数量, 不包括IntOption本身所在的message
 	// ******
 	var mg Message
-	mg.MgID = RandId()
+	mg.MgID = mgID
 	mg.MgType = "fileStream"
-	mg.IntOption = 1
-	mg.B = true
+	mg.IntOption = n
 	mg.MgString = "allEnd"
 	for _, ch := range treeChiledNode {
 		ch <- mg
 		close(ch)
 	}
-
-	// 以下为旧的coments, 仅供参考:
-	// for每一个文件, 打开, 读取, 遍历treeChiledNode分发
-
-	// 如果zip为true, 则开始传输zip文件, 包括zip的md5
-	// tranPerFile(zip)
-
-	// 如果zip为false, 对tu中的fileMd5List依次进行传输
-	// for tranPerFile(file)
-
-	// 待所有文件传输完毕, 关闭各个channel
 }
 
 func tranFileTree(hosts []string) ([]chan Message, []string) {
@@ -184,7 +180,53 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	DubugInfor("hdTreeNode closed.")
 }
 
-func tranPerFile(fileStreamChList []chan Message, fileName string, zipMd5 md5s) {
-	// 打开文件
-	// 把文件内容切片到Message, 依次分发到各个channel
+func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip bool, mgID int) (int, error) {
+	var m int
+	var err error
+	var p, e = make([]byte, 4096)
+	// var mgID = RandId()
+	for _, file := range fileNames {
+		var f *os.File
+		var p int
+		f, err = os.Open(file)
+		if err != nil {
+			// 待补充
+		}
+		r := bufio.NewReader(f)
+		for {
+			var fp Message
+			var n int
+			m++
+			p++
+			n, err = r.Read(p)
+			if n > 0 {
+				if n < 4096 {
+					e = p[:n]
+				} else {
+					e = p
+				}
+			}
+			if n == 0 { // 有可能是个空文件
+				e = e[:0]
+				fp.B = true
+				break
+			}
+			fp.MgID = mgID
+			fp.MgType = "fileStream"
+			fp.MgName = file
+			fp.MgByte = e
+			fp.IntOption = p
+			fp.Zip = Zip
+			for _, ch := range fileStreamChList {
+				ch <- fp
+			}
+			if err == io.EOF {
+				break
+			} else {
+				// 待补充错误处理代码
+			}
+		}
+		f.Close()
+	}
+	return m, nil
 }
