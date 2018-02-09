@@ -23,7 +23,9 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 		fpb.m[mg.MgName] = f
 	}
 	fpb.m[mg.MgName][mg.IntOption] = &mg
-	fpb.fs = append(fpb.fs, mg.MgName)
+	if mg.IntOption == 1 {
+		fpb.fs = append(fpb.fs, mg.MgName)
+	}
 	// DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
 	DubugInfor(fpb.fs)
 }
