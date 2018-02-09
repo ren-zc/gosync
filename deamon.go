@@ -95,6 +95,11 @@ CONNEND:
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
 			DubugInfor(t)
+			// 返回任务开始前的目录
+			err := os.Chdir(cwd)
+			if err != nil {
+				PrintInfor(err)
+			}
 			break CONNEND
 		case "hostList":
 			getCh := make(chan Message)
@@ -135,16 +140,16 @@ CONNEND:
 			if err != nil {
 				// *** 记录本地日志 ***
 			}
+			// 返回任务开始前的目录
+			err := os.Chdir(cwd)
+			if err != nil {
+				PrintInfor(err)
+			}
 			break CONNEND
 		default:
 			hdNoType(&mg, gbc)
 		}
 	}
-	// 返回任务开始前的目录
-	// err := os.Chdir(cwd)
-	// if err != nil {
-	// 	PrintInfor(err)
-	// }
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
@@ -231,6 +236,5 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 	hR.B = true
 	hostRetCh <- hR
 	DubugInfor("put hR")
-
 	DubugInfor("hdFile end")
 }
