@@ -220,6 +220,7 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 			fp.Zip = Zip
 			for _, ch := range fileStreamChList {
 				ch <- fp
+				DubugInfor("send ", i)
 			}
 			if err == io.EOF {
 				break

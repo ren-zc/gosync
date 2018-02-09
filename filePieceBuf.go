@@ -47,7 +47,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	mg, ok = fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
-		return *mg
+		return Message{}
 	}
 	delete(fpb.m[fpb.f], fpb.i)
 	if mg.B { // 当前f的最后一片
@@ -112,7 +112,7 @@ ENDFPBM:
 				// lg.Println(sendPieces)
 				DubugInfor(sendPieces)
 				// lg.Println(mg2)
-				DubugInfor(mg2)
+				// DubugInfor(mg2)
 			}
 		}
 		// select {
