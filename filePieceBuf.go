@@ -24,18 +24,19 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 	}
 	fpb.m[mg.MgName][mg.IntOption] = &mg
 	fpb.fs = append(fpb.fs, mg.MgName)
+	DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
-	mg := &(Message{})
+	// mg := &(Message{})
 	if fpb.f == "" {
 		l := len(fpb.fs)
 		if l == 0 {
-			return *mg
+			return Message{}
 		}
 		if l == 1 {
 			fpb.f = fpb.fs[0]
-			fpb.fs = make([]string, 0, 2)
+			fpb.fs = fpb.fs[:0]
 		}
 		if l > 1 {
 			fpb.f = fpb.fs[0]
@@ -43,8 +44,8 @@ func (fpb *filePieceBuf) getFpb() Message {
 		}
 	}
 	fpb.i++
-	var ok bool
-	mg, ok = fpb.m[fpb.f][fpb.i]
+	// var ok bool
+	mg, ok := fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
 		return Message{}
@@ -55,6 +56,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 		fpb.f = ""
 		fpb.i = 0
 	}
+	DubugInfor("get ", mg)
 	return *mg
 }
 
