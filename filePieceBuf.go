@@ -45,10 +45,11 @@ func (fpb *filePieceBuf) getFpb() Message {
 	}
 	fpb.i++
 	// var ok bool
+	DubugInfor(fpb.f, " ", fpb.i)
 	mg, ok := fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
-		DubugInfor("get failed.")
+		// DubugInfor("get failed.")
 		return Message{}
 	}
 	delete(fpb.m[fpb.f], fpb.i)
