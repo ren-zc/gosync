@@ -58,6 +58,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 			// 将tarErr以Message的形式发送给客户端, 待补充
 			return
 		}
+		DubugInfor(len(fileMd5List) == 0)
 		if len(fileMd5List) == 0 {
 			var cr Message
 			cr.MgID = mg.MgID
