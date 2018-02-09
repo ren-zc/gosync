@@ -137,7 +137,7 @@ func Unzip(zipfile string) error {
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	// defer
 	for _, zf := range r.File {
 		rc, err := zf.Open()
 		if err != nil {
@@ -154,6 +154,11 @@ func Unzip(zipfile string) error {
 		}
 		rc.Close()
 		f.Close()
+	}
+	r.Close()
+	err = os.Remove(zipfile)
+	if err != nil {
+		PrintInfor(err)
 	}
 	return nil
 }
