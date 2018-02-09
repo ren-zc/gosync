@@ -141,11 +141,10 @@ CONNEND:
 		}
 	}
 	// 返回任务开始前的目录
-	err := os.Chdir(cwd)
-	if err != nil {
-		PrintInfor(err)
-	}
-
+	// err := os.Chdir(cwd)
+	// if err != nil {
+	// 	PrintInfor(err)
+	// }
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {
