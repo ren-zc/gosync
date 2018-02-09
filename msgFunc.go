@@ -220,10 +220,13 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	sort.Strings(localFilesMd5)
 
+	var diffrm []string
+	var diffadd []string
+
 	if len(localFilesMd5) != 0 {
-		diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
+		diffrm, diffadd = diff.DiffOnly(mg.MgStrings, localFilesMd5)
 	} else {
-		diffrm, diffadd := mg.MgStrings, localFilesMd5
+		diffrm, diffadd = mg.MgStrings, localFilesMd5
 	}
 
 	// 重组成map
