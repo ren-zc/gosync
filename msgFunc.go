@@ -223,6 +223,15 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		diffrm, diffadd = mg.MgStrings, localFilesMd5
 	}
 
+	if len(diffrm) == 0 && len(diffadd) == 0 {
+		var hR Message
+		hR.MgType = "result"
+		hR.B = false
+		hR.MgString = "No file need be transfored."
+		hostRetCh <- hR
+		return
+	}
+
 	// 重组成map
 	diffrmM := make(map[string]string)
 	diffaddM := make(map[string]string)
