@@ -48,6 +48,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	mg, ok := fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
+		DubugInfor("get failed.")
 		return Message{}
 	}
 	delete(fpb.m[fpb.f], fpb.i)
