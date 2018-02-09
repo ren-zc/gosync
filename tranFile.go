@@ -210,7 +210,6 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 			if n == 0 { // 有可能是个空文件
 				e = e[:0]
 				fp.B = true
-				break
 			}
 			fp.MgID = mgID
 			fp.MgType = "fileStream"
