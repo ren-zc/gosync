@@ -52,6 +52,26 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 	switch mg.MgName {
 	case "sync":
+		fileMd5List, err := Traverse(mg.SrcPath)
+		if err != nil {
+			PrintInfor(err)
+			// 将tarErr以Message的形式发送给客户端, 待补充
+			return
+		}
+		if len(fileMd5List) == 0 {
+			var cr Message
+			cr.MgID = mg.MgID
+			cr.MgType = "result"
+			// cr.M = allConn
+			cr.MgString = "Please check the src directory, it must not be empty."
+			DubugInfor(cr)
+			err = gbc.gobConnWt(cr)
+			if err != nil {
+				// *** 记录本地日志 ***
+				PrintInfor(err)
+				return
+			}
+		}
 		taskID := getTaskID()
 		t.put(taskID)
 		defer t.end(taskID)
@@ -71,13 +91,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 		retReady := make(chan string) // 从此channel读取到Done表示所有host已返回结果
 		go cnMonitor(hostNum, allConn, retCh, retReady)
 
-		// traHosts, 用于获取文件列表和同步结果
-		fileMd5List, err := Traverse(mg.SrcPath)
-		if err != nil {
-			PrintInfor(err)
-			// 将tarErr以Message的形式发送给客户端, 待补充
-			return
-		}
 		sort.Strings(fileMd5List)
 		listMd5 := Md5OfASlice(fileMd5List)
 		TravHosts(targets, fileMd5List, md5s(listMd5), mg, diffCh, retCh, taskID)
@@ -207,7 +220,11 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	sort.Strings(localFilesMd5)
 
-	diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
+	if len(localFilesMd5) != 0 {
+		diffrm, diffadd := diff.DiffOnly(mg.MgStrings, localFilesMd5)
+	} else {
+		diffrm, diffadd := mg.MgStrings, localFilesMd5
+	}
 
 	// 重组成map
 	diffrmM := make(map[string]string)
