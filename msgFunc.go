@@ -149,12 +149,6 @@ func hdTask(mg *Message, gbc *gobConn) {
 
 		close(gos)
 
-		// 返回任务开始前的目录
-		err = os.Chdir(cwd)
-		if err != nil {
-			PrintInfor(err)
-		}
-
 	case "exec":
 		// 预留, 后期扩展;
 
