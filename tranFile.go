@@ -149,8 +149,8 @@ func hdTreeNode(conn net.Conn, fileStreamCh chan Message, treeConnFailed chan Me
 	for {
 		listMg, ok := <-fileStreamCh
 		if !ok {
-			break // 主动break会close conn, 会不会导致下游node panic? 有待深究!
-			// continue
+			// break // 主动break会close conn, 会不会导致下游node panic? 会!!!
+			continue // contine, 知道下游node主动关闭conn
 		}
 		// 从fileStreamCh中接收mg, 分发到conn的另一端
 		err := gbc.gobConnWt(listMg)
