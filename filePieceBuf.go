@@ -91,7 +91,7 @@ ENDFPBM:
 			}
 		case 1:
 			// lg.Println(sendPieces != 0 && sendPieces == allPieces)
-			DubugInfor(sendPieces != 0 && sendPieces == allPieces)
+			// DubugInfor(sendPieces != 0 && sendPieces == allPieces)
 			if sendPieces != 0 && sendPieces == allPieces {
 				close(getCh)
 				// lg.Println("getCh closed")
