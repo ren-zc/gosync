@@ -71,6 +71,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 				PrintInfor(err)
 				return
 			}
+			return
 		}
 		taskID := getTaskID()
 		t.put(taskID)
