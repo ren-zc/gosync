@@ -24,7 +24,8 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 	}
 	fpb.m[mg.MgName][mg.IntOption] = &mg
 	fpb.fs = append(fpb.fs, mg.MgName)
-	DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
+	// DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
+	DubugInfor(fpb.fs)
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
@@ -45,7 +46,7 @@ func (fpb *filePieceBuf) getFpb() Message {
 	}
 	fpb.i++
 	// var ok bool
-	DubugInfor(fpb.f, " ", fpb.i)
+	// DubugInfor(fpb.f, " ", fpb.i)
 	mg, ok := fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
