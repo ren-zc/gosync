@@ -141,6 +141,7 @@ CONNEND:
 				DubugInfor(err)
 				// *** 记录本地日志 ***
 			}
+			DubugInfor("send ", hR)
 			// 返回任务开始前的目录
 			err = os.Chdir(cwd)
 			if err != nil {
