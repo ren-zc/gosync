@@ -138,6 +138,7 @@ CONNEND:
 			DubugInfor("get hR")
 			err := gbc.gobConnWt(hR)
 			if err != nil {
+				DubugInfor(err)
 				// *** 记录本地日志 ***
 			}
 			// 返回任务开始前的目录
