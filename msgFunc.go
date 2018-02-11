@@ -201,6 +201,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	// 遍历本地目标路径失败
 	localFilesMd5, err := Traverse(mg.DstPath)
+	DubugInfor(localFilesMd5)
 	if err != nil {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID

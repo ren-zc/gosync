@@ -57,5 +57,6 @@ func Traverse(path string) ([]string, error) {
 		PrintInfor(fErr)
 		return nil, fErr
 	}
+	DubugInfor(md5List)
 	return md5List, nil
 }
