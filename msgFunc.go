@@ -201,7 +201,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	// 遍历本地目标路径失败
 	localFilesMd5, err := Traverse(mg.DstPath)
-	DubugInfor(localFilesMd5)
+	// DubugInfor(localFilesMd5)
 	if err != nil {
 		ret.TaskID = mg.TaskID
 		ret.MgID = mg.MgID
@@ -219,6 +219,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	var diffrm []string
 	var diffadd []string
+
+	DubugInfor(mg.MgStrings)
+	DubugInfor(localFilesMd5)
 
 	if len(localFilesMd5) != 0 {
 		diffrm, diffadd = diff.DiffOnly(mg.MgStrings, localFilesMd5)
