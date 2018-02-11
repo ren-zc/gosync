@@ -109,6 +109,7 @@ ENDCONN:
 					// err = fmt.Errorf("%s", hostMg.MgString)
 					errStr = hostMg.MgString
 				}
+				DubugInfor("the result will be pushed to retCh.")
 				putRetCh(hostIP(conn.RemoteAddr().String()), errStr, retCh)
 				if diffFlag != 1 {
 					diffFile.files = nil

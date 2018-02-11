@@ -353,7 +353,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 	err = gbc.gobConnWt(ret)
 	if err != nil {
 		// *** 记录本地日志 ***
-		return
 	}
 }
 
