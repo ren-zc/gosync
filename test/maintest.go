@@ -13,7 +13,7 @@ func main() {
 	// fmt.Println(err)
 	// s, _ := gosync.Md5OfAFile("gosync架构")
 	// fmt.Println(s)
-	s1, e1 := gosync.Traverse("/etc")
+	s1, e1 := gosync.Traverse("/tmp/testsrc")
 	// s1, e1 := gosync.Traverse("/data/mygo/src/github.com/jacenr/filediff")
 	for _, v := range s1 {
 		fmt.Println(v)
