@@ -229,6 +229,9 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		diffrm, diffadd = mg.MgStrings, localFilesMd5
 	}
 
+	DubugInfor(diffrm)
+	DubugInfor(diffadd)
+
 	if len(diffrm) == 0 && len(diffadd) == 0 {
 		var hR Message
 		hR.MgType = "result"
