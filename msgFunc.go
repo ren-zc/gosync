@@ -59,7 +59,8 @@ func hdTask(mg *Message, gbc *gobConn) {
 			return
 		}
 		DubugInfor(len(fileMd5List))
-		if fileMd5List[len(fileMd5List)-1] == ".,,Directory" {
+		// if fileMd5List[len(fileMd5List)-1] == ".,,Directory" {
+		if len(fileMd5List) == 0 {
 			var cr Message
 			cr.MgID = mg.MgID
 			cr.MgType = "result"

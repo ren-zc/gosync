@@ -58,5 +58,15 @@ func Traverse(path string) ([]string, error) {
 		return nil, fErr
 	}
 	// DubugInfor(md5List)
+	for i, v := range md5List {
+		if v == " " || v == ".,,Directory" {
+			continue
+		}
+		md5List = md5List[i:]
+		break
+	}
+	if md5List[len(md5List)-1] == ".,,Directory" {
+		return []string{}, nil
+	}
 	return md5List, nil
 }
