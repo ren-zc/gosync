@@ -186,7 +186,9 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 	var p = make([]byte, 4096)
 	var e = make([]byte, 0)
 	// var mgID = RandId()
+	DubugInfor(os.Getwd())
 	for _, file := range fileNames {
+		DubugInfor(file)
 		var f *os.File
 		var i int
 		f, err = os.Open(file)
@@ -225,9 +227,57 @@ func tranByFileList(fileStreamChList []chan Message, fileNames []string, Zip boo
 				break
 			} else {
 				// 待补充错误处理代码
+				DubugInfor(err)
+				break
 			}
 		}
 		f.Close()
 	}
 	return m, nil
+}
+
+func TranByFileListTest(fileNames []string) {
+	var m int
+	var err error
+	var p = make([]byte, 4096)
+	var e = make([]byte, 0)
+	// var mgID = RandId()
+	for _, file := range fileNames {
+		var f *os.File
+		var i int
+		f, err = os.Open(file)
+		if err != nil {
+			// 待补充
+		}
+		r := bufio.NewReader(f)
+		for {
+			var fp Message
+			var n int
+			m++
+			i++
+			n, err = r.Read(p)
+			if n > 0 {
+				if n < 4096 {
+					e = p[:n]
+				} else {
+					e = p
+				}
+			}
+			if n == 0 { // 有可能是个空文件
+				e = e[:0]
+				fp.B = true
+			}
+			fp.MgType = "fileStream"
+			fp.MgName = file
+			fp.MgByte = e
+			fp.IntOption = i
+			if err == io.EOF {
+				break
+			} else {
+				// 待补充错误处理代码
+			}
+			DubugInfor(fp)
+		}
+		f.Close()
+	}
 }
