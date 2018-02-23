@@ -95,7 +95,11 @@ CONNEND:
 		case "task":
 			hdTask(&mg, gbc) // 发起任务
 			DubugInfor(t)
-			changeDir()
+			// 返回任务开始前的目录
+			err := os.Chdir(cwd)
+			if err != nil {
+				PrintInfor(err)
+			}
 			break CONNEND
 		case "hostList":
 			getCh := make(chan Message)
@@ -118,7 +122,7 @@ CONNEND:
 				DubugInfor("allPieces setted")
 				allPieces = mg.IntOption
 			}
-			// DubugInfor(mg)
+			DubugInfor(mg)
 			putCh <- mg // ****** 若用channel传递指针有BUG!!!, 慎用 ******
 			sendPieces++
 			if allPieces > 0 && allPieces == (sendPieces-1) {
@@ -129,25 +133,11 @@ CONNEND:
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
-			// // 返回任务开始前的目录
-			// err := os.Chdir(cwd)
-			// if err != nil {
-			// 	PrintInfor(err)
-			// }
 			break CONNEND
 		default:
 			hdNoType(&mg, gbc)
 		}
 	}
-}
-
-// 返回任务开始前的目录
-func changeDir() {
-	err := os.Chdir(cwd)
-	if err != nil {
-		PrintInfor(err)
-	}
-
 }
 
 func hdFile(treeChiledNode []chan Message, getCh chan Message) {

@@ -27,7 +27,7 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 		fpb.fs = append(fpb.fs, mg.MgName)
 	}
 	// DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
-	// DubugInfor(fpb.fs)
+	DubugInfor(fpb.fs)
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
@@ -87,9 +87,9 @@ ENDFPBM:
 					getCh <- mg1
 					continue ENDFPBM
 				}
-				// DubugInfor(mg1)
+				DubugInfor(mg1)
 				fpb.putFpb(mg1)
-				// DubugInfor("mg1 putted")
+				DubugInfor("mg1 putted")
 			}
 		case 1:
 			// DubugInfor(sendPieces != 0 && sendPieces == allPieces)

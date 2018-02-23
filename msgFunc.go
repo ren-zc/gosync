@@ -202,7 +202,6 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 
 	// 遍历本地目标路径失败
 	localFilesMd5, err := Traverse(mg.DstPath)
-	defer changeDir()
 	// DubugInfor(localFilesMd5)
 	if err != nil {
 		ret.TaskID = mg.TaskID
@@ -374,7 +373,11 @@ func hdFileMd5List(mg *Message, gbc *gobConn) {
 		// *** 记录本地日志 ***
 	}
 	DubugInfor("send ", hR)
-
+	// 返回任务开始前的目录
+	err = os.Chdir(cwd)
+	if err != nil {
+		PrintInfor(err)
+	}
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
