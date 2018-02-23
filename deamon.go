@@ -134,7 +134,7 @@ CONNEND:
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
 			// 返回任务开始前的目录
-			err = os.Chdir(cwd)
+			err := os.Chdir(cwd)
 			if err != nil {
 				PrintInfor(err)
 			}
