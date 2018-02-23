@@ -133,15 +133,6 @@ CONNEND:
 		case "allFilesMd5List":
 			hdFileMd5List(&mg, gbc)
 			DubugInfor(t)
-			// *** 阻塞, 直到从channel读取同步结果 ***
-			hR := <-hostRetCh
-			DubugInfor("get hR")
-			err := gbc.gobConnWt(hR)
-			if err != nil {
-				DubugInfor(err)
-				// *** 记录本地日志 ***
-			}
-			DubugInfor("send ", hR)
 			// 返回任务开始前的目录
 			err = os.Chdir(cwd)
 			if err != nil {

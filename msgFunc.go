@@ -160,7 +160,7 @@ func hdTask(mg *Message, gbc *gobConn) {
 	}
 }
 
-func hdFileMd5List(mg *Message, gbc *gobConn) int {
+func hdFileMd5List(mg *Message, gbc *gobConn) {
 	var slinkNeedCreat = make(map[string]string)
 	var slinkNeedChange = make(map[string]string)
 	var needDelete = make([]string, 0)
@@ -180,7 +180,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) int {
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
-		return 1
+		return
 	}
 
 	t.put(mg.TaskID)
@@ -213,7 +213,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) int {
 		if err != nil {
 			// *** 记录本地日志 ***
 		}
-		return 1
+		return
 	}
 
 	sort.Strings(localFilesMd5)
@@ -233,13 +233,22 @@ func hdFileMd5List(mg *Message, gbc *gobConn) int {
 	DubugInfor(diffrm)
 	DubugInfor(diffadd)
 
-	if len(diffrm) == 0 && len(diffadd) == 0 { //****************统一修改为按此处理************
-		var hR Message
-		hR.MgType = "result"
-		hR.B = false
-		hR.MgString = "No file need be transfored."
-		hostRetCh <- hR
-		return 1
+	if len(diffrm) == 0 && len(diffadd) == 0 {
+		// var hR Message
+		// hR.MgType = "result"
+		// hR.B = false
+		// hR.MgString = "No file need be transfored."
+		// hostRetCh <- hR
+		ret.TaskID = mg.TaskID
+		ret.MgID = mg.MgID
+		ret.MgType = "result"
+		ret.MgString = "No file need be transfored."
+		ret.B = false
+		err = gbc.gobConnWt(ret)
+		if err != nil {
+			// *** 记录本地日志 ***
+		}
+		return
 	}
 
 	// 重组成map
@@ -332,7 +341,7 @@ func hdFileMd5List(mg *Message, gbc *gobConn) int {
 			// *** 记录本地日志 ***
 			// *** 待改进: 回滚操作或者提示哪些文件已被修改 ***
 		}
-		return 1
+		return
 	}
 
 	// do request needTrans files
@@ -354,7 +363,17 @@ func hdFileMd5List(mg *Message, gbc *gobConn) int {
 	if err != nil {
 		// *** 记录本地日志 ***
 	}
-	return 0
+
+	// *** 阻塞, 直到从channel读取同步结果 ***
+	hR := <-hostRetCh
+	DubugInfor("get hR")
+	err = gbc.gobConnWt(hR)
+	if err != nil {
+		DubugInfor(err)
+		// *** 记录本地日志 ***
+	}
+	DubugInfor("send ", hR)
+
 }
 
 func hdNoType(mg *Message, gbc *gobConn) {
