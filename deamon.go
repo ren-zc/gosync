@@ -158,9 +158,6 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 			}
 			break
 		}
-		// if mg.MgType != "fileStream" {
-		// 	continue
-		// }
 		DubugInfor("hdFile get Message: ", mg)
 
 		// 对所有message进行转发
@@ -202,7 +199,6 @@ func hdFile(treeChiledNode []chan Message, getCh chan Message) {
 	}
 
 	// 对传输的文件进行校验
-	// *** 校验代码写在此 ***
 	// 校验过程: 对每个文件先生成md5, 然后和map transFilesMd5中的md5做对比
 	// 若有一个文件的md5不匹配, 则打印不匹配的项, 待所有文件比对完成传输失败的结果
 	for file, md5 := range transFilesAndMd5 {

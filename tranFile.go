@@ -39,7 +39,7 @@ func tranFile(m md5s, tu *transUnit) {
 
 	n, _ := tranByFileList(treeChiledNode, fileNames, Zip, mgID)
 
-	// 调试用的message
+	// 测试用的message
 	// var mg0 Message
 	// mg0.MgID = RandId()
 	// mg0.MgType = "fileStream"

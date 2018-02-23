@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// 30分钟超时时间
+// i分钟超时时间
 func setTimer(fresher, ender, stop chan struct{}, i int) {
 	n := 0
 	tick := time.Tick(1 * time.Second)

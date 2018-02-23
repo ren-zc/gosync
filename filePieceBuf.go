@@ -26,12 +26,10 @@ func (fpb *filePieceBuf) putFpb(mg Message) {
 	if mg.IntOption == 1 {
 		fpb.fs = append(fpb.fs, mg.MgName)
 	}
-	// DubugInfor("putted ", fpb.m[mg.MgName][mg.IntOption])
 	DubugInfor(fpb.fs)
 }
 
 func (fpb *filePieceBuf) getFpb() Message {
-	// mg := &(Message{})
 	if fpb.f == "" {
 		l := len(fpb.fs)
 		if l == 0 {
@@ -47,12 +45,9 @@ func (fpb *filePieceBuf) getFpb() Message {
 		}
 	}
 	fpb.i++
-	// var ok bool
-	// DubugInfor(fpb.f, " ", fpb.i)
 	mg, ok := fpb.m[fpb.f][fpb.i]
 	if !ok {
 		fpb.i--
-		// DubugInfor("get failed.")
 		return Message{}
 	}
 	delete(fpb.m[fpb.f], fpb.i)
@@ -92,7 +87,6 @@ ENDFPBM:
 				DubugInfor("mg1 putted")
 			}
 		case 1:
-			// DubugInfor(sendPieces != 0 && sendPieces == allPieces)
 			if sendPieces != 0 && sendPieces == allPieces {
 				close(getCh)
 				DubugInfor("getCh closed")
@@ -128,20 +122,5 @@ ENDFPBM:
 		// }
 
 	}
-	// lg.Println("fpbMonitor end")
 	DubugInfor("fpbMonitor end")
 }
-
-/* 简单测试
-func fpbMonitor(fpb *filePieceBuf, putCh chan Message, getCh chan Message) {
-	// for {
-	// 	mg := <-putCh
-	// 	lg.Println(mg)
-	// 	getCh <- mg
-	// }
-	for v := range putCh {
-		lg.Println(v)
-		getCh <- v
-	}
-}
-*/
