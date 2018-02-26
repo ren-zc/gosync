@@ -1,5 +1,7 @@
 package gosync
 
+// 须改进: 以嵌套的方式处理message, 排除不必要的字段, 减小网络流量
+
 type Message struct {
 	TaskID    string
 	MgID      int    // reserved
