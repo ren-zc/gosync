@@ -1,40 +1,3 @@
-gosync架构
-
-目标机器队列 md5_sum fileidff/md5_sum_sum 文件压缩分发 分布式传输
-
-四种类型
-	同名未做改变 a
-	同名已被改变 b
-	不同名新文件 c
-	源端已删文件 d
-
-默认行为：
-	a b c
-		无须任何选项
-
-	不做判断，默认目标主机目录为空目录，直接执行同步
-
-更新行为(-u=true，默认false)：
-	a
-		无须任何选项，不会被同步
-	b
-		-o=true (overwrite)
-		默认true
-	c
-		无须任何选项，必被同步
-	d
-		-d=true (delete)
-		默认true
-
-	先同步源主机的md5 sum，由目标主机做比对（目的是确定a,b,c,d四类文件名）
-	然后再执行文件同步操作
-
-同步步骤：（暂定方案）
-	将所有目标主机放入队列
-	源主机从队列取出若干目标主机执行同步
-	和目标主机同步完成后，向源主机请求同步任务
-	源主机从队列取出若干目标主机回复给请求任务的主机
-	...直到队列变空...
 
 通信协议:
 	type Message struct {
@@ -57,7 +20,7 @@ gosync架构
 
 	}
 
-	src向个host发送file piece:
+	src向host发送file piece:
 		MgID
 		MgType: fileStream
 		MgName: 文件名
@@ -67,7 +30,7 @@ gosync架构
 		B 是否是当前file的最后一片
 		Z 传送的是否是zip元文件(需要解压缩)
 
-	gui向deamon发起任务：
+	gui client向deamon发起任务：
 		MgID: 会话ID
 		MgType: task
 		//MgName: DefaultSync/UpdateSync 二选一
@@ -124,7 +87,7 @@ gosync架构
 		MgStrings // 如果与下级的conn全部成功, 则反馈空的列表
 		MgString: "connRet"
 
-	像下级主机传递host list:
+	向下级主机传递host list:
 		MgType: "hostList"
 		MgStrings
 
@@ -144,7 +107,7 @@ gosync架构
 		MgID
 		MgType: live
 
-	向client返回所有host的同步结果:
+	向gui client返回所有host的同步结果:
 		MgID
 		MgType : "result"
 		m: allConn
@@ -158,43 +121,5 @@ gosync架构
 详细步骤
 	待补充
 
-
-算法2: branch alg2
-	默认同步模式
-		准备md5 sum
-		准备目标主机列表
-			和所有主机建立连接, 创建map[ipStr]struct{conn,restult}
-			向每台主机发送md5和zip的md5
-		开始同步
-			如果有zip选项, zip并生成zip文件的md5
-			首先根据主机列表创建网络
-			读取文件流至网络
-			接收各主机反馈
-
-		各主机端:
-			接收连接conn1, 和源主机通信, 接收md5, 反馈同步结果
-			接收分主机连接conn2, 接收文件流并分发给下级主机, 校对结果, 并通过channel把结果发送给conn1
-
-	更新同步模式
-		准备md5 sum
-		准备目标主机列表
-			和所有主机建立连接, 创建map[ipStr]struct{conn,restult}和map[md5][]host
-			向每台主机发送md5和zip的md5
-			接收各主机md5反馈, 根据反馈结果分类存入map[md5][]host
-		对每个类别分别进行同步
-			如果有zip选项, 生成zip和zip文件md5
-			首先根据主机列表创建网络
-			读取文件流至网络
-			接收各主机反馈
-
-		各主机端:
-			接收连接conn1, 和源主机通信, 接收md5, 反馈比对和同步结果
-			接收分主机连接conn2, 接收文件流并分发给下级主机, 校对结果, 并通过channel把结果发送给conn1
-
-
-
 消息确认机制有待完善
-连接写入或读取超时机制有待完善
 
-
-// ****** test ******
