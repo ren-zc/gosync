@@ -44,9 +44,10 @@ A sync tools by golang. Sync files from one node to one or more nodes.
 ```
 3. 在源节点执行客户端程序;  
 ```
-[root@QCLOUD_KOK_10 jacenr]# ./gosyncClient -t="10.10.30.207,10.10.30.208,10.10.30.209" -dst="/tmp/testdst" -src="/tmp/testsrc" -d=true
+[root@QCLOUD_KOK_10 jacenr]# 
+./gosyncClient -t="10.10.30.207,10.10.30.208,10.10.30.209" -dst="/tmp/testdst" -src="/tmp/testsrc" -d=true
 ```
-	说明:  
+	注:  
 		-t string 目标主机列表(后期考虑从文件中读取列表)  
 		-dst string 目标主机目录  
 		-src string 源主机目录  
