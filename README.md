@@ -25,7 +25,83 @@ A sync tools by golang. Sync files from one node to one or more nodes.
 
 ### 第一层连接   
 源主机节点和所有的目标主机节点建立连接;  
+用于传输源文件列表, 返回请求文件列表, 及同步结果.  
 ![chart1](https://github.com/jacenr/gosync/blob/alg2/Screenshots/gosync_p1.png)  
 ### 第二层连接   
 按类别建立起连接树;  
+用于传输文件数据流.  
 ![chart1](https://github.com/jacenr/gosync/blob/alg2/Screenshots/gosync_p2.png)  
+
+### 使用帮助   
+1. 编译服务端文件和客户端文件;  
+```
+[root@QCLOUD_KOK_10 gosync]# go build main/gosyncClient.go 
+[root@QCLOUD_KOK_10 gosync]# go build main/gosyncServer.go
+```
+2. 在所有主机节点运行服务端程序;  
+```
+[root@QCLOUD_KOK_10 jacenr]# ./gosyncServer
+```
+3. 在源节点执行客户端程序;  
+```
+[root@QCLOUD_KOK_10 jacenr]# ./gosyncClient -t="10.10.30.207,10.10.30.208,10.10.30.209" -dst="/tmp/testdst" -src="/tmp/testsrc" -d=true
+```
+	说明:  
+		-t string 目标主机列表(后期考虑从文件中读取列表)  
+		-dst string 目标主机目录  
+		-src string 源主机目录  
+		-d bool 删除源主机目录中不存在的文件和目录  
+		-z bool 是否启用zip压缩, 节省流量, 加快传输  
+			此选项未在示例中使用  
+4. 执行结果:
+```
+同步前:
+源主机
+[root@QCLOUD_KOK_10 tmp]# tree testsrc
+testsrc
+├── d1
+│   ├── f1s -> f1.txt
+│   ├── f1.txt
+│   ├── f2.txt
+│   ├── f3s -> f3.txt
+│   └── f3.txt
+├── d2
+├── f3s -> f3.txt
+├── f3.txt
+├── f4.txt
+├── f5s -> f5.txt
+└── f5.txt
+目标主机
+[root@QCLOUD_KOK_10 tmp]# tree testdst
+testdst
+├── d1
+│   ├── f1s -> f1.txt
+│   ├── f1.txt
+│   ├── f2.txt
+│   ├── f4s -> f4.txt
+│   └── f4.txt
+├── d3
+├── f3s -> f3.txt
+├── f3.txt
+├── f4.txt
+├── f6s -> f6.txt
+└── f6.txt
+
+同步后:
+目标主机
+[root@QCLOUD_KOK_10 tmp]# tree testdst
+testdst
+├── d1
+│   ├── f1s -> f1.txt
+│   ├── f1.txt
+│   ├── f2.txt
+│   ├── f3s -> f3.txt
+│   └── f3.txt
+├── d2
+├── f3s -> f3.txt
+├── f3.txt
+├── f4.txt
+├── f5s -> f5.txt
+└── f5.txt
+
+```
