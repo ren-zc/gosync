@@ -25,7 +25,7 @@ func init() {
 	q := []string{}
 	t = &Tasks{q, "", Complated}
 	hostRetCh = make(chan Message, 1)
-	DebugFlag = true
+	DebugFlag = false
 	goTus = 4
 	// gob.Register(errors.New("")) // gob register errors.errorString bug
 }
