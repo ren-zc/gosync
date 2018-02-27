@@ -16,8 +16,8 @@ func Client() {
 	var lsnPort string
 	var srcpath string
 	var dstpath string
-	flag.StringVar(&lsnHost, "h", "127.0.0.1", "Please tell me the host ip which you want listen on.")
-	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port which you want listen on.")
+	flag.StringVar(&lsnHost, "h", "127.0.0.1", "Please tell me the host which is the source host.")
+	flag.StringVar(&lsnPort, "p", "8999", "Please tell me the port of source host.")
 	flag.StringVar(&srcpath, "src", ".", "Please specify the src file or directory path.")
 	flag.BoolVar(&overwrite, "o", true, "Whether the modified files will be overwriten.")
 	flag.BoolVar(&deletion, "d", false, "Whether the redundant files will be deleted.")

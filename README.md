@@ -42,6 +42,11 @@ A sync tools by golang. Sync files from one node to one or more nodes.
 ```
 [root@QCLOUD_KOK_10 jacenr]# ./gosyncServer
 ```
+	选项:  
+		-h string 指定监听ip地址  
+		-p string 指定监听的端口  
+		-n int 指定每个同步类别下的并发数, 即同时向几个目标主机传输文件流  
+
 3. 在源节点执行客户端程序;  
 ```
 [root@QCLOUD_KOK_10 jacenr]# 
@@ -54,6 +59,9 @@ A sync tools by golang. Sync files from one node to one or more nodes.
 		-d bool 删除源主机目录中不存在的文件和目录  
 		-z bool 是否启用zip压缩, 节省流量, 加快传输  
 			此选项未在示例中使用  
+	或使用 -h 和 -p选项向某源主机发起同步任务;  
+		-h string 指定源主机的ip地址  
+		-p string 指定源主机的端口  
 4. 执行结果:
 ```
 同步前:
